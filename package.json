@@ -1,0 +1,18 @@
+{
+  "name": "skills-ontology",
+  "version": "1.0.0",
+  "description": "Intelligent skill management and retrieval for Claude Code",
+  "bin": {
+    "skills-ontology": "./bin/cli.js"
+  },
+  "scripts": {
+    "install-plugin": "node install.js",
+    "uninstall-plugin": "node uninstall.js",
+    "validate": "node src/validate.js"
+  },
+  "keywords": ["claude-code", "skills", "ontology", "plugin"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

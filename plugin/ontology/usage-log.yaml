@@ -1,0 +1,13 @@
+# Skills Usage Log — append entries after sessions using 2+ skills
+# Tracks skill combinations to strengthen/weaken graph edges over time
+
+entries: []
+# Entry schema:
+#   - date: "YYYY-MM-DD"
+#     skills_used: [skill-a, skill-b]
+#     chain_used: chain-name    # or null if ad-hoc
+#     chain_complete: true      # did the full chain execute?
+#     outcome: success          # success | partial | failed
+#     notes: "optional context"
+#
+# Auto-populated by hooks. See .claude/rules/ontology-lifecycle.md for rules.
