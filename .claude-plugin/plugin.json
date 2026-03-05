@@ -1,0 +1,11 @@
+{
+  "name": "skills-ontology",
+  "description": "Intelligent skill management and retrieval for Claude Code",
+  "version": "1.2.0",
+  "author": {
+    "name": "skills-ontology contributors"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/anthropics/skills-ontology",
+  "repository": "https://github.com/anthropics/skills-ontology"
+}

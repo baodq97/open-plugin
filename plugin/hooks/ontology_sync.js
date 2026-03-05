@@ -10,8 +10,19 @@ const fs = require("fs");
 const path = require("path");
 
 function findProjectRoot() {
-  // Walk up from this script: .claude/hooks/ontology_sync.js → project root
-  return path.resolve(__dirname, "..", "..");
+  // 1) Claude may provide explicit project root.
+  if (process.env.CLAUDE_PROJECT_DIR) {
+    const candidate = path.resolve(process.env.CLAUDE_PROJECT_DIR);
+    if (fs.existsSync(path.join(candidate, ".claude"))) return candidate;
+  }
+
+  // 2) Most reliable for plugin-native hooks: current working directory.
+  const cwd = path.resolve(process.cwd());
+  if (fs.existsSync(path.join(cwd, ".claude"))) return cwd;
+
+  // 3) Backward compatibility for copied hooks at .claude/hooks/*.js.
+  const legacy = path.resolve(__dirname, "..", "..");
+  return legacy;
 }
 
 function main() {

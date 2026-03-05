@@ -15,22 +15,36 @@ Intelligent skill management and retrieval for Claude Code. Turns flat `.claude/
 | No usage tracking | Append-only log with outcome tracking |
 | Manual catalog maintenance | Auto-sync hooks detect drift on every file edit |
 
-## Install
+## Install (Claude plugin standard)
 
 ```bash
 git clone <this-repo>
 cd <repo-folder>
 
-# Install into any Claude Code project
+# Load plugin directly (recommended)
+claude --plugin-dir .
+```
+
+Plugin metadata is in:
+
+- `.claude-plugin/plugin.json`
+- `commands/`
+- `hooks/` (`hooks/hooks.json` + scripts)
+
+## Legacy install (optional)
+
+If you still want to copy files into a target project's `.claude/`:
+
+```bash
 node install.js /path/to/your-project
 ```
 
-Or with the CLI:
+Or with CLI:
 ```bash
 node bin/cli.js install /path/to/your-project
 ```
 
-The installer:
+Legacy installer does:
 1. Copies hooks, rules, commands into `.claude/`
 2. Scans existing skills and builds `registry.yaml`
 3. Creates skeleton `graph.yaml` and `chains.yaml`
@@ -46,7 +60,22 @@ Removes all ontology files, hooks, and rules. Your skills are untouched.
 
 ## How it works
 
-### Files installed into your project
+### Claude plugin structure (in this repository)
+
+```text
+.claude-plugin/
+  plugin.json
+commands/
+  ontology-build.md
+  ontology-stats.md
+  ontology-graph.md
+hooks/
+  hooks.json
+  ontology_sync.js
+  ontology_track_skill.js
+```
+
+### Ontology files (in target project)
 
 ```
 .claude/
@@ -55,15 +84,7 @@ Removes all ontology files, hooks, and rules. Your skills are untouched.
     graph.yaml                 # Relationship graph (prerequisite, complementary, etc.)
     chains.yaml                # Pre-defined skill sequences
     usage-log.yaml             # Append-only usage tracking
-  hooks/
-    ontology_sync.js           # Detects drift when skill files change
-    ontology_track_skill.js    # Tracks skill usage per session
-    build_registry.js          # Rebuilds registry from skill sources
-  rules/
-    skill-routing.md           # Routing algorithm (always in Claude's context)
-    ontology-lifecycle.md      # Auto-update behavioral rules
-  commands/
-    ontology-build.md          # /ontology-build slash command
+  # populated by build command + hooks during usage
 ```
 
 ### Auto-update loops
@@ -95,6 +116,7 @@ Removes all ontology files, hooks, and rules. Your skills are untouched.
 ## Commands
 
 ```bash
+claude --plugin-dir .            # Run as plugin-native mode
 node install.js [path]           # Install plugin
 node uninstall.js [path]         # Remove plugin
 node src/validate.js [path]      # Validate ontology

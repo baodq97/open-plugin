@@ -8,6 +8,16 @@
 
 ```
 open-plugin/
+├── .claude-plugin/
+│   └── plugin.json             # Claude plugin manifest (official format)
+├── commands/                   # Plugin commands (official format)
+│   ├── ontology-build.md
+│   ├── ontology-stats.md
+│   └── ontology-graph.md
+├── hooks/                      # Plugin hooks (official format)
+│   ├── hooks.json
+│   ├── ontology_sync.js
+│   └── ontology_track_skill.js
 ├── install.js              # Install into target project
 ├── uninstall.js            # Clean removal
 ├── bin/cli.js              # CLI entry (install|uninstall|validate|build|adjust)
@@ -22,7 +32,7 @@ open-plugin/
 │       ├── html.js         # Self-contained HTML with force-directed SVG
 │       ├── mermaid.js      # Mermaid diagram syntax
 │       └── ascii.js        # Terminal box-drawing art
-├── plugin/                 # Files copied into target .claude/
+├── plugin/                 # Legacy template source for installer mode
 │   ├── hooks/
 │   │   ├── ontology_sync.js         # Drift + version detection
 │   │   └── ontology_track_skill.js  # Usage tracking
