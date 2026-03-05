@@ -26,6 +26,8 @@ describe("Claude plugin standard structure", () => {
       "hooks/hooks.json",
       "hooks/ontology_sync.js",
       "hooks/ontology_track_skill.js",
+      "rules/skill-routing.md",
+      "rules/ontology-lifecycle.md",
     ]) {
       assert.ok(fs.existsSync(path.join(ROOT, rel)), `Missing ${rel}`);
     }

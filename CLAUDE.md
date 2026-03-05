@@ -18,12 +18,12 @@ open-plugin/
 │   ├── hooks.json
 │   ├── ontology_sync.js
 │   └── ontology_track_skill.js
-├── install.js              # Install into target project
-├── uninstall.js            # Clean removal
-├── bin/cli.js              # CLI entry (install|uninstall|validate|build|adjust)
+├── rules/                      # Plugin rules (official format)
+│   ├── skill-routing.md
+│   └── ontology-lifecycle.md
+├── bin/cli.js              # CLI entry (validate|build|adjust|graph)
 ├── src/
 │   ├── build-registry.js   # Scan skills → generate registry.yaml + suggest edges/chains
-│   ├── patch-settings.js   # Merge hooks into settings.local.json (cross-platform)
 │   ├── validate.js         # Validate ontology consistency
 │   ├── adjust-strengths.js # Auto-adjust graph edge strengths from usage log
 │   ├── generate-graph.js   # Core: YAML → { nodes[], edges[] } graph data
@@ -32,18 +32,6 @@ open-plugin/
 │       ├── html.js         # Self-contained HTML with force-directed SVG
 │       ├── mermaid.js      # Mermaid diagram syntax
 │       └── ascii.js        # Terminal box-drawing art
-├── plugin/                 # Legacy template source for installer mode
-│   ├── hooks/
-│   │   ├── ontology_sync.js         # Drift + version detection
-│   │   └── ontology_track_skill.js  # Usage tracking
-│   ├── rules/
-│   │   ├── skill-routing.md         # Routing algorithm
-│   │   └── ontology-lifecycle.md    # Auto-update rules
-│   ├── commands/
-│   │   ├── ontology-build.md        # /ontology-build
-│   │   ├── ontology-stats.md        # /ontology-stats
-│   │   └── ontology-graph.md        # /ontology-graph
-│   └── ontology/                    # YAML templates
 ├── test/                   # node:test suite (82+ tests)
 ├── LICENSE                 # MIT
 └── .npmignore
@@ -53,8 +41,8 @@ open-plugin/
 
 - **CommonJS** — broadest Node.js compatibility (18+), no build step
 - **Zero dependencies** — only `fs`, `path`, `os` from Node stdlib
-- **Cross-platform hooks** — `node -e "try{require(...)}catch{}"` (works on bash, cmd, powershell)
-- **Idempotent** — install.js won't duplicate hooks or overwrite graph/chains
+- **Plugin-native layout** — `.claude-plugin/plugin.json` + root `commands/`, `hooks/`, `rules/`
+- **Cross-platform hooks** — hook commands execute via `node hooks/*.js`
 - **graph.yaml + chains.yaml preserved** — only registry.yaml is auto-regenerated
 - **Auto-suggestion** — suggestEdges() and suggestChains() propose initial graph/chain structure
 
@@ -62,13 +50,12 @@ open-plugin/
 
 ```bash
 npm test                     # Full test suite (node:test)
-node install.js /tmp/test    # Manual install test
-node src/validate.js /tmp/test
-node uninstall.js /tmp/test
+node bin/cli.js build .
+node src/validate.js .
 ```
 
 ## Conventions
 - CommonJS (`require`/`module.exports`), `"use strict"`
 - No external dependencies — stdlib only
-- Hook scripts use `__dirname` to find project root (no shell-specific commands)
+- Hook scripts use `process.cwd()`/`CLAUDE_PROJECT_DIR` to resolve project root
 - Tests use `node:test` built-in runner, `node:assert/strict`

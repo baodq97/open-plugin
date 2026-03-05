@@ -10,10 +10,8 @@ function usage() {
   console.log("Skills Ontology — Claude Code Plugin");
   console.log();
   console.log("Usage:");
-  console.log("  npx skills-ontology install [path]     Install into a project");
-  console.log("  npx skills-ontology uninstall [path]    Remove from a project");
-  console.log("  npx skills-ontology validate [path]     Validate ontology");
   console.log("  npx skills-ontology build [path]        Rebuild registry");
+  console.log("  npx skills-ontology validate [path]     Validate ontology");
   console.log("  npx skills-ontology adjust [path]       Auto-adjust graph strengths from usage log");
   console.log("  npx skills-ontology graph [path] [opts] Visualize the ontology graph");
   console.log("    --format=html|mermaid|ascii|json      Output format (default: html)");
@@ -22,16 +20,6 @@ function usage() {
 }
 
 switch (command) {
-  case "install": {
-    process.argv = [process.argv[0], process.argv[1], target || "."];
-    require(path.join(__dirname, "..", "install.js"));
-    break;
-  }
-  case "uninstall": {
-    process.argv = [process.argv[0], process.argv[1], target || "."];
-    require(path.join(__dirname, "..", "uninstall.js"));
-    break;
-  }
   case "validate": {
     const { validate } = require(path.join(__dirname, "..", "src", "validate.js"));
     process.exit(validate(path.resolve(target || ".")));

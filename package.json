@@ -10,17 +10,13 @@
     "bin/",
     "commands/",
     "hooks/",
+    "rules/",
     "src/",
-    "plugin/",
-    "install.js",
-    "uninstall.js",
     "README.md",
     "CLAUDE.md"
   ],
   "scripts": {
     "test": "node --test --test-concurrency=1 test/*.test.js",
-    "install-plugin": "node install.js",
-    "uninstall-plugin": "node uninstall.js",
     "validate": "node src/validate.js"
   },
   "keywords": [

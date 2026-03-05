@@ -15,8 +15,8 @@ describe("ontology_sync.js hook", () => {
 
   beforeEach(() => {
     tmpDir = makeTempDir("hooks-sync");
-    fs.mkdirSync(path.join(tmpDir, ".claude"), { recursive: true });
-    execFileSync("node", [path.join(PLUGIN_DIR, "install.js"), tmpDir]);
+    fs.mkdirSync(path.join(tmpDir, ".claude", "ontology"), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, ".claude", "ontology", "registry.yaml"), "skills:\n");
   });
 
   afterEach(() => cleanup(tmpDir));
@@ -24,12 +24,12 @@ describe("ontology_sync.js hook", () => {
   it("detects drift when new skill added", () => {
     // Build initial registry with one skill
     createSkill(tmpDir, "existing-skill", { version: '"1.0"' });
-    execFileSync("node", [path.join(PLUGIN_DIR, "install.js"), tmpDir]);
+    execFileSync("node", [path.join(PLUGIN_DIR, "src", "build-registry.js"), tmpDir]);
 
     // Add a new skill without rebuilding
     createSkill(tmpDir, "new-skill", { version: '"1.0"' });
 
-    const output = execFileSync("node", [path.join(tmpDir, ".claude", "hooks", "ontology_sync.js")], {
+    const output = execFileSync("node", [path.join(PLUGIN_DIR, "hooks", "ontology_sync.js")], {
       env: { ...process.env, CLAUDE_FILE_PATH: "" },
       cwd: tmpDir,
     }).toString();
@@ -40,14 +40,14 @@ describe("ontology_sync.js hook", () => {
 
   it("detects stale token estimate", () => {
     createSkill(tmpDir, "growing-skill", { version: '"1.0"', description: '"A skill"' });
-    execFileSync("node", [path.join(PLUGIN_DIR, "install.js"), tmpDir]);
+    execFileSync("node", [path.join(PLUGIN_DIR, "src", "build-registry.js"), tmpDir]);
 
     // Make the skill much larger
     const skillPath = path.join(tmpDir, ".claude", "skills", "growing-skill", "SKILL.md");
     const bigContent = "---\nversion: 1.0\n---\n" + "x\n".repeat(500);
     fs.writeFileSync(skillPath, bigContent);
 
-    const output = execFileSync("node", [path.join(tmpDir, ".claude", "hooks", "ontology_sync.js")], {
+    const output = execFileSync("node", [path.join(PLUGIN_DIR, "hooks", "ontology_sync.js")], {
       env: { ...process.env, CLAUDE_FILE_PATH: ".claude/skills/growing-skill/SKILL.md" },
       cwd: tmpDir,
     }).toString();
@@ -73,7 +73,7 @@ describe("ontology_track_skill.js hook", () => {
   });
 
   it("tracks skill invocation", () => {
-    const hookPath = path.join(PLUGIN_DIR, "plugin", "hooks", "ontology_track_skill.js");
+    const hookPath = path.join(PLUGIN_DIR, "hooks", "ontology_track_skill.js");
     execFileSync("node", [hookPath], {
       env: { ...process.env, CLAUDE_TOOL_INPUT: '{"skill_name": "test-skill"}' },
     });
@@ -85,7 +85,7 @@ describe("ontology_track_skill.js hook", () => {
   });
 
   it("outputs ONTOLOGY-TRACK after 2+ skills", () => {
-    const hookPath = path.join(PLUGIN_DIR, "plugin", "hooks", "ontology_track_skill.js");
+    const hookPath = path.join(PLUGIN_DIR, "hooks", "ontology_track_skill.js");
 
     // First call — no output expected
     execFileSync("node", [hookPath], {
@@ -107,7 +107,7 @@ describe("ontology_track_skill.js hook", () => {
   });
 
   it("ignores empty tool input", () => {
-    const hookPath = path.join(PLUGIN_DIR, "plugin", "hooks", "ontology_track_skill.js");
+    const hookPath = path.join(PLUGIN_DIR, "hooks", "ontology_track_skill.js");
     // Should not throw
     execFileSync("node", [hookPath], {
       env: { ...process.env, CLAUDE_TOOL_INPUT: "" },

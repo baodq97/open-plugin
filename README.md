@@ -30,33 +30,7 @@ Plugin metadata is in:
 - `.claude-plugin/plugin.json`
 - `commands/`
 - `hooks/` (`hooks/hooks.json` + scripts)
-
-## Legacy install (optional)
-
-If you still want to copy files into a target project's `.claude/`:
-
-```bash
-node install.js /path/to/your-project
-```
-
-Or with CLI:
-```bash
-node bin/cli.js install /path/to/your-project
-```
-
-Legacy installer does:
-1. Copies hooks, rules, commands into `.claude/`
-2. Scans existing skills and builds `registry.yaml`
-3. Creates skeleton `graph.yaml` and `chains.yaml`
-4. Patches `settings.local.json` with PostToolUse hooks
-
-## Uninstall
-
-```bash
-node uninstall.js /path/to/your-project
-```
-
-Removes all ontology files, hooks, and rules. Your skills are untouched.
+- `rules/`
 
 ## How it works
 
@@ -73,6 +47,9 @@ hooks/
   hooks.json
   ontology_sync.js
   ontology_track_skill.js
+rules/
+  skill-routing.md
+  ontology-lifecycle.md
 ```
 
 ### Ontology files (in target project)
@@ -117,8 +94,9 @@ hooks/
 
 ```bash
 claude --plugin-dir .            # Run as plugin-native mode
-node install.js [path]           # Install plugin
-node uninstall.js [path]         # Remove plugin
+node bin/cli.js build [path]     # Rebuild registry
+node bin/cli.js adjust [path]    # Auto-adjust graph strengths
+node bin/cli.js graph [path]     # Visualize graph
 node src/validate.js [path]      # Validate ontology
 node src/build-registry.js [path] # Rebuild registry only
 ```
