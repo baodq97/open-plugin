@@ -41,10 +41,37 @@ function validate(targetDir) {
 
   // Helper: extract skill names from chain definitions
   const extractChainSkills = (content) => {
-    const matches = content.match(/^ +- ([a-z][a-z0-9-]*)/gm) || [];
-    return [
-      ...new Set(matches.map((m) => m.trim().replace(/^- /, "").replace(/ *#.*/, ""))),
-    ].sort();
+    const names = new Set();
+
+    // Inline array syntax: skills: [skill-a, skill-b]
+    for (const match of content.matchAll(/^\s+skills:\s*\[([^\]]*)\]\s*$/gm)) {
+      const items = match[1]
+        .split(",")
+        .map((s) => s.trim().replace(/^["']|["']$/g, ""))
+        .filter(Boolean);
+      for (const item of items) names.add(item);
+    }
+
+    // YAML list syntax:
+    // skills:
+    //   - skill-a
+    //   - skill-b
+    const lines = content.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      if (!/^\s+skills:\s*$/.test(lines[i])) continue;
+      for (let j = i + 1; j < lines.length; j++) {
+        const listMatch = lines[j].match(/^\s+-\s+([a-z][a-z0-9-]*)/);
+        if (listMatch) {
+          names.add(listMatch[1]);
+          continue;
+        }
+        if (/^\s*$/.test(lines[j])) continue;
+        if (!/^\s+/.test(lines[j])) break;
+        break;
+      }
+    }
+
+    return [...names].sort();
   };
 
   const registryPath = path.join(ontology, "registry.yaml");

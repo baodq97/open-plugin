@@ -4,10 +4,12 @@
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const { loadManifest } = require("./src/manifest");
 
 function main() {
   const target = path.resolve(process.argv[2] || ".");
   const claude = path.join(target, ".claude");
+  const manifest = loadManifest(__dirname);
 
   console.log(`Uninstalling Skills Ontology plugin from: ${target}`);
 
@@ -18,26 +20,11 @@ function main() {
     console.log("  Removed: .claude/ontology/");
   }
 
-  // Remove hooks
-  for (const name of ["ontology_sync.js", "ontology_track_skill.js", "build_registry.js"]) {
-    const p = path.join(claude, "hooks", name);
-    if (fs.existsSync(p)) fs.unlinkSync(p);
+  const managedTargets = (manifest.copyFiles || []).map((f) => path.join(target, f.to));
+  for (const filePath of managedTargets) {
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
   }
-  console.log("  Removed: ontology hooks");
-
-  // Remove rules
-  for (const name of ["skill-routing.md", "ontology-lifecycle.md"]) {
-    const p = path.join(claude, "rules", name);
-    if (fs.existsSync(p)) fs.unlinkSync(p);
-  }
-  console.log("  Removed: ontology rules");
-
-  // Remove commands
-  for (const cmd of ["ontology-build.md", "ontology-stats.md", "ontology-graph.md"]) {
-    const cmdFile = path.join(claude, "commands", cmd);
-    if (fs.existsSync(cmdFile)) fs.unlinkSync(cmdFile);
-  }
-  console.log("  Removed: ontology commands");
+  console.log("  Removed: plugin-managed hooks, rules, and commands");
 
   // Clean up empty directories
   for (const sub of ["hooks", "rules", "commands"]) {
@@ -53,13 +40,23 @@ function main() {
     try {
       const settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
       const hooks = settings.hooks || {};
+      const managedCommands = new Set((manifest.settingsHooks || []).map((h) => h.command));
+      const managedScripts = (manifest.settingsHooks || [])
+        .map((h) => h.script)
+        .filter(Boolean);
 
       for (const event of Object.keys(hooks)) {
         hooks[event] = hooks[event]
           .map((entry) => ({
             ...entry,
             hooks: (entry.hooks || []).filter(
-              (h) => !/ontology/.test(h.command || "")
+              (h) => {
+                const command = h.command || "";
+                if (h.managedBy === manifest.id) return false;
+                if (managedCommands.has(command)) return false;
+                if (managedScripts.some((script) => command.includes(script))) return false;
+                return true;
+              }
             ),
           }))
           .filter((entry) => entry.hooks && entry.hooks.length > 0);

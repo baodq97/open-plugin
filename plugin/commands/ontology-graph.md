@@ -17,9 +17,10 @@ Visualize the skills ontology as an interactive graph.
 
 4. If the user wants an interactive view, run:
    ```bash
-   node .claude/hooks/build_registry.js && node -e "require('.claude/hooks/build_registry.js')" || true
+   node .claude/hooks/build_registry.js
+   npx skills-ontology graph
    ```
-   Then suggest: `npx skills-ontology graph` to open the interactive HTML visualization.
+   This rebuilds the registry and opens the interactive HTML visualization.
 
 5. The Mermaid diagram should follow this structure:
    ```mermaid

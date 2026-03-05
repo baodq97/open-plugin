@@ -3,34 +3,26 @@
 
 const fs = require("fs");
 const path = require("path");
+const { loadManifest } = require("./src/manifest");
 
 const PLUGIN_DIR = __dirname;
 
 function main() {
   const target = path.resolve(process.argv[2] || ".");
   const claude = path.join(target, ".claude");
+  const manifest = loadManifest(PLUGIN_DIR);
 
   console.log(`Installing Skills Ontology plugin into: ${target}`);
 
   // ── 1. Copy plugin files ───────────────────────────────────────────
-  for (const sub of ["ontology", "hooks", "rules", "commands"]) {
+  for (const sub of manifest.pluginDirectories || []) {
     fs.mkdirSync(path.join(claude, sub), { recursive: true });
   }
 
-  const copies = [
-    ["plugin/hooks/ontology_sync.js", ".claude/hooks/ontology_sync.js"],
-    ["plugin/hooks/ontology_track_skill.js", ".claude/hooks/ontology_track_skill.js"],
-    ["plugin/rules/skill-routing.md", ".claude/rules/skill-routing.md"],
-    ["plugin/rules/ontology-lifecycle.md", ".claude/rules/ontology-lifecycle.md"],
-    ["plugin/commands/ontology-build.md", ".claude/commands/ontology-build.md"],
-    ["plugin/commands/ontology-stats.md", ".claude/commands/ontology-stats.md"],
-    ["plugin/commands/ontology-graph.md", ".claude/commands/ontology-graph.md"],
-    ["plugin/ontology/usage-log.yaml", ".claude/ontology/usage-log.yaml"],
-    ["src/build-registry.js", ".claude/hooks/build_registry.js"],
-  ];
-
-  for (const [src, dst] of copies) {
-    fs.copyFileSync(path.join(PLUGIN_DIR, src), path.join(target, dst));
+  for (const file of manifest.copyFiles) {
+    const src = path.join(PLUGIN_DIR, file.from);
+    const dst = path.join(target, file.to);
+    fs.copyFileSync(src, dst);
   }
   console.log("  Copied: hooks, rules, commands, ontology templates");
 
@@ -53,12 +45,8 @@ function main() {
     console.log("  Built: registry.yaml, graph.yaml, chains.yaml");
   } else {
     console.log("  No skills found — creating empty ontology files");
-    for (const name of ["registry-empty.yaml", "graph-empty.yaml", "chains-empty.yaml"]) {
-      const dst = name.replace("-empty", "");
-      fs.copyFileSync(
-        path.join(PLUGIN_DIR, "plugin", "ontology", name),
-        path.join(claude, "ontology", dst)
-      );
+    for (const tpl of manifest.emptyOntologyTemplates || []) {
+      fs.copyFileSync(path.join(PLUGIN_DIR, tpl.from), path.join(target, tpl.to));
     }
   }
 

@@ -19,7 +19,7 @@ Intelligent skill management and retrieval for Claude Code. Turns flat `.claude/
 
 ```bash
 git clone <this-repo>
-cd skills-ontology
+cd <repo-folder>
 
 # Install into any Claude Code project
 node install.js /path/to/your-project

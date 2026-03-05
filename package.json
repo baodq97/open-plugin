@@ -15,7 +15,7 @@
     "CLAUDE.md"
   ],
   "scripts": {
-    "test": "node --test --test-concurrency=1 'test/*.test.js'",
+    "test": "node --test --test-concurrency=1 test/*.test.js",
     "install-plugin": "node install.js",
     "uninstall-plugin": "node uninstall.js",
     "validate": "node src/validate.js"

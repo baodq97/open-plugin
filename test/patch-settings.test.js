@@ -83,4 +83,14 @@ describe("patchSettings", () => {
     patchSettings(settingsPath);
     assert.ok(fs.existsSync(settingsPath));
   });
+
+  it("recovers from malformed JSON settings", () => {
+    fs.writeFileSync(settingsPath, "{ invalid json");
+    patchSettings(settingsPath);
+
+    const settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+    assert.ok(settings.hooks);
+    assert.ok(settings.hooks.PostToolUse);
+    assert.equal(settings.hooks.PostToolUse.length, 2);
+  });
 });

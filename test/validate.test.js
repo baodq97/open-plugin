@@ -46,4 +46,27 @@ describe("validate", () => {
     const errors = validate(tmpDir);
     assert.ok(errors > 0);
   });
+
+  it("detects invalid chain skills in inline array syntax", () => {
+    createSkill(tmpDir, "registered-skill", { version: '"1.0"' });
+    buildRegistry(tmpDir);
+
+    fs.writeFileSync(
+      path.join(tmpDir, ".claude", "ontology", "chains.yaml"),
+      [
+        "chains:",
+        "  test-chain:",
+        '    description: "demo"',
+        '    when: "demo"',
+        "    skills: [registered-skill, missing-skill]",
+        "    optional: []",
+        "    estimated_tokens: 123",
+        "",
+      ].join("\n")
+    );
+    fs.writeFileSync(path.join(tmpDir, ".claude", "ontology", "usage-log.yaml"), "entries: []\n");
+
+    const errors = validate(tmpDir);
+    assert.ok(errors > 0);
+  });
 });

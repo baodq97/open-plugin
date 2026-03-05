@@ -53,4 +53,21 @@ describe("uninstall.js", () => {
     execFileSync("node", [path.join(PLUGIN_DIR, "uninstall.js"), tmpDir]);
     assert.ok(fs.existsSync(path.join(tmpDir, ".claude", "skills", "keep-me", "SKILL.md")));
   });
+
+  it("preserves non-plugin hooks that mention ontology text", () => {
+    const settingsPath = path.join(tmpDir, ".claude", "settings.local.json");
+    const settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+    settings.hooks = settings.hooks || {};
+    settings.hooks.PostToolUse = settings.hooks.PostToolUse || [];
+    settings.hooks.PostToolUse.push({
+      matcher: "Write",
+      hooks: [{ type: "command", command: "echo ontology-helper" }],
+    });
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
+
+    execFileSync("node", [path.join(PLUGIN_DIR, "uninstall.js"), tmpDir]);
+    const updated = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+    const remainingHooks = (updated.hooks?.PostToolUse || []).flatMap((entry) => entry.hooks || []);
+    assert.ok(remainingHooks.some((h) => h.command === "echo ontology-helper"));
+  });
 });
