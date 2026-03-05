@@ -19,8 +19,8 @@ function patchSettings(settingsPath) {
   const postHooks = (hooks.PostToolUse = hooks.PostToolUse || []);
 
   // ── Hook 1: Ontology sync on skill file changes ────────────────────
-  // Uses relative path — Claude Code hooks run from project root
-  const syncCmd = "node .claude/hooks/ontology_sync.js 2>/dev/null; exit 0";
+  // Cross-platform: node -e wraps require in try/catch (works on bash, cmd, powershell)
+  const syncCmd = 'node -e "try{require(\'.claude/hooks/ontology_sync.js\')}catch(e){}"';
 
   const hasSyncHook = postHooks.some(
     (entry) =>
@@ -43,7 +43,7 @@ function patchSettings(settingsPath) {
   }
 
   // ── Hook 2: Skill usage tracking ──────────────────────────────────
-  const trackCmd = "node .claude/hooks/ontology_track_skill.js 2>/dev/null; exit 0";
+  const trackCmd = 'node -e "try{require(\'.claude/hooks/ontology_track_skill.js\')}catch(e){}"';
 
   const hasTrackHook = postHooks.some(
     (entry) =>

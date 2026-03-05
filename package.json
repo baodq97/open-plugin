@@ -1,16 +1,43 @@
 {
   "name": "skills-ontology",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Intelligent skill management and retrieval for Claude Code",
   "bin": {
     "skills-ontology": "./bin/cli.js"
   },
+  "files": [
+    "bin/",
+    "src/",
+    "plugin/",
+    "install.js",
+    "uninstall.js",
+    "README.md",
+    "CLAUDE.md"
+  ],
   "scripts": {
+    "test": "node --test --test-concurrency=1 'test/*.test.js'",
     "install-plugin": "node install.js",
     "uninstall-plugin": "node uninstall.js",
     "validate": "node src/validate.js"
   },
-  "keywords": ["claude-code", "skills", "ontology", "plugin"],
+  "keywords": [
+    "claude-code",
+    "skills",
+    "ontology",
+    "plugin",
+    "mcp",
+    "claude",
+    "ai-tools"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anthropics/skills-ontology.git"
+  },
+  "homepage": "https://github.com/anthropics/skills-ontology#readme",
+  "bugs": {
+    "url": "https://github.com/anthropics/skills-ontology/issues"
+  },
+  "author": "",
   "license": "MIT",
   "engines": {
     "node": ">=18"

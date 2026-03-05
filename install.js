@@ -23,6 +23,8 @@ function main() {
     ["plugin/rules/skill-routing.md", ".claude/rules/skill-routing.md"],
     ["plugin/rules/ontology-lifecycle.md", ".claude/rules/ontology-lifecycle.md"],
     ["plugin/commands/ontology-build.md", ".claude/commands/ontology-build.md"],
+    ["plugin/commands/ontology-stats.md", ".claude/commands/ontology-stats.md"],
+    ["plugin/commands/ontology-graph.md", ".claude/commands/ontology-graph.md"],
     ["plugin/ontology/usage-log.yaml", ".claude/ontology/usage-log.yaml"],
     ["src/build-registry.js", ".claude/hooks/build_registry.js"],
   ];

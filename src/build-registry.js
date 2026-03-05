@@ -29,6 +29,7 @@ function buildRegistry(targetDir) {
   ];
 
   let count = 0;
+  const skillEntries = []; // collect for graph suggestion
 
   for (const name of fs.readdirSync(skillsDir).sort()) {
     const dir = path.join(skillsDir, name);
@@ -72,61 +73,211 @@ function buildRegistry(targetDir) {
       `    token_estimate: ${tokenEstimate}`
     );
 
+    skillEntries.push({ name, domain, phase, tokenEstimate });
     count++;
   }
 
   fs.writeFileSync(path.join(ontologyDir, "registry.yaml"), lines.join("\n") + "\n");
   console.log(`Registry: ${count} skills indexed`);
 
-  // Create graph.yaml skeleton if not exists
+  // Create graph.yaml — with auto-suggested edges for new graphs
   const graphPath = path.join(ontologyDir, "graph.yaml");
   if (!fs.existsSync(graphPath)) {
-    fs.writeFileSync(
-      graphPath,
-      [
+    const edges = suggestEdges(skillEntries);
+    if (edges.length) {
+      const edgeLines = [
         "# Skills Relationship Graph — edges between skills",
         "# 6 types: prerequisite, complementary, alternative, orchestrates, evolves, enhances",
+        "# Auto-suggested edges — review and refine",
         "",
-        "edges: []",
-        "# Edge schema:",
-        "#   - from: skill-a",
-        "#     to: skill-b",
-        "#     type: prerequisite",
-        "#     strength: 80",
-        '#     note: "why"',
-        "",
-      ].join("\n")
-    );
-    console.log("Graph: created skeleton (add edges manually)");
+        "edges:",
+      ];
+      for (const e of edges) {
+        edgeLines.push(
+          `  - from: ${e.from}`,
+          `    to: ${e.to}`,
+          `    type: ${e.type}`,
+          `    strength: ${e.strength}`,
+          `    note: "${e.note}"`,
+        );
+      }
+      edgeLines.push("");
+      fs.writeFileSync(graphPath, edgeLines.join("\n"));
+      console.log(`Graph: created with ${edges.length} auto-suggested edges`);
+    } else {
+      fs.writeFileSync(
+        graphPath,
+        [
+          "# Skills Relationship Graph — edges between skills",
+          "# 6 types: prerequisite, complementary, alternative, orchestrates, evolves, enhances",
+          "",
+          "edges: []",
+          "# Edge schema:",
+          "#   - from: skill-a",
+          "#     to: skill-b",
+          "#     type: prerequisite",
+          "#     strength: 80",
+          '#     note: "why"',
+          "",
+        ].join("\n")
+      );
+      console.log("Graph: created skeleton (add edges manually)");
+    }
   } else {
     console.log("Graph: already exists (kept)");
   }
 
-  // Create chains.yaml skeleton if not exists
+  // Create chains.yaml — with auto-suggested chains for new files
   const chainsPath = path.join(ontologyDir, "chains.yaml");
   if (!fs.existsSync(chainsPath)) {
-    fs.writeFileSync(
-      chainsPath,
-      [
+    const tokenMap = {};
+    for (const e of skillEntries) tokenMap[e.name] = e.tokenEstimate;
+    const chains = suggestChains(skillEntries, tokenMap);
+
+    if (chains.length) {
+      const chainLines = [
         "# Pre-defined Skill Chains — common task sequences",
+        "# Auto-suggested chains — review and refine",
         "",
-        "chains: {}",
-        "# Chain schema:",
-        "#   chain-name:",
-        '#     description: "what this chain does"',
-        '#     when: "when to use it"',
-        "#     skills: [skill-a, skill-b]",
-        "#     optional: [skill-b]",
-        "#     estimated_tokens: 2000",
-        "",
-      ].join("\n")
-    );
-    console.log("Chains: created skeleton (add chains manually)");
+        "chains:",
+      ];
+      for (const c of chains) {
+        chainLines.push(
+          `  ${c.name}:`,
+          `    description: "${c.description}"`,
+          `    when: "${c.when}"`,
+          `    skills: [${c.skills.join(", ")}]`,
+          `    optional: []`,
+          `    estimated_tokens: ${c.estimated_tokens}`,
+        );
+      }
+      chainLines.push("");
+      fs.writeFileSync(chainsPath, chainLines.join("\n"));
+      console.log(`Chains: created with ${chains.length} auto-suggested chain(s)`);
+    } else {
+      fs.writeFileSync(
+        chainsPath,
+        [
+          "# Pre-defined Skill Chains — common task sequences",
+          "",
+          "chains: {}",
+          "# Chain schema:",
+          "#   chain-name:",
+          '#     description: "what this chain does"',
+          '#     when: "when to use it"',
+          "#     skills: [skill-a, skill-b]",
+          "#     optional: [skill-b]",
+          "#     estimated_tokens: 2000",
+          "",
+        ].join("\n")
+      );
+      console.log("Chains: created skeleton (add chains manually)");
+    }
   } else {
     console.log("Chains: already exists (kept)");
   }
 
   return count;
+}
+
+/**
+ * Suggest graph edges based on domain/phase overlaps.
+ * @param {{ name: string, domain: string, phase: string }[]} entries
+ * @returns {{ from: string, to: string, type: string, strength: number, note: string }[]}
+ */
+function suggestEdges(entries) {
+  if (entries.length < 2) return [];
+  const edges = [];
+  const seen = new Set();
+
+  const phaseOrder = ["requirements", "design", "implementation", "testing", "review", "deployment"];
+
+  // Sequential phases within same domain → prerequisite edges
+  for (let i = 0; i < entries.length; i++) {
+    for (let j = i + 1; j < entries.length; j++) {
+      const a = entries[i], b = entries[j];
+      if (a.domain !== b.domain || a.domain === "general") continue;
+
+      const ai = phaseOrder.indexOf(a.phase);
+      const bi = phaseOrder.indexOf(b.phase);
+      if (ai >= 0 && bi >= 0 && ai !== bi) {
+        const [from, to] = ai < bi ? [a, b] : [b, a];
+        const key = `${from.name}→${to.name}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          edges.push({
+            from: from.name, to: to.name, type: "prerequisite",
+            strength: 60, note: `${from.phase} before ${to.phase} in ${a.domain}`,
+          });
+        }
+      }
+    }
+  }
+
+  // Same domain + same phase → complementary edges
+  for (let i = 0; i < entries.length; i++) {
+    for (let j = i + 1; j < entries.length; j++) {
+      const a = entries[i], b = entries[j];
+      if (a.domain !== b.domain || a.domain === "general") continue;
+      if (a.phase !== b.phase) continue;
+      const key = `${a.name}↔${b.name}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        edges.push({
+          from: a.name, to: b.name, type: "complementary",
+          strength: 50, note: `both ${a.phase} skills in ${a.domain}`,
+        });
+      }
+    }
+  }
+
+  return edges;
+}
+
+/**
+ * Suggest chains from domain+phase clusters with 3+ skills.
+ * @param {{ name: string, domain: string, phase: string }[]} entries
+ * @param {Object} tokenMap - { skillName: tokenEstimate }
+ * @returns {{ name: string, description: string, when: string, skills: string[], estimated_tokens: number }[]}
+ */
+function suggestChains(entries, tokenMap) {
+  const phaseOrder = ["requirements", "design", "implementation", "testing", "review", "deployment"];
+
+  // Group by domain
+  const byDomain = {};
+  for (const e of entries) {
+    if (e.domain === "general") continue;
+    (byDomain[e.domain] = byDomain[e.domain] || []).push(e);
+  }
+
+  const chains = [];
+  for (const [domain, skills] of Object.entries(byDomain)) {
+    if (skills.length < 3) continue;
+
+    // Sort by phase order
+    const sorted = skills
+      .filter((s) => phaseOrder.includes(s.phase))
+      .sort((a, b) => phaseOrder.indexOf(a.phase) - phaseOrder.indexOf(b.phase));
+
+    if (sorted.length < 3) continue;
+
+    // Check that we have at least 2 distinct phases
+    const phases = new Set(sorted.map((s) => s.phase));
+    if (phases.size < 2) continue;
+
+    const skillNames = sorted.map((s) => s.name);
+    const tokens = skillNames.reduce((sum, n) => sum + (tokenMap[n] || 0), 0);
+
+    chains.push({
+      name: `${domain}-workflow`,
+      description: `Full ${domain} workflow from ${sorted[0].phase} to ${sorted[sorted.length - 1].phase}`,
+      when: `Working on ${domain} tasks end-to-end`,
+      skills: skillNames,
+      estimated_tokens: tokens,
+    });
+  }
+
+  return chains;
 }
 
 /** Parse YAML frontmatter from --- delimited block */
@@ -135,28 +286,62 @@ function parseFrontmatter(content) {
   if (!match) return {};
   const block = match[1];
   const meta = {};
-  for (const line of block.split("\n")) {
-    const m = line.match(/^(\w+):\s*(.+)/);
-    if (m) {
-      let val = m[2].trim();
-      // Strip quotes
-      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-        val = val.slice(1, -1);
-      }
-      // Strip YAML pipe indicator
-      if (val === "|") {
-        // Multi-line: collect indented lines
-        const idx = block.indexOf(line);
-        const rest = block.slice(idx + line.length + 1);
-        const multiLines = [];
-        for (const l of rest.split("\n")) {
-          if (/^\s+/.test(l)) multiLines.push(l.trim());
-          else break;
-        }
-        val = multiLines.join(" ");
-      }
-      meta[m[1]] = val;
+  const lines = block.split("\n");
+
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^(\w[\w-]*):\s*(.*)/);
+    if (!m) continue;
+
+    let val = m[2].trim();
+
+    // Strip inline comments (but not inside quotes)
+    if (!val.startsWith('"') && !val.startsWith("'")) {
+      val = val.replace(/\s+#.*$/, "");
     }
+
+    // Strip quotes
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    // YAML pipe/block scalar
+    else if (val === "|" || val === ">") {
+      const multiLines = [];
+      for (let j = i + 1; j < lines.length; j++) {
+        if (/^\s+/.test(lines[j])) multiLines.push(lines[j].trim());
+        else break;
+      }
+      val = multiLines.join(val === "|" ? "\n" : " ");
+    }
+    // YAML inline array: [a, b, c]
+    else if (val.startsWith("[") && val.endsWith("]")) {
+      val = val
+        .slice(1, -1)
+        .split(",")
+        .map((s) => s.trim().replace(/^["']|["']$/g, ""))
+        .filter(Boolean);
+    }
+    // YAML list items (- item on following lines)
+    else if (val === "") {
+      const items = [];
+      for (let j = i + 1; j < lines.length; j++) {
+        const listMatch = lines[j].match(/^\s+-\s+(.*)/);
+        if (listMatch) items.push(listMatch[1].trim().replace(/^["']|["']$/g, ""));
+        else if (/^\s+/.test(lines[j])) continue; // skip blank indented
+        else break;
+      }
+      if (items.length) val = items;
+      else continue; // skip empty keys with no list
+    }
+    // Booleans
+    else if (/^(true|false|yes|no)$/i.test(val)) {
+      val = /^(true|yes)$/i.test(val);
+    }
+    // Numbers
+    else if (/^-?\d+(\.\d+)?$/.test(val)) {
+      val = Number(val);
+    }
+
+    meta[m[1]] = val;
   }
   return meta;
 }
@@ -203,4 +388,4 @@ if (require.main === module) {
   buildRegistry(path.resolve(target));
 }
 
-module.exports = { buildRegistry };
+module.exports = { buildRegistry, parseFrontmatter, suggestEdges, suggestChains, inferDomain, inferPhase, extractTriggers };

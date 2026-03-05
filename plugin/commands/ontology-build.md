@@ -2,13 +2,24 @@ Rebuild the skills ontology from source skill files.
 
 ## Instructions
 
-1. Scan all `.claude/skills/*/SKILL.md` and `.claude/skills/*/skill.md` files
-2. For each skill, extract from YAML frontmatter: name, version, description
-3. Infer from description + body: domain, phase, input_type, output_type, triggers
-4. Count file lines and estimate tokens (lines * 4)
-5. Regenerate `.claude/ontology/registry.yaml` with all skills
-6. Validate `.claude/ontology/graph.yaml` — flag any edges referencing missing skills
-7. Validate `.claude/ontology/chains.yaml` — flag any chains with missing skills
-8. Report: total skills found, new skills added, removed skills, graph coverage gaps
+1. Run the automated registry builder first:
+   ```bash
+   node .claude/hooks/build_registry.js
+   ```
+   This scans all `.claude/skills/*/SKILL.md` files, extracts frontmatter, and regenerates `.claude/ontology/registry.yaml`.
 
-Do NOT modify `graph.yaml` or `chains.yaml` automatically — only report issues for manual review. Do NOT touch `usage-log.yaml`.
+2. Review the console output for skill count, graph status, and chains status.
+
+3. Validate the generated ontology:
+   - Check `.claude/ontology/graph.yaml` — flag any edges referencing missing skills
+   - Check `.claude/ontology/chains.yaml` — flag any chains with missing skills
+   - If graph.yaml has suggested edges (from auto-generation), review and refine them
+
+4. If graph.yaml is empty or has no edges, suggest 3-5 initial edges based on:
+   - Skills sharing the same `domain` → `complementary` edges
+   - Skills in sequential `phase` order → `prerequisite` edges
+   - Skills that orchestrate others → `orchestrates` edges
+
+5. Report: total skills found, new skills added, removed skills, graph coverage gaps.
+
+Do NOT modify `usage-log.yaml`. Only modify `graph.yaml` or `chains.yaml` if explicitly asked — otherwise report suggestions for manual review.

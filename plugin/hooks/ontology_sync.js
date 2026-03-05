@@ -60,7 +60,8 @@ function main() {
       if (!fs.existsSync(skillFile)) skillFile = path.join(skillsDir, skillName, "skill.md");
 
       if (fs.existsSync(skillFile)) {
-        const lines = fs.readFileSync(skillFile, "utf-8").split("\n").length;
+        const content = fs.readFileSync(skillFile, "utf-8");
+        const lines = content.split("\n").length;
         const expected = Math.round(lines * 3.8);
 
         // Extract current estimate from registry
@@ -74,6 +75,16 @@ function main() {
               `File has ${lines} lines (~${expected} tokens). Update registry.yaml.`
             );
           }
+        }
+
+        // Version drift detection
+        const versionMatch = content.match(/^version:\s*"?([^"\n]+)"?/m);
+        const regVersionMatch = regContent.match(new RegExp(`^ {2}${skillName}:[\\s\\S]*?version: "?([^"\\n]+)"?`, "m"));
+        if (versionMatch && regVersionMatch && versionMatch[1].trim() !== regVersionMatch[1].trim()) {
+          console.log(
+            `ONTOLOGY-VERSION: ${skillName} version changed from "${regVersionMatch[1].trim()}" to "${versionMatch[1].trim()}". ` +
+            `Update registry.yaml.`
+          );
         }
       }
     }

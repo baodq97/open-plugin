@@ -33,9 +33,11 @@ function main() {
   console.log("  Removed: ontology rules");
 
   // Remove commands
-  const cmdFile = path.join(claude, "commands", "ontology-build.md");
-  if (fs.existsSync(cmdFile)) fs.unlinkSync(cmdFile);
-  console.log("  Removed: ontology-build command");
+  for (const cmd of ["ontology-build.md", "ontology-stats.md", "ontology-graph.md"]) {
+    const cmdFile = path.join(claude, "commands", cmd);
+    if (fs.existsSync(cmdFile)) fs.unlinkSync(cmdFile);
+  }
+  console.log("  Removed: ontology commands");
 
   // Clean up empty directories
   for (const sub of ["hooks", "rules", "commands"]) {
