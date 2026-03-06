@@ -2,60 +2,62 @@
 
 ## Project Overview
 
-**Skills Ontology** — a cross-platform Claude Code plugin (pure Node.js, zero dependencies) that adds intelligent skill management and retrieval to any project.
+**open-plugins** — an open-source Claude Code plugin marketplace containing multiple plugins.
 
 ## Structure
 
 ```
-open-plugin/
+open-plugins/
 ├── .claude-plugin/
-│   └── plugin.json             # Claude plugin manifest (official format)
-├── commands/                   # Plugin commands (official format)
-│   ├── ontology-build.md
-│   ├── ontology-stats.md
-│   └── ontology-graph.md
-├── hooks/                      # Plugin hooks (official format)
-│   ├── hooks.json
-│   ├── ontology_sync.js
-│   └── ontology_track_skill.js
-├── rules/                      # Plugin rules (official format)
-│   ├── skill-routing.md
-│   └── ontology-lifecycle.md
-├── bin/cli.js              # CLI entry (validate|build|adjust|graph)
-├── src/
-│   ├── build-registry.js   # Scan skills → generate registry.yaml + suggest edges/chains
-│   ├── validate.js         # Validate ontology consistency
-│   ├── adjust-strengths.js # Auto-adjust graph edge strengths from usage log
-│   ├── generate-graph.js   # Core: YAML → { nodes[], edges[] } graph data
-│   ├── graph.js            # CLI graph command (format dispatch + file output)
-│   └── renderers/
-│       ├── html.js         # Self-contained HTML with force-directed SVG
-│       ├── mermaid.js      # Mermaid diagram syntax
-│       └── ascii.js        # Terminal box-drawing art
-├── test/                   # node:test suite (82+ tests)
-├── LICENSE                 # MIT
+│   └── marketplace.json              # Marketplace manifest (lists all plugins)
+├── plugins/
+│   ├── vbounce/                      # V-Bounce AI-Native SDLC Orchestrator
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── skills/                   # 10 skills (orchestrator + 9 sub-agents)
+│   │   │   ├── vbounce/              # Main orchestrator + workflow references
+│   │   │   ├── vbounce-requirements/
+│   │   │   ├── vbounce-design/
+│   │   │   ├── vbounce-implementation/
+│   │   │   ├── vbounce-review/
+│   │   │   ├── vbounce-testing/
+│   │   │   ├── vbounce-deployment/
+│   │   │   ├── vbounce-knowledge/
+│   │   │   ├── vbounce-quality-gate/
+│   │   │   └── vbounce-traceability/
+│   │   └── agents/                   # 2 agents
+│   │       ├── implementation-engineer.md
+│   │       └── traceability-analyst.md
+│   └── skills-ontology/              # Skills Ontology plugin
+│       ├── .claude-plugin/plugin.json
+│       ├── commands/
+│       ├── hooks/
+│       ├── rules/
+│       ├── src/
+│       ├── bin/
+│       └── test/
+├── LICENSE
 └── .npmignore
 ```
 
 ## Key Decisions
 
-- **CommonJS** — broadest Node.js compatibility (18+), no build step
-- **Zero dependencies** — only `fs`, `path`, `os` from Node stdlib
-- **Plugin-native layout** — `.claude-plugin/plugin.json` + root `commands/`, `hooks/`, `rules/`
-- **Cross-platform hooks** — hook commands execute via `node hooks/*.js`
-- **graph.yaml + chains.yaml preserved** — only registry.yaml is auto-regenerated
-- **Auto-suggestion** — suggestEdges() and suggestChains() propose initial graph/chain structure
+- **Marketplace-first** — repo is a plugin marketplace, each plugin is self-contained under `plugins/`
+- **Each plugin has its own `.claude-plugin/plugin.json`**
+- **Root `marketplace.json`** registers all plugins with name, description, source path, category
+
+## Conventions
+
+### skills-ontology plugin
+- CommonJS (`require`/`module.exports`), `"use strict"`
+- No external dependencies — stdlib only
+- Tests use `node:test` built-in runner
+
+### vbounce plugin
+- Pure skill/agent definitions (markdown + YAML frontmatter)
+- No code dependencies
 
 ## Test
 
 ```bash
-npm test                     # Full test suite (node:test)
-node bin/cli.js build .
-node src/validate.js .
+cd plugins/skills-ontology && npm test
 ```
-
-## Conventions
-- CommonJS (`require`/`module.exports`), `"use strict"`
-- No external dependencies — stdlib only
-- Hook scripts use `process.cwd()`/`CLAUDE_PROJECT_DIR` to resolve project root
-- Tests use `node:test` built-in runner, `node:assert/strict`

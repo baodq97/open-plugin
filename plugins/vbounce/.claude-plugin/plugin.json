@@ -1,0 +1,9 @@
+{
+  "name": "vbounce",
+  "description": "V-Bounce AI-Native SDLC Orchestrator — 9 specialized sub-agents for complete software development lifecycle with quality gates, traceability, and knowledge capture",
+  "version": "2.0.0",
+  "author": {
+    "name": "open-plugins contributors"
+  },
+  "license": "MIT"
+}

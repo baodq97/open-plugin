@@ -1,3 +1,8 @@
+---
+description: Visualize the skills ontology as a graph
+allowed-tools: [Bash, Read, Glob]
+---
+
 Visualize the skills ontology as a graph.
 
 ## Instructions

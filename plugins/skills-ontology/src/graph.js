@@ -3,7 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { execSync } = require("child_process");
+const { execFileSync } = require("child_process");
 const { generateGraph } = require("./generate-graph");
 const { renderHtml } = require("./renderers/html");
 const { renderMermaid } = require("./renderers/mermaid");
@@ -90,8 +90,7 @@ function tryOpen(filePath) {
   if (!cmd) return;
 
   try {
-    const arg = process.platform === "win32" ? `"${filePath}"` : filePath;
-    execSync(`${cmd} ${arg}`, { stdio: "ignore" });
+    execFileSync(cmd, [filePath], { stdio: "ignore" });
   } catch {
     console.log(`  Open manually: file://${path.resolve(filePath)}`);
   }

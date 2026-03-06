@@ -30,13 +30,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/anthropics/skills-ontology.git"
+    "url": "https://github.com/anthropics/open-plugins.git",
+    "directory": "plugins/skills-ontology"
   },
-  "homepage": "https://github.com/anthropics/skills-ontology#readme",
+  "homepage": "https://github.com/anthropics/open-plugins/tree/main/plugins/skills-ontology#readme",
   "bugs": {
-    "url": "https://github.com/anthropics/skills-ontology/issues"
+    "url": "https://github.com/anthropics/open-plugins/issues"
   },
-  "author": "",
+  "author": "open-plugins contributors",
   "license": "MIT",
   "engines": {
     "node": ">=18"

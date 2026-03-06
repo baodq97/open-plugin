@@ -3,6 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { parseGraphEdges: parseEdgesRaw } = require("../hooks/yaml-helpers");
 
 /**
  * Domain color palette — consistent across all renderers.
@@ -103,34 +104,12 @@ function parseRegistryNodes(content) {
 }
 
 /**
- * Parse graph.yaml into edge objects.
+ * Parse graph.yaml into edge objects with style information.
+ * Delegates raw parsing to hooks/yaml-helpers.js to avoid duplication.
  */
 function parseGraphEdges(content) {
-  const edges = [];
-  let current = null;
-
-  for (const line of content.split("\n")) {
-    if (line.match(/^\s*- from:/)) {
-      if (current) edges.push(current);
-      current = { from: line.match(/from:\s*(\S+)/)[1] };
-    } else if (current) {
-      const toMatch = line.match(/^\s+to:\s*(\S+)/);
-      if (toMatch) current.to = toMatch[1];
-      const typeMatch = line.match(/^\s+type:\s*(\S+)/);
-      if (typeMatch) current.type = typeMatch[1];
-      const strMatch = line.match(/^\s+strength:\s*(\d+)/);
-      if (strMatch) current.strength = parseInt(strMatch[1], 10);
-      const noteMatch = line.match(/^\s+note:\s*"?([^"]*)"?/);
-      if (noteMatch) current.note = noteMatch[1];
-    }
-  }
-  if (current) edges.push(current);
-
-  return edges.map((e) => ({
+  return parseEdgesRaw(content).map((e) => ({
     ...e,
-    strength: e.strength || 50,
-    type: e.type || "complementary",
-    note: e.note || "",
     style: EDGE_STYLES[e.type] || EDGE_STYLES.complementary,
   }));
 }

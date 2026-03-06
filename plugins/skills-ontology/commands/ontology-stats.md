@@ -1,3 +1,8 @@
+---
+description: Analyze skills usage patterns from the ontology usage log
+allowed-tools: [Read, Glob]
+---
+
 Analyze skills usage patterns from the ontology usage log.
 
 ## Instructions

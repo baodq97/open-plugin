@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "open-plugins",
+  "version": "1.0.0",
+  "description": "Open-source Claude Code plugin marketplace — SDLC orchestration, skill management, and more",
+  "owner": {
+    "name": "open-plugins contributors"
+  },
+  "plugins": [
+    {
+      "name": "vbounce",
+      "description": "V-Bounce AI-Native SDLC Orchestrator — 9 specialized sub-agents for complete software development lifecycle with quality gates, traceability, and knowledge capture",
+      "source": "./plugins/vbounce",
+      "category": "development",
+      "version": "2.0.0"
+    },
+    {
+      "name": "skills-ontology",
+      "description": "Intelligent skill management and retrieval — scan skills, build registries, validate ontology consistency, auto-adjust graph strengths, and generate visual graphs",
+      "source": "./plugins/skills-ontology",
+      "category": "productivity",
+      "version": "1.2.0"
+    }
+  ]
+}

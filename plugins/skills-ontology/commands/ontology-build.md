@@ -1,3 +1,8 @@
+---
+description: Rebuild the skills ontology from source skill files
+allowed-tools: [Bash, Read, Write, Glob]
+---
+
 Rebuild the skills ontology from source skill files.
 
 ## Instructions
