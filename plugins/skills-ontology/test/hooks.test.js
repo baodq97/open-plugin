@@ -63,13 +63,13 @@ describe("ontology_track_skill.js hook", () => {
 
   beforeEach(() => {
     tmpDir = makeTempDir("hooks-track");
-    const tracker = path.join(os.tmpdir(), "claude-ontology-session.yaml");
+    const tracker = path.join(os.tmpdir(), "claude-ontology-session-default.yaml");
     try { fs.unlinkSync(tracker); } catch { /* ok */ }
   });
 
   afterEach(() => {
     cleanup(tmpDir);
-    const tracker = path.join(os.tmpdir(), "claude-ontology-session.yaml");
+    const tracker = path.join(os.tmpdir(), "claude-ontology-session-default.yaml");
     try { fs.unlinkSync(tracker); } catch { /* ok */ }
   });
 
@@ -81,7 +81,7 @@ describe("ontology_track_skill.js hook", () => {
       encoding: "utf-8",
     });
 
-    const tracker = path.join(os.tmpdir(), "claude-ontology-session.yaml");
+    const tracker = path.join(os.tmpdir(), "claude-ontology-session-default.yaml");
     assert.ok(fs.existsSync(tracker));
     const content = fs.readFileSync(tracker, "utf-8");
     assert.ok(content.includes("test-skill"));
@@ -95,7 +95,7 @@ describe("ontology_track_skill.js hook", () => {
       encoding: "utf-8",
     });
 
-    const tracker = path.join(os.tmpdir(), "claude-ontology-session.yaml");
+    const tracker = path.join(os.tmpdir(), "claude-ontology-session-default.yaml");
     assert.ok(fs.existsSync(tracker), "Session tracker should exist after first call");
 
     const output = execFileSync("node", [hookPath], {
@@ -113,7 +113,7 @@ describe("ontology_track_skill.js hook", () => {
       encoding: "utf-8",
     });
 
-    const tracker = path.join(os.tmpdir(), "claude-ontology-session.yaml");
+    const tracker = path.join(os.tmpdir(), "claude-ontology-session-default.yaml");
     assert.ok(!fs.existsSync(tracker));
   });
 });

@@ -227,19 +227,15 @@ vbounce_state:
     #   feature_paused_at: implementation
 ```
 
-## Speckit Bridge
+## Integration with External Artifacts
 
-V-Bounce and Speckit are **separate workflows** per CLAUDE.md:
-- **Speckit** = file-driven pipeline for feature lifecycle (committed artifacts)
-- **V-Bounce** = interactive SDLC orchestrator (session-scoped, advisory)
-
-However, V-Bounce quality-gate and traceability agents CAN be invoked on Speckit artifacts:
-- Run quality-gate on `spec.md` (requirements criteria) or `plan.md` (design criteria)
-- Run traceability on `spec.md` + `plan.md` + `tasks.md` to build a coverage map
+V-Bounce quality-gate and traceability agents can validate existing project artifacts:
+- Run quality-gate on requirements docs (requirements criteria) or design docs (design criteria)
+- Run traceability on spec + plan + task files to build a coverage map
 
 ## Integration
 
-Use Claude built-in skills:
+Use Claude built-in skills for document generation:
 - **docx**: PRD, deployment plans, reports
 - **xlsx**: Traceability matrix, metrics, coverage
 - **pptx**: Architecture presentations

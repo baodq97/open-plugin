@@ -19,8 +19,9 @@ function main() {
   const skillName = toolInput.skill || "";
   if (!skillName) return;
 
-  // Session tracker in temp directory (cross-platform)
-  const tracker = path.join(os.tmpdir(), "claude-ontology-session.yaml");
+  // Session tracker in temp directory (cross-platform, session-scoped)
+  const sessionId = process.env.CLAUDE_SESSION_ID || "default";
+  const tracker = path.join(os.tmpdir(), `claude-ontology-session-${sessionId}.yaml`);
 
   // Append skill with timestamp
   const entry = `  - skill: ${skillName}\n    time: ${new Date().toISOString()}\n`;

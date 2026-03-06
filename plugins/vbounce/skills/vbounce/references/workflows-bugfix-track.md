@@ -701,7 +701,7 @@ sequenceDiagram
     H->>O: ESCALATE TO FEATURE
     O->>O: Close bugfix cycle
     O->>O: Create feature PRD stub in docs/features/
-    O->>H: Feature PRD created — switch to Speckit workflow
+    O->>H: Feature PRD created — switch to feature workflow
 ```
 
 ```
@@ -724,7 +724,7 @@ HUMAN:  ESCALATE TO FEATURE
 ```
 AGENT:  Bugfix BF-AIQ-20260227-003 closed.
         Created docs/features/XXX-bulk-export/prd/prd.md (stub).
-        Switch to Speckit workflow: /speckit.specify bulk-export
+        Switch to feature workflow for the new PRD
 ```
 
 > If a hotfix exceeds scope limits and needs to escalate to bugfix, see [Hotfix Workflow — Escalation](workflows-hotfix-track.md#escalation-hotfix--bugfix).

@@ -187,10 +187,10 @@ impact_analysis:
 The traceability matrix is committed to the feature documentation:
 
 ```
-docs/features/[xxx]-[feature-name]/trd/traceability.md
+[project-docs]/features/[feature-name]/trd/traceability.md
 ```
 
-If using Speckit, the matrix can also be generated from Speckit artifacts (spec.md, plan.md, tasks.md).
+The matrix can also be generated from existing specification artifacts (e.g., spec.md, plan.md, tasks.md) if available in the project.
 
 ## Integration with Other Agents
 

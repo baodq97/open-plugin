@@ -31,7 +31,7 @@ The orchestrator invokes this agent after every phase output. It is NOT invoked 
 
 ```yaml
 quality_gate_input:
-  phase: requirements | design | implementation | testing | deployment
+  phase: requirements | design | implementation | review | testing | deployment
   cycle_id: "[CYCLE-ID]"
   artifacts: "[Phase output to validate]"
   context:
@@ -84,6 +84,16 @@ quality_gate_input:
 | Test Naming | `Should_[Behavior]_When_[Condition]` convention | 100% compliance |
 | Test Independence | No test depends on another test's side effects | 0 dependencies |
 | Security Tests | Auth bypass, injection, XSS scenarios | >= 3 security tests |
+
+### Review Phase
+
+| Criterion | Check | Threshold |
+|-----------|-------|-----------|
+| Hallucination Detection | All packages, APIs verified against registries | 0 hallucinations |
+| Security Audit | OWASP top 10 checked, auth/authz verified | 0 critical findings |
+| Code Quality | Naming, size limits, architecture boundaries | 0 violations |
+| Logic Correctness | Business logic, edge cases, error handling | 0 critical issues |
+| Performance | No N+1 queries, no blocking calls, resource cleanup | 0 critical issues |
 
 ### Deployment Phase
 
@@ -153,9 +163,9 @@ The orchestrator calls this agent in the phase anatomy sequence:
 
 If `verdict = FAIL`, the phase agent must revise its output and the quality gate runs again. This loop continues until PASS or WARN.
 
-## Speckit Bridge
+## External Artifact Validation
 
-This quality gate can also validate Speckit artifacts:
-- `spec.md` → use Requirements criteria
-- `plan.md` / `api-spec.md` → use Design criteria
+This quality gate can also validate existing project artifacts:
+- Requirements documents → use Requirements criteria
+- Design documents / API specs → use Design criteria
 - Implementation code → use Implementation criteria

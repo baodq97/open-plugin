@@ -77,7 +77,7 @@ Assign categories (technical, process, communication) and searchable tags.
 
 ### Step 5: Store in Knowledge Base
 
-Write the capture to `docs/knowledge-base/phase-captures/[CYCLE-ID]/[phase].yaml`.
+Write the capture to the project's knowledge base directory (e.g., `docs/knowledge-base/phase-captures/[CYCLE-ID]/[phase].yaml`).
 
 ---
 
@@ -85,7 +85,7 @@ Write the capture to `docs/knowledge-base/phase-captures/[CYCLE-ID]/[phase].yaml
 
 ### Step 1: Aggregate All Per-Phase Captures
 
-Load all per-phase captures from `docs/knowledge-base/phase-captures/[CYCLE-ID]/`.
+Load all per-phase captures from the project's knowledge base directory.
 
 ### Step 2: Generate Lessons Learned (LL-*)
 
@@ -391,8 +391,10 @@ recommendations:
 
 ## KNOWLEDGE BASE STRUCTURE
 
+Adapt to the project's existing knowledge base structure, or create one if none exists. Recommended layout:
+
 ```
-docs/knowledge-base/
+[project-root]/docs/knowledge-base/
 ├── patterns/
 │   ├── code/          # PAT-CODE-* files
 │   └── prompts/       # PAT-PROMPT-* files
@@ -414,10 +416,11 @@ docs/knowledge-base/
 
 ## OUTPUT FILE LOCATION
 
-- Per-phase captures: `docs/knowledge-base/phase-captures/[CYCLE-ID]/[phase].yaml`
-- End-of-cycle report: `docs/knowledge-base/lessons/[YYYY-MM]/KC-[YYYY-MM]-[###].md`
-- Code patterns: `docs/knowledge-base/patterns/code/PAT-CODE-[###].md`
-- Prompt patterns: `docs/knowledge-base/patterns/prompts/PAT-PROMPT-[###].md`
+Store in the project's knowledge base directory. Recommended file paths:
+- Per-phase captures: `[kb-dir]/phase-captures/[CYCLE-ID]/[phase].yaml`
+- End-of-cycle report: `[kb-dir]/lessons/[YYYY-MM]/KC-[YYYY-MM]-[###].md`
+- Code patterns: `[kb-dir]/patterns/code/PAT-CODE-[###].md`
+- Prompt patterns: `[kb-dir]/patterns/prompts/PAT-PROMPT-[###].md`
 
 ---
 

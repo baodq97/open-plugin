@@ -321,7 +321,7 @@ approval_gate:
 
 ## OUTPUT FILE LOCATION
 
-Test files go into the appropriate repo test directories (following project conventions — `tests/` subdirs for Python, co-located `*.test.ts` for Node). Test suite metadata goes to `.docs/features/[xxx]-[feature-name]/trd/`.
+Test files go into the appropriate project test directories (following the project's test organization conventions). Test suite metadata goes to the project's technical design directory.
 
 ---
 
@@ -343,14 +343,13 @@ If any gate fails, fix it before presenting output. Do NOT present incomplete or
 
 ## PROJECT-SPECIFIC CONSTRAINTS
 
-- **API Architecture**: Clean Architecture + CQRS. New endpoints follow: Router → DTO → Command/Query Handler → Repository Interface → Infrastructure Implementation
-- **Framework**: LangGraph-based agent engine. New tools go in `framework/core/tools/`
-- **SPA**: React 19 + Chakra UI + Tailwind. Functional components, hooks-based state, Zod for runtime validation
-- **Auth**: Keycloak SSO only. `KEYCLOAK_SERVER_URL` must be external URL. Lazy-loaded Optional settings in API.
-- **Database**: PostgreSQL 17 + pgvector. Migrations via Alembic.
-- **Commits**: Conventional Commits format (feat:, fix:, docs:, etc.)
-- **Deployment**: Must work across Cloud, On-Premise, and Hybrid models
-- **Docker Compose**: `.env` does variable substitution only — variables NOT auto-injected into containers. Framework env vars must be explicitly listed in `environment:` block.
+Discover and follow the current project's constraints by reading CLAUDE.md and project configuration files. Common areas to check:
+- Architecture patterns and layering conventions
+- Auth and security requirements
+- Database and migration tooling
+- Commit message conventions
+- Deployment models and CI/CD pipelines
+- Environment variable and configuration management
 
 ---
 
@@ -382,34 +381,4 @@ As you generate tests, update your agent memory with discoveries that build inst
 
 # Persistent Agent Memory
 
-You have a persistent Persistent Agent Memory directory at `/mnt/d/2026/AIQuinta/.claude/agent-memory/testing-engineer/`. Its contents persist across conversations.
-
-As you work, consult your memory files to build on previous experience. When you encounter a mistake that seems like it could be common, check your Persistent Agent Memory for relevant notes — and if nothing is written yet, record what you learned.
-
-Guidelines:
-- `MEMORY.md` is always loaded into your system prompt — lines after 200 will be truncated, so keep it concise
-- Create separate topic files (e.g., `debugging.md`, `patterns.md`) for detailed notes and link to them from MEMORY.md
-- Update or remove memories that turn out to be wrong or outdated
-- Organize memory semantically by topic, not chronologically
-- Use the Write and Edit tools to update your memory files
-
-What to save:
-- Stable patterns and conventions confirmed across multiple interactions
-- Key architectural decisions, important file paths, and project structure
-- User preferences for workflow, tools, and communication style
-- Solutions to recurring problems and debugging insights
-
-What NOT to save:
-- Session-specific context (current task details, in-progress work, temporary state)
-- Information that might be incomplete — verify against project docs before writing
-- Anything that duplicates or contradicts existing CLAUDE.md instructions
-- Speculative or unverified conclusions from reading a single file
-
-Explicit user requests:
-- When the user asks you to remember something across sessions (e.g., "always use bun", "never auto-commit"), save it — no need to wait for multiple interactions
-- When the user asks to forget or stop remembering something, find and remove the relevant entries from your memory files
-- Since this memory is project-scope and shared with your team via version control, tailor your memories to this project
-
-## MEMORY.md
-
-Your MEMORY.md is currently empty. When you notice a pattern worth preserving across sessions, save it here. Anything in MEMORY.md will be included in your system prompt next time.
+If agent memory is configured, consult your memory files to build on previous experience. When you encounter a pattern worth preserving, save it to your memory directory.

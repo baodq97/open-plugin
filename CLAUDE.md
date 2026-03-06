@@ -24,8 +24,15 @@ open-plugins/
 │   │   │   ├── vbounce-knowledge/
 │   │   │   ├── vbounce-quality-gate/
 │   │   │   └── vbounce-traceability/
-│   │   └── agents/                   # 2 agents
+│   │   └── agents/                   # 9 agents
+│   │       ├── deployment-engineer.md
+│   │       ├── design-architect.md
 │   │       ├── implementation-engineer.md
+│   │       ├── knowledge-curator.md
+│   │       ├── quality-gate-validator.md
+│   │       ├── requirements-analyst.md
+│   │       ├── review-auditor.md
+│   │       ├── testing-engineer.md
 │   │       └── traceability-analyst.md
 │   └── skills-ontology/              # Skills Ontology plugin
 │       ├── .claude-plugin/plugin.json

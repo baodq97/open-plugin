@@ -14,15 +14,15 @@ Manage deployments with proper approvals and rollback strategies.
 
 ## Prerequisites
 
-⚠️ Testing phase must be APPROVED before deployment.
+**Warning:** Testing phase must be APPROVED before deployment.
 
 ## Environments
 
 | Environment | Auto-Deploy | Approval Required |
 |-------------|-------------|-------------------|
-| Development | ✅ Yes | None |
-| Staging | ✅ Yes | QA Team |
-| Production | ❌ No | Tech Lead + PO + QA |
+| Development | Yes | None |
+| Staging | Yes | QA Team |
+| Production | No | Tech Lead + PO + QA |
 
 ## Process
 

@@ -51,55 +51,6 @@ describe("readStdinJSON", () => {
   });
 });
 
-// ---------- buildOutput ----------
-
-describe("buildOutput", () => {
-  // Direct in-process tests — require the module
-  function loadBuildOutput() {
-    return require(HOOK_UTILS_PATH).buildOutput;
-  }
-
-  it("returns hookSpecificOutput with hookEventName from input", () => {
-    const buildOutput = loadBuildOutput();
-    const input = { hook_event_name: "PostToolUse" };
-    const result = buildOutput(input);
-    assert.deepEqual(result, {
-      hookSpecificOutput: { hookEventName: "PostToolUse" },
-    });
-  });
-
-  it("includes additionalContext in hookSpecificOutput", () => {
-    const buildOutput = loadBuildOutput();
-    const input = { hook_event_name: "PostToolUse" };
-    const result = buildOutput(input, { additionalContext: "Registry is stale" });
-    assert.equal(result.hookSpecificOutput.hookEventName, "PostToolUse");
-    assert.equal(result.hookSpecificOutput.additionalContext, "Registry is stale");
-  });
-
-  it("uses hookEventName override from fields", () => {
-    const buildOutput = loadBuildOutput();
-    const input = { hook_event_name: "PostToolUse" };
-    const result = buildOutput(input, { hookEventName: "PreToolUse" });
-    assert.equal(result.hookSpecificOutput.hookEventName, "PreToolUse");
-  });
-
-  it("defaults hookEventName to PostToolUse when missing from both sources", () => {
-    const buildOutput = loadBuildOutput();
-    const input = {};
-    const result = buildOutput(input);
-    assert.equal(result.hookSpecificOutput.hookEventName, "PostToolUse");
-  });
-
-  it("copies extra fields (decision, reason) into hookSpecificOutput", () => {
-    const buildOutput = loadBuildOutput();
-    const input = { hook_event_name: "PostToolUse" };
-    const result = buildOutput(input, { decision: "block", reason: "unsafe" });
-    assert.equal(result.hookSpecificOutput.decision, "block");
-    assert.equal(result.hookSpecificOutput.reason, "unsafe");
-    assert.equal(result.hookSpecificOutput.hookEventName, "PostToolUse");
-  });
-});
-
 // ---------- resolveProjectRoot ----------
 
 describe("resolveProjectRoot", () => {

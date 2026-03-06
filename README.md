@@ -36,7 +36,7 @@ claude plugin install --from <this-repo-url> skills-ontology
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json
 │   │   ├── skills/               # 10 skills (orchestrator + 9 sub-agents)
-│   │   └── agents/               # 2 agents
+│   │   └── agents/               # 9 agents
 │   └── skills-ontology/          # Skills Ontology
 │       ├── .claude-plugin/
 │       │   └── plugin.json

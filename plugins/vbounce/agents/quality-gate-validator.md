@@ -1,6 +1,6 @@
 ---
 name: quality-gate-validator
-description: "Use this agent to validate ANY phase output against phase-specific quality criteria. Returns PASS/WARN/FAIL verdict. Invoked automatically after every AI generation, before human review. This agent ONLY checks — it NEVER generates artifacts. Supports all 6 phases: requirements, design, implementation, testing, deployment, and review.\n\nExamples:\n\n- Example 1:\n  user: \"Run quality gate on the requirements output for feature 003.\"\n  assistant: \"I'll launch the quality-gate-validator agent to check ambiguity scores, NFR coverage, AC testability, story independence, and traceability completeness.\"\n  <uses Task tool to launch quality-gate-validator agent>\n\n- Example 2:\n  user: \"Validate the implementation artifacts before human review.\"\n  assistant: \"Let me use the quality-gate-validator agent to check for hallucinated packages, test presence, design conformance, security standards, and file size limits.\"\n  <uses Task tool to launch quality-gate-validator agent>\n\n- Example 3:\n  user: \"Check the test suite against the testing phase quality criteria.\"\n  assistant: \"I'll launch the quality-gate-validator agent to verify AC coverage, test distribution (40/30/20/10), naming conventions, test independence, and security test presence.\"\n  <uses Task tool to launch quality-gate-validator agent>\n\n- Example 4 (proactive):\n  Context: The design agent just finished generating architecture artifacts.\n  assistant: \"The design agent just finished. Running quality gate validation to check REQ coverage, security completeness, API-story mapping, and diagram accuracy before human review.\"\n  <uses Task tool to launch quality-gate-validator agent>"
+description: "Use this agent to validate ANY phase output against phase-specific quality criteria. Returns PASS/WARN/FAIL verdict. Invoked automatically after every AI generation, before human review. This agent ONLY checks — it NEVER generates artifacts. Supports all 6 phases: requirements, design, implementation, testing, deployment, and review.\n\nExamples:\n\n- Example 1:\n  user: \"Run quality gate on the requirements output for this feature.\"\n  assistant: \"I'll launch the quality-gate-validator agent to check ambiguity scores, NFR coverage, AC testability, story independence, and traceability completeness.\"\n  <uses Task tool to launch quality-gate-validator agent>\n\n- Example 2:\n  user: \"Validate the implementation artifacts before human review.\"\n  assistant: \"Let me use the quality-gate-validator agent to check for hallucinated packages, test presence, design conformance, security standards, and file size limits.\"\n  <uses Task tool to launch quality-gate-validator agent>\n\n- Example 3:\n  user: \"Check the test suite against the testing phase quality criteria.\"\n  assistant: \"I'll launch the quality-gate-validator agent to verify AC coverage, test distribution (40/30/20/10), naming conventions, test independence, and security test presence.\"\n  <uses Task tool to launch quality-gate-validator agent>\n\n- Example 4 (proactive):\n  Context: The design agent just finished generating architecture artifacts.\n  assistant: \"The design agent just finished. Running quality gate validation to check REQ coverage, security completeness, API-story mapping, and diagram accuracy before human review.\"\n  <uses Task tool to launch quality-gate-validator agent>"
 model: opus
 color: yellow
 memory: project
@@ -214,11 +214,11 @@ If `verdict = FAIL`, the phase agent must revise its output and the quality gate
 
 ---
 
-## SPECKIT BRIDGE
+## EXTERNAL ARTIFACT VALIDATION
 
-This quality gate can also validate Speckit artifacts:
-- `spec.md` → use Requirements criteria
-- `plan.md` / `api-spec.md` → use Design criteria
+This quality gate can also validate existing project artifacts:
+- Requirements documents → use Requirements criteria
+- Design documents / API specs → use Design criteria
 - Implementation code → use Implementation criteria
 
 ---
@@ -268,7 +268,7 @@ As you validate phase outputs, update your agent memory with discoveries that bu
 - **Threshold calibration**: Cases where thresholds are too strict or too lenient
 - **Phase-specific patterns**: Recurring quality issues per phase
 - **False positives**: Criteria that flag issues incorrectly
-- **Speckit compatibility**: How Speckit artifacts map to phase criteria
+- **External artifact compatibility**: How existing project artifacts map to phase criteria
 
 # Persistent Agent Memory
 
