@@ -12,7 +12,7 @@ This project migrates the Skills Ontology plugin's hooks from an undocumented en
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: I/O Foundation and Configuration** - Shared hook utilities, YAML helpers, hooks.json spec compliance, and unit tests for both
+- [x] **Phase 1: I/O Foundation and Configuration** - Shared hook utilities, YAML helpers, hooks.json spec compliance, and unit tests for both
 - [ ] **Phase 2: Existing Hook Migration** - Refactor ontology_sync and ontology_track_skill to stdin/stdout JSON with session isolation
 - [ ] **Phase 3: New Hook Events** - SessionStart context injection, PreToolUse routing, Stop reminders, SessionEnd cleanup, and integration tests
 
@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [ ] 01-01-PLAN.md -- Hook I/O utilities (hook-utils.js) via TDD
-- [ ] 01-02-PLAN.md -- YAML helpers (yaml-helpers.js) via TDD
+- [x] 01-02-PLAN.md -- YAML helpers (yaml-helpers.js) via TDD
 - [ ] 01-03-PLAN.md -- hooks.json spec compliance (description, paths, timeout, statusMessage)
 
 ### Phase 2: Existing Hook Migration
@@ -73,6 +73,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. I/O Foundation and Configuration | 0/3 | Planning complete | - |
+| 1. I/O Foundation and Configuration | 3/3 | Complete | 2026-03-06 |
 | 2. Existing Hook Migration | 0/0 | Not started | - |
 | 3. New Hook Events | 0/0 | Not started | - |

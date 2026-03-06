@@ -9,8 +9,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Shared hook I/O utility (hook-utils.js) reads JSON from stdin via `fs.readFileSync(0, 'utf8')` and provides helper to write structured JSON to stdout
-- [ ] **INFRA-02**: Shared YAML helpers module (yaml-helpers.js) extracts duplicated `parseGraphEdges()` and `extractRegistrySkills()` into reusable functions
+- [x] **INFRA-01**: Shared hook I/O utility (hook-utils.js) reads JSON from stdin via `fs.readFileSync(0, 'utf8')` and provides helper to write structured JSON to stdout
+- [x] **INFRA-02**: Shared YAML helpers module (yaml-helpers.js) extracts duplicated `parseGraphEdges()` and `extractRegistrySkills()` into reusable functions
 - [ ] **INFRA-03**: All hooks specify `statusMessage` for user-visible feedback while running
 
 ### Spec Compliance
@@ -38,8 +38,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Testing
 
-- [ ] **TEST-01**: Unit tests for hook-utils.js (stdin reading, JSON output, project root resolution)
-- [ ] **TEST-02**: Unit tests for yaml-helpers.js (parseGraphEdges, extractRegistrySkills)
+- [x] **TEST-01**: Unit tests for hook-utils.js (stdin reading, JSON output, project root resolution)
+- [x] **TEST-02**: Unit tests for yaml-helpers.js (parseGraphEdges, extractRegistrySkills)
 - [ ] **TEST-03**: Integration tests for each hook script with simulated stdin JSON input and verified stdout JSON output
 
 ## v2 Requirements
@@ -75,8 +75,8 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Pending |
 | SPEC-01 | Phase 2 | Pending |
 | SPEC-02 | Phase 2 | Pending |
@@ -92,8 +92,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | HOOK-02 | Phase 3 | Pending |
 | HOOK-03 | Phase 3 | Pending |
 | HOOK-04 | Phase 3 | Pending |
-| TEST-01 | Phase 1 | Pending |
-| TEST-02 | Phase 1 | Pending |
+| TEST-01 | Phase 1 | Complete |
+| TEST-02 | Phase 1 | Complete |
 | TEST-03 | Phase 3 | Pending |
 
 **Coverage:**
