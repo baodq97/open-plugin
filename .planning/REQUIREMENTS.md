@@ -11,15 +11,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **INFRA-01**: Shared hook I/O utility (hook-utils.js) reads JSON from stdin via `fs.readFileSync(0, 'utf8')` and provides helper to write structured JSON to stdout
 - [x] **INFRA-02**: Shared YAML helpers module (yaml-helpers.js) extracts duplicated `parseGraphEdges()` and `extractRegistrySkills()` into reusable functions
-- [ ] **INFRA-03**: All hooks specify `statusMessage` for user-visible feedback while running
+- [x] **INFRA-03**: All hooks specify `statusMessage` for user-visible feedback while running
 
 ### Spec Compliance
 
 - [ ] **SPEC-01**: All hook scripts read JSON input from stdin instead of environment variables (CLAUDE_FILE_PATH, CLAUDE_TOOL_INPUT, CLAUDE_PROJECT_DIR)
 - [ ] **SPEC-02**: All hook scripts return structured JSON output via stdout with `hookSpecificOutput` and `additionalContext` fields instead of plain console.log text
-- [ ] **SPEC-03**: All hook script paths in hooks.json use `${CLAUDE_PLUGIN_ROOT}` instead of bare relative paths
-- [ ] **SPEC-04**: hooks.json includes top-level `description` field describing plugin hooks purpose
-- [ ] **SPEC-05**: All hooks specify appropriate `timeout` values (10s SessionStart, 15s PostToolUse, 5s PreToolUse/Stop)
+- [x] **SPEC-03**: All hook script paths in hooks.json use `${CLAUDE_PLUGIN_ROOT}` instead of bare relative paths
+- [x] **SPEC-04**: hooks.json includes top-level `description` field describing plugin hooks purpose
+- [x] **SPEC-05**: All hooks specify appropriate `timeout` values (10s SessionStart, 15s PostToolUse, 5s PreToolUse/Stop)
 - [ ] **SPEC-06**: Session tracker uses `session_id` from stdin JSON for per-session file isolation instead of shared temp file
 - [ ] **SPEC-07**: Hook scripts use correct exit codes (0 for success with JSON, non-zero non-2 for non-blocking errors)
 
@@ -77,12 +77,12 @@ Deferred to future release. Tracked but not in current roadmap.
 |-------------|-------|--------|
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
-| INFRA-03 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Complete |
 | SPEC-01 | Phase 2 | Pending |
 | SPEC-02 | Phase 2 | Pending |
-| SPEC-03 | Phase 1 | Pending |
-| SPEC-04 | Phase 1 | Pending |
-| SPEC-05 | Phase 1 | Pending |
+| SPEC-03 | Phase 1 | Complete |
+| SPEC-04 | Phase 1 | Complete |
+| SPEC-05 | Phase 1 | Complete |
 | SPEC-06 | Phase 2 | Pending |
 | SPEC-07 | Phase 2 | Pending |
 | MIGR-01 | Phase 2 | Pending |
@@ -103,4 +103,4 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-03-06*
-*Last updated: 2026-03-06 after initial definition*
+*Last updated: 2026-03-06 after plan 01-03 completion*
