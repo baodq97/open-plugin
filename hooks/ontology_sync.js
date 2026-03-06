@@ -4,28 +4,16 @@
 /**
  * ontology_sync.js — Detect drift between skill files and ontology registry.
  * Called by PostToolUse hook when .claude/skills/ files are edited.
- * Reads CLAUDE_FILE_PATH env var for the changed file path.
+ * Reads tool input from stdin JSON (Claude Code hook protocol).
  */
 const fs = require("fs");
 const path = require("path");
-
-function findProjectRoot() {
-  // 1) Claude may provide explicit project root.
-  if (process.env.CLAUDE_PROJECT_DIR) {
-    const candidate = path.resolve(process.env.CLAUDE_PROJECT_DIR);
-    if (fs.existsSync(path.join(candidate, ".claude"))) return candidate;
-  }
-
-  // 2) Most reliable for plugin-native hooks: current working directory.
-  const cwd = path.resolve(process.cwd());
-  if (fs.existsSync(path.join(cwd, ".claude"))) return cwd;
-
-  // 3) Fallback for uncommon execution environments.
-  return cwd;
-}
+const { readStdinJSON, resolveProjectRoot } = require("./hook-utils");
+const { extractRegistrySkills } = require("./yaml-helpers");
 
 function main() {
-  const root = findProjectRoot();
+  const input = readStdinJSON();
+  const root = resolveProjectRoot();
   const registry = path.join(root, ".claude", "ontology", "registry.yaml");
   const skillsDir = path.join(root, ".claude", "skills");
 
@@ -43,9 +31,7 @@ function main() {
 
   // Collect registry skill names
   const regContent = fs.readFileSync(registry, "utf-8");
-  const regSkills = (regContent.match(/^ {2}[a-z][a-z0-9-]*:$/gm) || [])
-    .map((m) => m.trim().replace(":", ""))
-    .sort();
+  const regSkills = extractRegistrySkills(regContent);
 
   // New skills (in dirs but not registry)
   const newSkills = dirSkills.filter((d) => !regSkills.includes(d));
@@ -62,7 +48,7 @@ function main() {
   }
 
   // Check token estimate drift for the changed file
-  const changedFile = process.env.CLAUDE_FILE_PATH || "";
+  const changedFile = (input.tool_input && input.tool_input.file_path) || "";
   if (changedFile.includes(".claude/skills/")) {
     const skillName = changedFile.split(".claude/skills/")[1]?.split(/[/\\]/)[0];
     if (skillName && dirSkills.includes(skillName)) {

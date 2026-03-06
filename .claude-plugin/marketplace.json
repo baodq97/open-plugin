@@ -1,0 +1,17 @@
+{
+  "name": "skills-ontology",
+  "owner": {
+    "name": "skills-ontology contributors"
+  },
+  "metadata": {
+    "description": "Intelligent skill management and retrieval for Claude Code",
+    "version": "1.2.0"
+  },
+  "plugins": [
+    {
+      "name": "skills-ontology",
+      "description": "Intelligent skill management and retrieval — scan skills, build registries, validate ontology consistency, auto-adjust graph strengths, and generate visual graphs",
+      "source": "./"
+    }
+  ]
+}

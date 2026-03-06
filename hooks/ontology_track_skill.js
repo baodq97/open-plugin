@@ -4,25 +4,19 @@
 /**
  * ontology_track_skill.js — Track skill invocations during a session.
  * Called by PostToolUse hook on Skill tool.
- * Reads CLAUDE_TOOL_INPUT env var for the skill name.
+ * Reads tool input from stdin JSON (Claude Code hook protocol).
  */
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const { readStdinJSON, resolveProjectRoot } = require("./hook-utils");
 
 function main() {
-  const toolInput = process.env.CLAUDE_TOOL_INPUT || "";
+  const input = readStdinJSON();
 
-  // Extract skill name from JSON input
-  let skillName = "";
-  const nameMatch = toolInput.match(/"skill_name"\s*:\s*"([^"]+)"/);
-  if (nameMatch) {
-    skillName = nameMatch[1];
-  } else {
-    const cmdMatch = toolInput.match(/"command"\s*:\s*"([^"]+)"/);
-    if (cmdMatch) skillName = cmdMatch[1];
-  }
-
+  // Extract skill name — Skill tool uses "skill" field in tool_input
+  const toolInput = input.tool_input || {};
+  const skillName = toolInput.skill || "";
   if (!skillName) return;
 
   // Session tracker in temp directory (cross-platform)
@@ -36,6 +30,14 @@ function main() {
   const content = fs.readFileSync(tracker, "utf-8");
   const skills = (content.match(/skill: .+/g) || []).map((m) => m.replace("skill: ", ""));
   const unique = [...new Set(skills)];
+
+  // Ensure usage-log.yaml exists in the project
+  const root = resolveProjectRoot();
+  const ontologyDir = path.join(root, ".claude", "ontology");
+  const usageLog = path.join(ontologyDir, "usage-log.yaml");
+  if (fs.existsSync(ontologyDir) && !fs.existsSync(usageLog)) {
+    fs.writeFileSync(usageLog, "# Skills Ontology Usage Log\n# Auto-populated by ontology_track_skill hook\n\nentries: []\n");
+  }
 
   if (unique.length >= 2) {
     console.log(
