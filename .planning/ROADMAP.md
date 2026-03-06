@@ -31,9 +31,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Hook I/O utilities (hook-utils.js) via TDD
+- [x] 01-01-PLAN.md -- Hook I/O utilities (hook-utils.js) via TDD
 - [x] 01-02-PLAN.md -- YAML helpers (yaml-helpers.js) via TDD
-- [ ] 01-03-PLAN.md -- hooks.json spec compliance (description, paths, timeout, statusMessage)
+- [x] 01-03-PLAN.md -- hooks.json spec compliance (description, paths, timeout, statusMessage)
 
 ### Phase 2: Existing Hook Migration
 **Goal**: Both existing hooks (ontology_sync, ontology_track_skill) use stdin JSON for input and structured JSON for output, with session-isolated tracking and correct exit codes
