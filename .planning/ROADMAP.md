@@ -28,11 +28,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. hooks.json uses ${CLAUDE_PLUGIN_ROOT} paths, has a top-level description field, and every hook entry has a timeout and statusMessage
   4. yaml-helpers.js exports parseGraphEdges() and extractRegistrySkills() that correctly parse ontology YAML files
   5. All new utility modules have passing unit tests (hook-utils.js stdin/output/path tests, yaml-helpers.js parsing tests)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md -- Hook I/O utilities (hook-utils.js) via TDD
+- [ ] 01-02-PLAN.md -- YAML helpers (yaml-helpers.js) via TDD
+- [ ] 01-03-PLAN.md -- hooks.json spec compliance (description, paths, timeout, statusMessage)
 
 ### Phase 2: Existing Hook Migration
 **Goal**: Both existing hooks (ontology_sync, ontology_track_skill) use stdin JSON for input and structured JSON for output, with session-isolated tracking and correct exit codes
@@ -72,6 +73,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. I/O Foundation and Configuration | 0/0 | Not started | - |
+| 1. I/O Foundation and Configuration | 0/3 | Planning complete | - |
 | 2. Existing Hook Migration | 0/0 | Not started | - |
 | 3. New Hook Events | 0/0 | Not started | - |
