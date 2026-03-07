@@ -1,0 +1,29 @@
+{
+  "description": "V-Bounce SDLC contract validation hooks",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "You are validating a V-Bounce agent launch.\n\nFirst, check if this is a V-Bounce agent by looking for vbounce-related content in the tool input (mentions of .vbounce/, cycle workspace paths, or agent names: requirements-analyst, design-architect, implementation-engineer, review-auditor, testing-engineer, deployment-engineer, quality-gate-validator, traceability-analyst, knowledge-curator).\n\nIf this is NOT a vbounce agent, approve immediately.\n\nIf this IS a vbounce agent, verify:\n1. The prompt contains a concrete workspace path like '.vbounce/cycles/CYCLE-...' — NOT unresolved '{workspace}' placeholders\n2. The prompt includes specific input file paths the agent needs to read\n3. The prompt specifies where to write output files\n\nApprove if all checks pass. Block with explanation if any check fails.",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "requirements-analyst|design-architect|implementation-engineer|review-auditor|testing-engineer|deployment-engineer|quality-gate-validator|traceability-analyst|knowledge-curator",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "V-Bounce Output Contract Validation: A vbounce agent just completed.\n\nAnalyze the agent's output to verify it reported creating all required output files.\n\nCheck for evidence that:\n1. All required output files for this phase were written successfully\n2. The agent completed its self-verification checklist\n3. No errors or incomplete steps were reported\n\nIf the output confirms all files were created and verification passed, approve.\nIf the output indicates missing files or failed checks, report which outputs appear to be missing.",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

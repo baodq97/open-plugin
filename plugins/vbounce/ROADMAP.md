@@ -1,0 +1,188 @@
+# V-Bounce Roadmap
+
+## v4.0.0 (current)
+
+Agent-first architecture with explicit contracts, shared workspace, state management, and multi-layer quality assurance.
+
+### Completed (2026-03-07)
+
+- 1 orchestrator skill + 9 specialized agents
+- 8 slash commands (start, status, approve, bugfix, hotfix, cr, skip, rollback)
+- 2 hooks (PreToolUse contract validation, SubagentStop output verification)
+- 15 shared reference files
+- 4 workflow tracks (feature, bugfix, hotfix, change request)
+- Contract chain fixes: security-design input, review output forwarding, design inputs for deployment
+- Agent color deconfliction (9 unique colors)
+
+---
+
+## v4.1.0 — Reliability & Usability
+
+Focus: hooks enforcement, user-facing documentation, settings support.
+
+### 4.1.1 — Stop hook
+
+Add a `Stop` hook that warns when a session ends mid-cycle. Prevents state corruption from abandoned phases.
+
+```
+hooks/hooks.json → add Stop event
+```
+
+### 4.1.2 — SubagentStart hook
+
+Auto-inject resolved workspace path and learned rules into every vbounce agent launch. Reduces reliance on orchestrator prompt construction.
+
+```
+hooks/hooks.json → add SubagentStart event (type: command)
+scripts/inject-context.sh → new script
+```
+
+### 4.1.3 — `/vbounce:report` command
+
+Generate a consolidated cycle report: phase statuses, QG verdicts, approval history, traceability coverage, knowledge captured. Supports markdown output.
+
+```
+commands/report.md → new command
+```
+
+### 4.1.4 — Usage guide in README
+
+Quick start guide, full cycle walkthrough with examples, command reference with arguments, configuration guide.
+
+### 4.1.5 — Plugin settings template
+
+Create `.claude/vbounce.local.md` template with documented fields: QG threshold overrides, model preferences per agent, workflow defaults.
+
+```yaml
+# Example .claude/vbounce.local.md
+---
+qg_overrides:
+  requirements:
+    ambiguity_threshold: 40
+  testing:
+    distribution_tolerance: 8
+model_overrides:
+  quality-gate-validator: sonnet
+  traceability-analyst: sonnet
+default_track: feature
+---
+```
+
+---
+
+## v4.2.0 — Agent Quality
+
+Focus: contract completeness, self-verification parity, DRY improvements.
+
+### 4.2.1 — Traceability-analyst Update mode specification
+
+Add per-phase guidance on which files to read:
+- Design: `design/traceability.md`, `design/api-spec.md`, `design/design.md`
+- Implementation: `implementation/summary.md`, `implementation/tests-created.md`
+- Testing: `testing/coverage-matrix.md`, `testing/test-results.md`
+
+### 4.2.2 — Self-verification parity
+
+Expand lean checklists to match depth of requirements-analyst (10 items):
+- review-auditor: 5 → 8 items (add STRIDE verification, false positive check, file coverage)
+- deployment-engineer: 5 → 8 items (add architecture alignment, security config, changelog)
+- knowledge-curator: 4 → 7 items (add duplicate rule check, retrospective output, calibration)
+- traceability-analyst: 5 → 8 items (add V-Model percentages, impact scope, matrix ID format)
+
+### 4.2.3 — Knowledge-curator retrospective output
+
+Add `{workspace}/knowledge/retrospective-summary.md` to End-of-Cycle mode output contract.
+
+### 4.2.4 — QG criteria single source of truth
+
+Remove inline criteria tables from quality-gate-validator.md. Agent reads criteria exclusively from `references/quality-criteria.md` at runtime. Eliminates drift risk.
+
+### 4.2.5 — UserPromptSubmit hook
+
+Parse vbounce commands (APPROVED, CHANGES REQUESTED, SKIP TO, ROLLBACK TO, START CR, START BUGFIX) early. Inject structured context so the orchestrator receives parsed intent instead of free-text.
+
+### 4.2.6 — Workspace resolution DRY
+
+Extract the repeated "Workspace Resolution" paragraph from all 9 agents into `references/workspace-resolution.md`. Agents reference it instead of duplicating.
+
+---
+
+## v4.3.0 — Infrastructure & Polish
+
+Focus: CI validation, file hygiene, workflow optimization.
+
+### 4.3.1 — plugin.json enhancements
+
+Add `repository`, `homepage`, `keywords` fields.
+
+### 4.3.2 — .gitignore
+
+Add `.vbounce/` to project gitignore (runtime workspace artifacts).
+
+### 4.3.3 — LICENSE file
+
+Add MIT LICENSE file to plugin directory.
+
+### 4.3.4 — State.yaml templates
+
+Pre-built state.yaml templates for each workflow track. Commands reference templates instead of constructing state inline.
+
+```
+templates/state-feature.yaml
+templates/state-bugfix.yaml
+templates/state-hotfix.yaml
+templates/state-cr.yaml
+```
+
+### 4.3.5 — Contract chain validation script
+
+Script that parses all agent contracts and verifies:
+- Agent A output files = Agent B required input files
+- No orphaned outputs (produced but never consumed)
+- No missing inputs (required but never produced)
+- Color uniqueness across agents
+
+```
+scripts/validate-contracts.py → new script
+```
+
+### 4.3.6 — CR workflow split
+
+Split `workflows-change-request-track.md` (~6000 words):
+- `workflows-change-request-track.md` — core reference (~3000 words)
+- `workflows-cr-walkthrough.md` — practical walkthrough examples (~3000 words)
+
+---
+
+## v5.0.0 — Advanced Features
+
+### 5.0.1 — Multi-cycle management
+
+Support parallel active cycles (e.g., feature + bugfix running simultaneously). Root `.vbounce/state.yaml` tracks multiple active cycles with context switching.
+
+### 5.0.2 — Cycle history & analytics
+
+Dashboard aggregating QG pass rates, cycle durations, common failure patterns, agent performance metrics across completed cycles.
+
+### 5.0.3 — MCP integration
+
+Connect to external services:
+- Jira/Linear: ticket sync, status updates, acceptance criteria import
+- GitHub: PR auto-creation after implementation, CI status tracking
+- Slack: phase approval notifications, QG failure alerts
+
+### 5.0.4 — Model tier configuration
+
+Per-agent model selection via plugin settings. Recommended tiers:
+- opus: requirements-analyst, design-architect, implementation-engineer, review-auditor, testing-engineer
+- sonnet: quality-gate-validator, traceability-analyst, knowledge-curator, deployment-engineer
+
+Estimated 40% cost reduction with minimal quality impact on checklist/mapping agents.
+
+### 5.0.5 — Agent resume on QG failure
+
+Use Agent tool `resume` parameter when QG fails. The phase agent retains full context from its previous run, making revisions faster and more accurate than a cold re-dispatch.
+
+### 5.0.6 — Streaming progress indicators
+
+Real-time phase progress via hook `statusMessage` fields. Users see which step the agent is on (e.g., "requirements-analyst: Step 7/11 — Writing Acceptance Criteria").

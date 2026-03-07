@@ -11,29 +11,29 @@ open-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json              # Marketplace manifest (lists all plugins)
 ├── plugins/
-│   ├── vbounce/                      # V-Bounce AI-Native SDLC Orchestrator
+│   ├── vbounce/                      # V-Bounce AI-Native SDLC Orchestrator v4.0
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── skills/                   # 10 skills (orchestrator + 9 sub-agents)
-│   │   │   ├── vbounce/              # Main orchestrator + workflow references
-│   │   │   ├── vbounce-requirements/
-│   │   │   ├── vbounce-design/
-│   │   │   ├── vbounce-implementation/
-│   │   │   ├── vbounce-review/
-│   │   │   ├── vbounce-testing/
-│   │   │   ├── vbounce-deployment/
-│   │   │   ├── vbounce-knowledge/
-│   │   │   ├── vbounce-quality-gate/
-│   │   │   └── vbounce-traceability/
-│   │   └── agents/                   # 9 agents
-│   │       ├── deployment-engineer.md
-│   │       ├── design-architect.md
-│   │       ├── implementation-engineer.md
-│   │       ├── knowledge-curator.md
-│   │       ├── quality-gate-validator.md
-│   │       ├── requirements-analyst.md
-│   │       ├── review-auditor.md
-│   │       ├── testing-engineer.md
-│   │       └── traceability-analyst.md
+│   │   ├── skills/
+│   │   │   └── vbounce/              # Orchestrator: state machine + contracts + dispatch
+│   │   │       ├── SKILL.md
+│   │   │       └── references/       # 15 shared reference files
+│   │   ├── commands/                  # 8 slash commands
+│   │   │   ├── start.md, status.md, approve.md
+│   │   │   ├── bugfix.md, hotfix.md, cr.md
+│   │   │   └── skip.md, rollback.md
+│   │   ├── agents/                   # 9 self-contained agents with contracts
+│   │   │   ├── requirements-analyst.md
+│   │   │   ├── design-architect.md
+│   │   │   ├── implementation-engineer.md
+│   │   │   ├── review-auditor.md
+│   │   │   ├── testing-engineer.md
+│   │   │   ├── deployment-engineer.md
+│   │   │   ├── quality-gate-validator.md
+│   │   │   ├── traceability-analyst.md
+│   │   │   └── knowledge-curator.md
+│   │   └── scripts/                  # Utility scripts
+│   │       ├── verify_packages.sh
+│   │       └── trace-matrix.py
 │   └── skills-ontology/              # Skills Ontology plugin
 │       ├── .claude-plugin/plugin.json
 │       ├── commands/

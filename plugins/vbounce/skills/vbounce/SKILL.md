@@ -1,190 +1,306 @@
 ---
 name: vbounce
-version: "3.0.0"
+version: "4.0.0"
 description: |
-  V-Bounce AI-Native SDLC Orchestrator - Coordinates 9 specialized sub-agents
-  for complete software development lifecycle. Implements the V-Bounce paper's
-  6-activity phase anatomy, quality agent pattern, continuous test creation,
-  bounce time enforcement, and traceability by design.
-  Triggers: vbounce, sdlc, requirement, design, implement, test, review, deploy, knowledge.
+  Use this skill when the user wants to run a V-Bounce SDLC cycle, start a
+  vbounce workflow, or manage a structured software development lifecycle with
+  the V-Bounce framework. Orchestrates 9 specialized agents through phases:
+  Requirements, Design, Implementation, Review, Testing, and Deployment with
+  state management, contract validation, and quality gates at every transition.
+  Triggers: "start vbounce cycle", "run sdlc pipeline", "resume vbounce",
+  "APPROVED", "CHANGES REQUESTED", "START BUGFIX", "START CR".
+  Do NOT use for general code review, testing, design, or implementation
+  tasks outside the V-Bounce framework.
 ---
 
-# V-Bounce SDLC Orchestrator v3.0
+# V-Bounce SDLC Orchestrator v4.0
 
-AI-Native Software Development Lifecycle framework with 9 specialized sub-agents.
+Agent-first SDLC framework with explicit contracts, shared workspace, and state management.
 
 Based on arXiv 2408.03416 (Hymel, 2024): AI handles implementation, humans shift to validators/verifiers.
 
-## Core Principles (from paper)
+## Core Principles
 
-1. **Quality Agent Pattern** — every phase output passes a quality gate before human review
-2. **Continuous Test Creation** — test skeletons generated WITH requirements, not after
-3. **Bounce Time Allocation** — minimize implementation time, maximize requirements/design/validation time
-4. **Traceability by Design** — live REQ→Test→Code linking maintained at every phase
-5. **Continuous Knowledge Capture** — learnings extracted after every phase, not just at end
-6. **6-Activity Phase Anatomy** — structured cycle per phase (see below)
+1. **Agent-First** — agents are the execution units; orchestrator manages state and contracts
+2. **Explicit Contracts** — every agent declares input/output files with validation patterns
+3. **Shared Workspace** — all artifacts live in `.vbounce/cycles/{cycle_id}/`
+4. **State Machine** — orchestrator reads/writes state.yaml, determines next action
+5. **Multi-Layer QA** — input validation, output validation, semantic QG, cross-agent compatibility
+6. **6-Activity Phase Anatomy** — see [references/phase-anatomy.md](references/phase-anatomy.md)
 
-## Workflow Overview
+## Cycle Initialization
 
-```mermaid
-flowchart TD
-    REQ[Requirements] -->|Quality Gate| DES[Design]
-    DES -->|Quality Gate| IMP[Implementation]
-    IMP -->|Quality Gate| REV[Review]
-    REV -->|Quality Gate| TST[Testing]
-    TST -->|Quality Gate| DEP[Deployment]
-    DEP --> KNW[Knowledge]
+When the user provides a PRD or says "start vbounce cycle":
 
-    QG{{Quality Gate}} -.->|After each phase| REQ & DES & IMP & REV & TST & DEP
-    TRC{{Traceability}} -.->|At each transition| REQ & DES & IMP & TST
-    KC{{Knowledge Capture}} -.->|After each approval| REQ & DES & IMP & REV & TST & DEP
-```
+1. **Generate cycle ID**: `CYCLE-{PROJECT}-{YYYYMMDD}-{SEQ}` (derive PROJECT from directory name, SEQ starts at 001)
+2. **Create workspace**: `mkdir -p .vbounce/cycles/{cycle_id}/{requirements,design,implementation,review,testing,deployment,knowledge,quality-gates}`
+3. **Copy PRD**: Write/copy the user's PRD to `.vbounce/cycles/{cycle_id}/prd.md`
+4. **Initialize state**: Write `.vbounce/cycles/{cycle_id}/state.yaml` with all phases set to `not_started`, `current_phase: requirements`, `anatomy_step: input`
+5. **Set active cycle**: Write `.vbounce/state.yaml` with just `active_cycle: {cycle_id}` and `workspace: .vbounce/cycles/{cycle_id}`
+6. **Proceed**: Begin requirements phase (validate input contract, dispatch requirements-analyst)
 
-**Additional tracks:** [Bugfix](references/workflows-bugfix-track.md) (6-phase, P2/P3), [Hotfix](references/workflows-hotfix-track.md) (5-phase, P0/P1), [Change Request](references/workflows-change-request-track.md) (4-phase, mid-cycle scope changes). The CR track applies when scope changes arrive during phases 3-7 of an active feature cycle.
+The root `.vbounce/state.yaml` only stores which cycle is active. All phase state lives in `{workspace}/state.yaml`.
 
-## Sub-Agents
+## Workspace Resolution
 
-| Agent | Version | Trigger | Role |
-|-------|---------|---------|------|
-| **requirements** | v3.0.0 | "requirement", "PRD", "NFR" | Structured requirements + test skeletons + iteration decomposition |
-| **design** | v3.0.0 | "design", "architecture" | Technical design + traceability update + design-time test specs |
-| **implementation** | v2.0.0 | "implement", "code" | Fast-track code generation |
-| **review** | v1.2.0 | "review", "verify" | Hallucination detection + traceability check |
-| **testing** | v3.0.0 | "test", "coverage" | Full tests + V-Model level classification + adaptive updates |
-| **deployment** | v2.0.0 | "deploy", "release" | Deployment with acceptance verification + approvals |
-| **knowledge** | v2.0.0 | "retrospective", "lessons" | Per-phase + end-of-cycle capture |
-| **quality-gate** | v2.0.0 | (automatic) | Per-phase quality checksum + acceptance verification |
-| **traceability** | v2.0.0 | "trace", "impact" | Live traceability matrix + V-Model level tracking |
+Throughout this document and all agent contracts, `{workspace}` is a placeholder. You MUST resolve it to the actual path before any operation:
 
-## 6-Activity Phase Anatomy
+1. Read `.vbounce/state.yaml` → get `workspace` field (e.g., `.vbounce/cycles/CYCLE-MYAPP-20260307-001`)
+2. Replace ALL `{workspace}` references with this concrete path
+3. When launching agents via the Agent tool, pass the **resolved** workspace path in the prompt, NOT the placeholder
 
-Every phase follows this structured cycle:
+Example: `{workspace}/requirements/requirements.md` → `.vbounce/cycles/CYCLE-MYAPP-20260307-001/requirements/requirements.md`
+
+## Workspace Convention
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  1. INPUT           Load context from previous phase            │
-│  2. AI GENERATION   Phase agent produces output                 │
-│  3. QUALITY GATE    quality-gate agent validates (PASS/WARN/FAIL)│
-│  4. HUMAN REVIEW    User reviews (only if QG passes/warns ≤2)  │
-│  5. REFINEMENT      Iterate if changes requested                │
-│  6. APPROVAL +      User approves → traceability update +       │
-│     KNOWLEDGE       knowledge capture                           │
-└─────────────────────────────────────────────────────────────────┘
+{project}/.vbounce/
+├── state.yaml                          # Active cycle pointer only
+└── cycles/
+    └── CYCLE-{PROJECT}-{DATE}-{SEQ}/
+        ├── prd.md                      # User provides
+        ├── state.yaml                  # Orchestrator manages
+        ├── requirements/               # requirements-analyst writes
+        │   ├── requirements.md
+        │   ├── test-skeletons.md
+        │   ├── traceability.md
+        │   └── ambiguity-report.md
+        ├── quality-gates/              # quality-gate-validator writes
+        │   ├── qg-requirements.yaml
+        │   ├── qg-design.yaml
+        │   └── ...
+        ├── design/                     # design-architect writes
+        │   ├── design.md
+        │   ├── security-design.md
+        │   ├── api-spec.md
+        │   ├── database-schema.md
+        │   ├── architecture-decisions.md
+        │   ├── traceability.md
+        │   ├── test-impact.md
+        │   └── test-specifications.md
+        ├── implementation/             # implementation-engineer writes
+        │   ├── summary.md
+        │   ├── package-verification.md
+        │   └── tests-created.md
+        ├── review/                     # review-auditor writes
+        │   ├── review-report.md
+        │   ├── hallucination-report.md
+        │   └── security-findings.md
+        ├── testing/                    # testing-engineer writes
+        │   ├── test-report.md
+        │   ├── coverage-matrix.md
+        │   └── test-results.md
+        ├── deployment/                 # deployment-engineer writes
+        │   ├── deployment-plan.md
+        │   ├── acceptance-verification.md
+        │   ├── pre-deploy-checklist.md
+        │   └── monitoring.md
+        ├── knowledge/                  # knowledge-curator writes
+        │   ├── requirements-capture.yaml
+        │   ├── design-capture.yaml
+        │   └── ...
+        └── traceability.yaml           # traceability-analyst writes
 ```
 
-**Activity details**:
-
-| # | Activity | Actor | Output |
-|---|----------|-------|--------|
-| 1 | Input | Orchestrator | Context from prior phase loaded |
-| 2 | AI Generation | Phase sub-agent | Phase artifacts (requirements, design, code, etc.) |
-| 3 | Quality Gate | quality-gate agent | PASS/WARN/FAIL verdict |
-| 4 | Human Review | User | Feedback, change requests |
-| 5 | Refinement | Phase sub-agent | Revised artifacts (loops back to step 3) |
-| 6 | Approval + KC | User + knowledge agent + traceability agent | Phase approved, matrix updated, learnings captured |
-
-If Quality Gate returns FAIL:
-1. Knowledge-curator captures failure patterns → appends prevention rule to `.claude/rules/vbounce-learned-rules.md`
-2. Phase agent reads the new prevention rule
-3. Phase agent revises output applying the rule
-4. Quality Gate re-runs on revised output
-No human review until QG passes. This capture-then-fix loop ensures the same failure pattern never recurs across cycles.
-
-## Bounce Time Enforcement
-
-The paper's key insight: implementation should be FAST, validation should be DEEP.
-
-| Phase | Time Allocation | Instruction |
-|-------|----------------|-------------|
-| **Requirements** | DEEP DIVE | Multiple refinement cycles expected. Ambiguity score must be < 50 for every requirement. Test skeletons generated alongside stories. Iteration decomposition for large features. |
-| **Design** | DEEP DIVE | Architecture decisions documented via ADRs. Security design (STRIDE) mandatory. Traceability matrix updated. Complete integration/system/security test specifications produced. |
-| **Implementation** | FAST TRACK | Generate code, verify packages, run quality gate, done. No over-engineering. No gold-plating. |
-| **Review** | DEEP DIVE | Full hallucination check. Traceability verification. Security audit. |
-| **Testing** | DEEP DIVE | Full test suite with V-Model level classification. Every AC must have tests. Design-time test specs implemented. Adaptive updates if requirements changed. |
-| **Deployment** | STANDARD | Acceptance verification first. Checklist-driven. Rollback plan mandatory. |
-
-## Continuous Test Creation
-
-During the **Requirements** phase:
-1. Requirements agent generates user stories + acceptance criteria
-2. Requirements agent ALSO generates test skeletons for each AC:
-   - Test name: `Should_[AC outcome]_When_[AC condition]`
-   - Test type: unit / integration / e2e
-   - Linked AC: `AC-###`
-   - Status: `skeleton` (no implementation yet)
-3. These skeletons feed into the traceability matrix
-4. During **Implementation**, skeletons are instantiated into real tests
-5. During **Testing**, full test suite is validated against skeletons
-
-## Iteration Decomposition (NEW in v3.0)
-
-For large features (>= 13 total story points OR >= 8 user stories), the requirements agent decomposes them into incremental delivery slices. Each slice runs a mini V-cycle:
-
-```
-ITER-001: Design → Implement → Test → Deploy
-ITER-002: Design → Implement → Test → Deploy (builds on ITER-001)
-ITER-003: ...
-```
-
-Traceability and test skeletons carry forward across iterations. The orchestrator tracks which iteration is active in the state.
-
-## Continuous Knowledge Capture
-
-After each phase approval, the knowledge agent performs a lightweight extraction:
-
-| Phase | Knowledge Captured |
-|-------|--------------------|
-| Requirements | Ambiguity patterns found, clarification effectiveness, NFR gaps |
-| Design | Architecture decision rationale, security findings, pattern reuse |
-| Implementation | Hallucination patterns caught, package issues, code quality insights |
-| Testing | Coverage gaps, edge case discovery patterns, test distribution balance |
-| Review | Common issues found, false positive rate, review effectiveness |
-| Deployment | Environment issues, configuration surprises, rollback triggers |
-
-This is in ADDITION to the end-of-cycle retrospective that the knowledge agent performs.
-
-## Traceability Integration
-
-The traceability agent is invoked at each phase transition:
-
-| Transition | Traceability Action |
-|------------|-------------------|
-| Requirements → Design | Initialize matrix: REQ→Story→AC→TestSkeleton |
-| Design → Implementation | Update: add Component→API→Entity mappings |
-| Implementation → Review | Update: add File→Function→Migration mappings |
-| Testing → Deployment | Update: add Test→Result→Coverage mappings |
-| On requirement change | Impact analysis: show all affected artifacts |
-| On change request (CR) | CR assessment: classify impact (L1-L4), trace affected artifacts, produce delta plan. See [CR Workflow](references/workflows-change-request-track.md) |
-
-## Approval Matrix
+## State Management (state.yaml)
 
 ```yaml
-approval_matrix:
+cycle_id: CYCLE-{PROJECT}-{YYYYMMDD}-{SEQ}
+workspace: .vbounce/cycles/CYCLE-{PROJECT}-{YYYYMMDD}-{SEQ}
+current_phase: requirements
+anatomy_step: input | generation | quality_gate | review | refinement | approval
+phases:
   requirements:
-    approvers: ["Product Owner", "Business Analyst"]
-    quorum: 1
-
+    status: not_started | in_progress | qg_pending | review_pending | approved
+    artifacts: []
+    qg_verdict: null
+    qg_ref: null
+    approved_by: null
+    kc_captured: false
   design:
-    approvers: ["Tech Lead", "Architect"]
-    quorum: 1
-
+    status: not_started
   implementation:
-    auto_review: required  # Must pass before human review
-    approvers: ["Senior Developer", "Tech Lead"]
-    quorum: 1
-
+    status: not_started
+  review:
+    status: not_started
   testing:
-    approvers: ["QA Lead"]
-    quorum: 1
-
+    status: not_started
   deployment:
-    staging:
-      approvers: ["QA Lead"]
-      quorum: 1
-    production:
-      approvers: ["Tech Lead", "Product Owner", "QA Lead"]
-      quorum: 2  # Need 2 of 3
+    status: not_started
+history:
+  - timestamp: "ISO-8601"
+    action: "description"
 ```
+
+### Resume Protocol
+
+On every invocation:
+1. Read `.vbounce/state.yaml` → get `active_cycle` and `workspace` path
+2. Read `{workspace}/state.yaml` → get `current_phase` and `anatomy_step`
+3. Resume from last recorded step — do NOT restart the cycle
+4. If `.vbounce/state.yaml` does not exist, this is a new cycle — run Cycle Initialization
+
+## Orchestrator State Machine
+
+### 1. READ STATE
+```
+Read {workspace}/state.yaml
+→ Determine current_phase + anatomy_step
+→ Route to appropriate action
+```
+
+### 2. VALIDATE INPUT CONTRACT (before launching agent)
+Before launching any phase agent, verify its input files exist:
+
+```
+For each file in agent.contract.input where required=YES:
+  IF file does not exist at {workspace}/{path}:
+    BLOCK — report missing input, do not launch agent
+```
+
+### 3. DISPATCH AGENT
+Launch the phase agent with workspace context:
+
+```
+<files_to_read>
+- {workspace}/{input_file_1}
+- {workspace}/{input_file_2}
+- ...
+</files_to_read>
+
+Workspace: {workspace}
+Phase: {phase}
+```
+
+### 4. VALIDATE OUTPUT CONTRACT (after agent returns)
+After agent completes, verify output files exist and contain required patterns:
+
+```
+For each file in agent.contract.output:
+  IF file does not exist at {workspace}/{path}:
+    FAIL — output missing
+  IF validation pattern specified:
+    IF file does not match pattern:
+      WARN — output may be incomplete
+```
+
+### 5. UPDATE STATE
+```yaml
+phases.{phase}.status: qg_pending
+phases.{phase}.artifacts: [list of output files]
+anatomy_step: quality_gate
+history: + {timestamp, action}
+```
+
+### 6. ROUTE ON QG VERDICT
+- QG PASS/WARN(<=2) → go to step 7 (Present for Review)
+- QG FAIL → knowledge-curator captures failure → phase agent revises → QG re-run
+- **QG Retry Limit**: Max 3 failure→revise cycles. After 3 failures, escalate to user with QG report.
+
+### 7. PRESENT FOR REVIEW (MANDATORY — do NOT skip)
+
+After QG passes, you MUST present the phase results to the user before proceeding. This is the human review gate.
+
+**What to show:**
+
+1. **Phase summary** — which phase just completed, what the agent produced
+2. **Artifacts list** — list every output file with its path, so the user knows what was created:
+   ```
+   Artifacts produced:
+   - .vbounce/cycles/CYCLE-XXX/requirements/requirements.md (12 user stories, 47 ACs)
+   - .vbounce/cycles/CYCLE-XXX/requirements/test-skeletons.md (47 test skeletons)
+   - .vbounce/cycles/CYCLE-XXX/requirements/traceability.md (full matrix)
+   - .vbounce/cycles/CYCLE-XXX/requirements/ambiguity-report.md (avg score: 23)
+   ```
+3. **QG verdict** — PASS or WARN with details:
+   ```
+   Quality Gate: PASS (6/6 criteria passed)
+   ```
+   If WARN, list the specific warnings.
+4. **Key highlights** — read the output files and extract the most important items for the user to review:
+   - Requirements: show the user story list with IDs and titles
+   - Design: show the architecture overview and key ADRs
+   - Implementation: show files created and package verification result
+   - Testing: show test distribution and coverage percentage
+   - Deployment: show rollback triggers and acceptance verification result
+5. **Approval prompt** — explicitly ask the user:
+   ```
+   Ready for your review. Please respond with:
+   - APPROVED (or APPROVED AS [Role]) — proceed to next phase
+   - CHANGES REQUESTED — describe what needs revision
+
+   Approvers for this phase: [from approval-matrix.md]
+   ```
+
+**What to do after user responds:**
+
+- `APPROVED` / `APPROVED AS [Role]`:
+  1. Update state: `phases.{phase}.status: approved`, `phases.{phase}.approved_by: [role]`
+  2. Launch traceability-analyst (Update mode)
+  3. Launch knowledge-curator (Per-Phase capture)
+  4. Update state: `current_phase: {next_phase}`, `anatomy_step: input`
+  5. Proceed to next phase (back to step 1)
+
+- `CHANGES REQUESTED`:
+  1. Update state: `anatomy_step: refinement`
+  2. Re-dispatch phase agent with user's feedback + previous output
+  3. After revision → back to step 5 (QG re-run)
+
+### Hook Enforcement
+
+The `hooks/hooks.json` file provides automated contract validation:
+- **PreToolUse (Agent)**: Blocks agent launch if prompt contains unresolved `{workspace}` placeholders or missing input file list
+- **SubagentStop**: After agent completes, verifies output files exist at expected paths
+
+These hooks transform convention-based contracts into enforced contracts.
+
+## Agent Dispatch Table
+
+| Phase | Agent | Input Contract | Output Contract |
+|-------|-------|---------------|-----------------|
+| **Requirements** | requirements-analyst | `prd.md`, `state.yaml` | `requirements/*.md` (4 files) |
+| **Design** | design-architect | `requirements/*.md` (3 files), `state.yaml` | `design/*.md` (8 files) |
+| **Implementation** | implementation-engineer | `design/*.md` (3 files), `requirements/test-skeletons.md`, `state.yaml` | `implementation/*.md` (3 files) + source code |
+| **Review** | review-auditor | `implementation/*.md`, source code, `design/`, `state.yaml` | `review/*.md` (3 files) |
+| **Testing** | testing-engineer | `requirements/*.md`, `design/test-specifications.md`, `implementation/summary.md`, `state.yaml` | `testing/*.md` (3 files) + test code |
+| **Deployment** | deployment-engineer | `testing/*.md` (2 files), `requirements/requirements.md`, `implementation/summary.md`, `state.yaml` | `deployment/*.md` (4 files) |
+
+### Cross-Cutting Agents (invoked by orchestrator, not by phase)
+
+| Agent | When Invoked | Input | Output |
+|-------|-------------|-------|--------|
+| **quality-gate-validator** | After every generation (anatomy step 3) | `{phase}/` artifacts, `state.yaml` | `quality-gates/qg-{phase}.yaml` |
+| **traceability-analyst** | After every phase approval (anatomy step 6) | Phase artifacts, existing matrix | `traceability.yaml` |
+| **knowledge-curator** | After QG failure OR after phase approval | Phase artifacts, QG report | `knowledge/{phase}-capture.yaml`, learned rules |
+
+## Quality Assurance: 4 Layers
+
+1. **Input Contract** (orchestrator validates before launch): Required files exist at expected paths
+2. **Output Contract** (orchestrator validates after return): Files written with required patterns
+3. **Semantic QG** (quality-gate-validator agent): Domain-specific criteria (ambiguity, coverage, etc.)
+4. **Cross-Agent Compatibility** (next agent Step 1): "I parsed previous output successfully" acknowledgment
+
+## Agent-to-Agent Context Passing
+
+When launching an agent via the Agent tool, construct the prompt with **resolved paths** (not placeholders). This is a convention — the agent reads your prompt text and follows the instructions.
+
+**Example prompt for launching design-architect:**
+```
+Read these files BEFORE any work:
+- .vbounce/cycles/CYCLE-MYAPP-20260307-001/requirements/requirements.md
+- .vbounce/cycles/CYCLE-MYAPP-20260307-001/requirements/test-skeletons.md
+- .vbounce/cycles/CYCLE-MYAPP-20260307-001/requirements/traceability.md
+- .vbounce/cycles/CYCLE-MYAPP-20260307-001/state.yaml
+
+Workspace: .vbounce/cycles/CYCLE-MYAPP-20260307-001
+Phase: design
+
+Write all output files to: .vbounce/cycles/CYCLE-MYAPP-20260307-001/design/
+```
+
+Each agent's CONTRACT section lists what files it needs — use that as the checklist when constructing the prompt.
+
+**Reference files**: Agent contracts list references like `references/acceptance-criteria.md`. These are relative to the plugin's skill directory. Agents access them via their `memory: project` setting and the plugin's auto-loaded context. Agents do NOT need explicit paths to reference files — they are loaded as part of the skill context.
 
 ## Commands
 
@@ -192,154 +308,65 @@ approval_matrix:
 |---------|--------|
 | `APPROVED` | Proceed to next phase (triggers KC + traceability update) |
 | `APPROVED AS [ROLE]` | Approve with specific role |
-| `CHANGES REQUESTED` | Revise current output (loops to step 5 in anatomy) |
+| `CHANGES REQUESTED` | Revise current output (loops to refinement) |
 | `SKIP TO [phase]` | Jump to phase (if prerequisites met) |
 | `ROLLBACK TO [phase]` | Return to previous phase |
-| `START CR [description]` | Pause feature cycle, create CR cycle, enter Assess phase |
-| `APPROVED CR AS [L1-L4]` | Accept CR classification (L1-L3 → Replan, L4 → new cycle) |
-| `CR REJECTED` | Deny CR, resume feature cycle unchanged |
-| `CR DEFERRED` | Queue CR for future cycle, resume feature cycle |
-| `CR SPLIT` | Split CR into smaller CRs assessed independently |
-| `OVERRIDE CLASSIFICATION [L1-L4]` | Override CR classification (requires justification) |
-| `CR RECONCILED` | Complete CR, merge overlay into traceability, resume feature |
-| `ABORT CR` | Abandon CR, revert to pre-CR state |
+| `START CR [description]` | Pause feature cycle, start CR assessment |
+| `START BUGFIX [ticket-id]` | Start bugfix workflow |
 
-## Quality Gates Summary
+## Continuous Test Creation
 
-| Phase | Must Pass (enforced by quality-gate agent) |
-|-------|-----------|
-| Requirements | Ambiguity < 50, NFRs defined, stories have AC, test skeletons present, iteration decomposition (if large) |
-| Design | Architecture complete, security design, API spec, traceability updated, integration/system/security test specs complete |
-| Implementation | 0 hallucinations, all packages verified, tests present, design conformance |
-| Testing | Distribution 40/20/10/10/10/10, all AC covered, V-Model levels present, design specs implemented |
-| Deployment | Acceptance verification passed (100% AC with passing tests), staging verified, rollback plan ready |
+During the Requirements phase, test skeletons are generated alongside stories (not deferred). These skeletons carry through the entire pipeline — instantiated during Implementation, completed during Testing.
 
-## State Management
+## Self-Learning Memory
 
-```yaml
-vbounce_state:
-  cycle_id: "CYCLE-[PROJECT]-[YYYYMMDD]-[###]"
-  current_phase: requirements | design | implementation | testing | deployment | knowledge
-  phase_anatomy_step: input | generation | quality_gate | review | refinement | approval
-  phases:
-    requirements: { status: approved, approved_by: ["PO"], qg_verdict: pass, kc_captured: true }
-    design: { status: approved, approved_by: ["Tech Lead"], qg_verdict: pass, kc_captured: true }
-    implementation: { status: pending_review, auto_review: pass, qg_verdict: warn }
-    testing: { status: not_started }
-    deployment: { status: not_started }
-    knowledge: { status: not_started }
-  traceability:
-    matrix_ref: "TM-[PROJECT]-[YYYYMMDD]"
-    last_updated: "[Phase name]"
-    orphan_count: 0
-  change_requests:
-    active: null  # Current CR being processed, or null
-    queued: []    # CRs waiting (FIFO)
-    completed: [] # Archived CR IDs
-    # Example active CR:
-    # active:
-    #   cr_id: "CR-[PROJECT]-[YYYYMMDD]-[###]"
-    #   classification: L2
-    #   current_phase: replan
-    #   feature_paused_at: implementation
-```
-
-## Self-Learning Memory System
-
-V-Bounce uses Claude Code's project memory for persistent cross-cycle learning.
-All knowledge is stored following Claude Code conventions — no custom directories.
-
-### Memory Architecture
+All knowledge is stored following Claude Code conventions:
 
 ```
 ~/.claude/projects/<project>/memory/
-├── MEMORY.md                          # Project index (auto, 200 lines max)
+├── MEMORY.md
 └── agents/
-    ├── requirements-analyst/MEMORY.md  # Agent-specific learnings
+    ├── requirements-analyst/MEMORY.md
     ├── design-architect/MEMORY.md
-    ├── quality-gate-validator/MEMORY.md
     └── ...
 
 .claude/
-├── vbounce.local.md                   # Per-project config + threshold overrides
+├── vbounce.local.md                   # Per-project config overrides
 └── rules/
     └── vbounce-learned-rules.md       # Auto-generated prevention rules
 ```
 
 ### Three Learning Loops
 
-**Loop 1 — Consult Before Acting (all agents)**
-Every agent MUST check memory before generating output:
-1. Read own agent memory (`memory: project` in frontmatter)
-2. Read `.claude/rules/vbounce-learned-rules.md` for prevention rules
-3. Apply relevant lessons to avoid repeating past mistakes
+1. **Consult Before Acting** — every agent reads learned rules before generating output
+2. **Capture on QG Failure** — knowledge-curator writes prevention rule, phase agent re-reads and revises
+3. **Skill Update on Cycle End** — knowledge-curator writes actionable rules from retrospective
 
-**Loop 2 — Capture on QG Failure**
-When quality gate returns FAIL, BEFORE the phase agent revises:
-1. Knowledge-curator captures failure patterns:
-   ```yaml
-   qg_failure:
-     phase: requirements
-     criterion: "Ambiguity Score"
-     expected: "< 50"
-     actual: "67"
-     root_cause: "Used 'several' without quantification"
-     prevention_rule: "Always replace vague quantifiers during PRD parsing"
-   ```
-2. Prevention rule appended to `.claude/rules/vbounce-learned-rules.md`
-3. Phase agent reads the new rule before revising
-4. QG re-runs on revised output
+## Additional Tracks
 
-**Loop 3 — Skill Update on Cycle End**
-After end-of-cycle retrospective, knowledge-curator:
-1. Generates `recommendations.skill_updates[]`
-2. Writes actionable rules to `.claude/rules/vbounce-learned-rules.md`
-3. Updates threshold overrides in `.claude/vbounce.local.md` if calibration needed
-4. Next cycle's agents automatically load these via Claude Code rules system
+- [Bugfix Workflow](references/workflows-bugfix-track.md) (6-phase, P2/P3)
+- [Hotfix Workflow](references/workflows-hotfix-track.md) (5-phase, P0/P1)
+- [Change Request Workflow](references/workflows-change-request-track.md) (4-phase, mid-cycle scope changes)
+- [Workflows by Role](references/workflows-by-role.md)
 
-### Learned Rules File Format
+## Shared References
 
-`.claude/rules/vbounce-learned-rules.md` (auto-generated, append-only):
-```markdown
----
-description: V-Bounce learned prevention rules. Auto-generated by knowledge-curator.
-globs: "**/*"
----
-# V-Bounce Learned Rules
+All agents can consult these reference files:
 
-## Requirements Phase
-- [CYCLE-TF-20260307] Always replace vague quantifiers (several, many, few) with exact numbers during PRD parsing
-- [CYCLE-TF-20260307] Webhook specs must include per-status-code retry behavior
-
-## Quality Gate Calibration
-- [CYCLE-TF-20260307] Story Independence: allow shared data models in microservice projects
-```
-
-### Config Overrides
-
-`.claude/vbounce.local.md`:
-```yaml
----
-qg_overrides:
-  requirements:
-    ambiguity_max: 45
-  testing:
-    distribution_tolerance: 8
-cycle_defaults:
-  approval_mode: explicit
----
-# Project-specific V-Bounce notes
-```
-
-## Integration with External Artifacts
-
-V-Bounce quality-gate and traceability agents can validate existing project artifacts:
-- Run quality-gate on requirements docs (requirements criteria) or design docs (design criteria)
-- Run traceability on spec + plan + task files to build a coverage map
-
-## Integration
-
-Use Claude built-in skills for document generation:
-- **docx**: PRD, deployment plans, reports
-- **xlsx**: Traceability matrix, metrics, coverage
-- **pptx**: Architecture presentations
+| Reference | Description | Used By |
+|-----------|-------------|---------|
+| [phase-anatomy.md](references/phase-anatomy.md) | 6-Activity cycle definition | All agents |
+| [id-conventions.md](references/id-conventions.md) | US-XXX, AC-XXX, NFR-XXX formats | All agents |
+| [approval-matrix.md](references/approval-matrix.md) | Who approves each phase | Orchestrator |
+| [quality-criteria.md](references/quality-criteria.md) | Phase-specific QG criteria | quality-gate-validator |
+| [acceptance-criteria.md](references/acceptance-criteria.md) | GIVEN-WHEN-THEN patterns | requirements-analyst |
+| [ambiguity-checklist.md](references/ambiguity-checklist.md) | Ambiguity detection guide | requirements-analyst |
+| [user-story-patterns.md](references/user-story-patterns.md) | Story templates and sizing | requirements-analyst |
+| [architecture-patterns.md](references/architecture-patterns.md) | Architecture styles | design-architect |
+| [coding-standards.md](references/coding-standards.md) | Naming and structure | implementation-engineer |
+| [hallucination-patterns.md](references/hallucination-patterns.md) | Known fake packages | implementation-engineer, review-auditor |
+| [edge-cases.md](references/edge-cases.md) | Edge case checklist | testing-engineer |
+| [workflows-bugfix-track.md](references/workflows-bugfix-track.md) | Bugfix workflow (P2/P3) | Orchestrator |
+| [workflows-hotfix-track.md](references/workflows-hotfix-track.md) | Hotfix workflow (P0/P1) | Orchestrator |
+| [workflows-change-request-track.md](references/workflows-change-request-track.md) | Change request workflow | Orchestrator |
+| [workflows-by-role.md](references/workflows-by-role.md) | Role-specific quick reference | All agents |
