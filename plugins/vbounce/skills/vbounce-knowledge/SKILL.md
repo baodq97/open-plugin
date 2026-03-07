@@ -302,7 +302,7 @@ recommendations:
 ## Knowledge Base Structure
 
 ```
-docs/knowledge-base/
+.claude/
 ├── patterns/
 │   ├── code/
 │   └── prompts/

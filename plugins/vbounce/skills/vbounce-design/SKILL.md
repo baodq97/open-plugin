@@ -20,7 +20,7 @@ Requirements phase must be APPROVED before starting.
 
 ## Process
 
-1. **Consult Knowledge Base** - Check `docs/knowledge-base/` if it exists for relevant lessons (LL-*), code patterns (PAT-CODE-*), prompt patterns (PAT-PROMPT-*), and knowledge captures (KC-*). Apply findings to avoid past mistakes.
+1. **Consult Knowledge Base** - Check `.claude/` if it exists for relevant lessons (LL-*), code patterns (PAT-CODE-*), prompt patterns (PAT-PROMPT-*), and knowledge captures (KC-*). Apply findings to avoid past mistakes.
 2. **Analyze Requirements** - Review approved PRD, stories, NFRs
 3. **Design Architecture** - Select style, define components
 4. **Design Security** - Threat model, auth, data protection

@@ -25,6 +25,14 @@ Adapt to the current project's architecture, tech stack, and conventions. Read t
 
 You MUST follow this 9-step pipeline sequentially. Do not skip steps.
 
+### Step 0: Consult Memory (Self-Learning)
+
+Before generating any output, check for learnings from previous cycles:
+1. Your agent memory is loaded automatically (`memory: project` in frontmatter)
+2. Read `.claude/rules/vbounce-learned-rules.md` for prevention rules -- apply ALL relevant rules
+3. Read `.claude/vbounce.local.md` for project-specific threshold overrides
+4. If any prevention rule applies to this phase, explicitly acknowledge it in your output
+
 ### Step 1: Parse PRD
 - Read the PRD from the project's requirements directory
 - Extract: Background, Problem Statement, Proposed Solution, Requirements (phased: MVP → Must Have → Nice to Have), Constraints, Success Criteria, Out of Scope

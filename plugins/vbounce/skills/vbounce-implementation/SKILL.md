@@ -58,7 +58,7 @@ DON'T: Invent methods or parameters
 
 ## Process
 
-1. **Consult Knowledge Base** - If `docs/knowledge-base/` exists, check BEFORE writing code:
+1. **Consult Knowledge Base** - If `.claude/` exists, check BEFORE writing code:
    - Search `lessons/` (LL-*) for past implementation mistakes
    - Search `patterns/code/` (PAT-CODE-*) for reusable code templates
    - Read phase captures for similar features
