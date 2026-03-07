@@ -51,3 +51,8 @@
 - Disk full
 - Memory limit
 - Connection pool exhausted
+
+## Business Logic
+- Boundary conditions
+- Permission edge cases
+- Pagination limits

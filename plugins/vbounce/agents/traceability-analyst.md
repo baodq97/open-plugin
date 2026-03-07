@@ -74,9 +74,9 @@ input:
 
 | Phase | Adds to Matrix |
 |-------|---------------|
-| Design | REQ→Component, REQ→API endpoint, Story→Data entity |
+| Design | REQ→Component, REQ→API endpoint, Story→Data entity, STRIDE→Threat, ITS/STS/SECTS test specs |
 | Implementation | Component→File, API→Route handler, Entity→Migration |
-| Testing | AC→Test case, Test→File:Line, Coverage % per REQ |
+| Testing | AC→Test case (with v_level), Test→File:Line, Test→design spec, Coverage % per REQ, V-Model level coverage |
 
 ### 3. Validate (Any Phase)
 
@@ -137,8 +137,33 @@ traceability_matrix:
                 - test_id: TC-001
                   name: "Should_CreateUser_When_ValidData"
                   type: unit
+                  v_level: unit           # V-Model test level
                   file: "src/services/__tests__/user-service.test.ts"
                   status: skeleton | implemented | passing | failing
+                  traces_to_design: null  # Design artifact this validates
+
+  # V-Model test-level symmetry
+  v_model_coverage:
+    acceptance:
+      traces_to: "User Stories / Acceptance Criteria"
+      tests: []
+      coverage: "[X/Y] ([%])"
+    system:
+      traces_to: "Architecture / System flows"
+      tests: []
+      coverage: "[X/Y] ([%])"
+    integration:
+      traces_to: "API Contracts / Component interactions"
+      tests: []
+      coverage: "[X/Y] ([%])"
+    unit:
+      traces_to: "Functions / Files from Implementation"
+      tests: []
+      coverage: "[X/Y] ([%])"
+    security:
+      traces_to: "STRIDE findings from Design"
+      tests: []
+      coverage: "[X/Y] ([%])"
 
   # Orphan detection
   orphans:
@@ -147,6 +172,9 @@ traceability_matrix:
     components_without_requirements: []
     requirements_without_components: []
     acceptance_criteria_without_tests: []
+    ac_without_acceptance_tests: []
+    api_contracts_without_integration_tests: []
+    stride_threats_without_security_tests: []
 
   # Coverage summary
   coverage:

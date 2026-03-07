@@ -1,6 +1,6 @@
 ---
 name: vbounce
-version: "2.0.0"
+version: "3.0.0"
 description: |
   V-Bounce AI-Native SDLC Orchestrator - Coordinates 9 specialized sub-agents
   for complete software development lifecycle. Implements the V-Bounce paper's
@@ -9,7 +9,7 @@ description: |
   Triggers: vbounce, sdlc, requirement, design, implement, test, review, deploy, knowledge.
 ---
 
-# V-Bounce SDLC Orchestrator v2.0
+# V-Bounce SDLC Orchestrator v3.0
 
 AI-Native Software Development Lifecycle framework with 9 specialized sub-agents.
 
@@ -46,15 +46,15 @@ flowchart TD
 
 | Agent | Version | Trigger | Role |
 |-------|---------|---------|------|
-| **requirements** | v2.0.0 | "requirement", "PRD", "NFR" | Structured requirements + test skeletons |
-| **design** | v2.0.0 | "design", "architecture" | Technical design + traceability update |
+| **requirements** | v3.0.0 | "requirement", "PRD", "NFR" | Structured requirements + test skeletons + iteration decomposition |
+| **design** | v3.0.0 | "design", "architecture" | Technical design + traceability update + design-time test specs |
 | **implementation** | v2.0.0 | "implement", "code" | Fast-track code generation |
 | **review** | v1.2.0 | "review", "verify" | Hallucination detection + traceability check |
-| **testing** | v2.0.0 | "test", "coverage" | Full tests + adaptive updates |
-| **deployment** | v1.0.0 | "deploy", "release" | Deployment with approvals |
+| **testing** | v3.0.0 | "test", "coverage" | Full tests + V-Model level classification + adaptive updates |
+| **deployment** | v2.0.0 | "deploy", "release" | Deployment with acceptance verification + approvals |
 | **knowledge** | v2.0.0 | "retrospective", "lessons" | Per-phase + end-of-cycle capture |
-| **quality-gate** | v1.0.0 | (automatic) | Per-phase quality checksum |
-| **traceability** | v1.0.0 | "trace", "impact" | Live traceability matrix |
+| **quality-gate** | v2.0.0 | (automatic) | Per-phase quality checksum + acceptance verification |
+| **traceability** | v2.0.0 | "trace", "impact" | Live traceability matrix + V-Model level tracking |
 
 ## 6-Activity Phase Anatomy
 
@@ -91,12 +91,12 @@ The paper's key insight: implementation should be FAST, validation should be DEE
 
 | Phase | Time Allocation | Instruction |
 |-------|----------------|-------------|
-| **Requirements** | DEEP DIVE | Multiple refinement cycles expected. Ambiguity score must be < 50 for every requirement. Test skeletons generated alongside stories. |
-| **Design** | DEEP DIVE | Architecture decisions documented via ADRs. Security design (STRIDE) mandatory. Traceability matrix updated. |
+| **Requirements** | DEEP DIVE | Multiple refinement cycles expected. Ambiguity score must be < 50 for every requirement. Test skeletons generated alongside stories. Iteration decomposition for large features. |
+| **Design** | DEEP DIVE | Architecture decisions documented via ADRs. Security design (STRIDE) mandatory. Traceability matrix updated. Complete integration/system/security test specifications produced. |
 | **Implementation** | FAST TRACK | Generate code, verify packages, run quality gate, done. No over-engineering. No gold-plating. |
 | **Review** | DEEP DIVE | Full hallucination check. Traceability verification. Security audit. |
-| **Testing** | DEEP DIVE | Full test suite with 40/30/20/10 distribution. Every AC must have tests. Adaptive updates if requirements changed. |
-| **Deployment** | STANDARD | Checklist-driven. Rollback plan mandatory. |
+| **Testing** | DEEP DIVE | Full test suite with V-Model level classification. Every AC must have tests. Design-time test specs implemented. Adaptive updates if requirements changed. |
+| **Deployment** | STANDARD | Acceptance verification first. Checklist-driven. Rollback plan mandatory. |
 
 ## Continuous Test Creation
 
@@ -110,6 +110,18 @@ During the **Requirements** phase:
 3. These skeletons feed into the traceability matrix
 4. During **Implementation**, skeletons are instantiated into real tests
 5. During **Testing**, full test suite is validated against skeletons
+
+## Iteration Decomposition (NEW in v3.0)
+
+For large features (>= 13 total story points OR >= 8 user stories), the requirements agent decomposes them into incremental delivery slices. Each slice runs a mini V-cycle:
+
+```
+ITER-001: Design → Implement → Test → Deploy
+ITER-002: Design → Implement → Test → Deploy (builds on ITER-001)
+ITER-003: ...
+```
+
+Traceability and test skeletons carry forward across iterations. The orchestrator tracks which iteration is active in the state.
 
 ## Continuous Knowledge Capture
 
@@ -191,11 +203,11 @@ approval_matrix:
 
 | Phase | Must Pass (enforced by quality-gate agent) |
 |-------|-----------|
-| Requirements | Ambiguity < 50, NFRs defined, stories have AC, test skeletons present |
-| Design | Architecture complete, security design, API spec, traceability updated |
+| Requirements | Ambiguity < 50, NFRs defined, stories have AC, test skeletons present, iteration decomposition (if large) |
+| Design | Architecture complete, security design, API spec, traceability updated, integration/system/security test specs complete |
 | Implementation | 0 hallucinations, all packages verified, tests present, design conformance |
-| Testing | Distribution 40/30/20/10, all AC covered, edge cases present |
-| Deployment | All tests pass, staging verified, rollback plan ready |
+| Testing | Distribution 40/20/10/10/10/10, all AC covered, V-Model levels present, design specs implemented |
+| Deployment | Acceptance verification passed (100% AC with passing tests), staging verified, rollback plan ready |
 
 ## State Management
 

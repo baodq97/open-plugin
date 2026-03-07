@@ -1,14 +1,15 @@
 ---
 name: vbounce-deployment
-version: "1.0.0"
+version: "2.0.0"
 description: |
   V-Bounce Deployment Agent - Manages deployment process across environments.
   Creates deployment plans, checklists, rollback strategies. Handles staging
   and production deployments with proper approvals.
+  Includes automated acceptance verification against original requirements.
   Triggers: deploy, deployment, release, staging, production, rollback.
 ---
 
-# V-Bounce Deployment Agent
+# V-Bounce Deployment Agent v2.0
 
 Manage deployments with proper approvals and rollback strategies.
 
@@ -26,14 +27,15 @@ Manage deployments with proper approvals and rollback strategies.
 
 ## Process
 
-1. **Pre-Deployment Checklist** - Verify all prerequisites
-2. **Create Deployment Plan** - Steps, timing, responsibilities
-3. **Deploy to Staging** - Test in staging environment
-4. **Staging Verification** - Smoke tests, QA sign-off
-5. **Production Deployment** - With proper approvals
-6. **Post-Deployment Verification** - Health checks
-7. **Monitor** - Watch for issues
-8. **Rollback if needed** - Execute rollback plan
+1. **Acceptance Verification** - Verify all ACs have passing test coverage (NEW in v2.0)
+2. **Pre-Deployment Checklist** - Verify all prerequisites
+3. **Create Deployment Plan** - Steps, timing, responsibilities
+4. **Deploy to Staging** - Test in staging environment
+5. **Staging Verification** - Smoke tests, QA sign-off
+6. **Production Deployment** - With proper approvals
+7. **Post-Deployment Verification** - Health checks
+8. **Monitor** - Watch for issues
+9. **Rollback if needed** - Execute rollback plan
 
 ## Output Format
 
@@ -47,6 +49,32 @@ deployment_info:
   version: "[App version]"
   release_notes: "[Summary of changes]"
   breaking_changes: ["[List if any]"]
+
+# ACCEPTANCE VERIFICATION (NEW in v2.0)
+# Validates all original acceptance criteria have passing test coverage
+acceptance_verification:
+  requirement_ref: REQ-[###]
+  total_acceptance_criteria: [count]
+  verified_by_passing_tests: [count]
+  not_verified: [count]
+  coverage_percentage: "[%]"
+  verdict: PASS | FAIL
+
+  details:
+    - ac_id: AC-001
+      description: "GIVEN [context] WHEN [action] THEN [result]"
+      status: verified | not_verified | partial
+      tests:
+        - test_id: TC-001
+          name: "Should_[Behavior]_When_[Condition]"
+          v_level: acceptance | system | integration | unit | security
+          result: passing | failing | not_run
+      gaps: "[If not verified, what's missing]"
+
+  # ACs without ANY test coverage — these BLOCK deployment
+  blocking_gaps:
+    - ac_id: "[AC without tests]"
+      recommendation: "[What test to add]"
 
 # PRE-DEPLOYMENT CHECKLIST
 pre_deployment:

@@ -3,13 +3,14 @@
 V-Bounce Traceability Matrix Generator/Updater
 
 Generates or updates a traceability matrix from V-Bounce YAML artifacts.
-Detects orphans and calculates coverage.
+Detects orphans, calculates coverage, and tracks V-Model test-level symmetry.
 
 Usage:
     uv run trace-matrix.py init --requirements <req.yaml>
     uv run trace-matrix.py update --matrix <matrix.yaml> --phase design --artifacts <design.yaml>
     uv run trace-matrix.py validate --matrix <matrix.yaml>
     uv run trace-matrix.py impact --matrix <matrix.yaml> --changed REQ-001,REQ-003
+    uv run trace-matrix.py acceptance --matrix <matrix.yaml>
 """
 # /// script
 # requires-python = ">=3.11"
@@ -82,8 +83,89 @@ def init_matrix(requirements: dict) -> dict:
                 "last_phase": "requirements",
             },
             "entries": entries,
+            "v_model_coverage": calculate_v_model_coverage(entries),
             "orphans": detect_orphans(entries, "requirements"),
             "coverage": calculate_coverage(entries),
+        }
+    }
+
+
+def calculate_v_model_coverage(entries: list) -> dict:
+    """Calculate V-Model test-level coverage from matrix entries."""
+    levels = {
+        "acceptance": {"traces_to": "User Stories / Acceptance Criteria", "tests": [], "total": 0, "covered": 0},
+        "system": {"traces_to": "Architecture / System flows", "tests": [], "total": 0, "covered": 0},
+        "integration": {"traces_to": "API Contracts / Component interactions", "tests": [], "total": 0, "covered": 0},
+        "unit": {"traces_to": "Functions / Files from Implementation", "tests": [], "total": 0, "covered": 0},
+        "security": {"traces_to": "STRIDE findings from Design", "tests": [], "total": 0, "covered": 0},
+    }
+
+    for entry in entries:
+        for story in entry.get("stories", []):
+            for ac in story.get("acceptance_criteria", []):
+                for test in ac.get("tests", []):
+                    v_level = test.get("v_level", "unit")
+                    if v_level in levels:
+                        levels[v_level]["tests"].append(test.get("test_id", "?"))
+
+    def pct(n, d):
+        return f"{n}/{d} ({round(n / d * 100)}%)" if d > 0 else "0/0 (N/A)"
+
+    result = {}
+    for level, data in levels.items():
+        count = len(data["tests"])
+        result[level] = {
+            "traces_to": data["traces_to"],
+            "tests": data["tests"],
+            "coverage": pct(count, max(count, 1)),
+        }
+    return result
+
+
+def acceptance_verification(matrix: dict) -> dict:
+    """Verify all acceptance criteria have passing test coverage."""
+    entries = matrix.get("traceability_matrix", {}).get("entries", [])
+    total_ac = 0
+    verified_ac = 0
+    details = []
+    blocking_gaps = []
+
+    for entry in entries:
+        for story in entry.get("stories", []):
+            for ac in story.get("acceptance_criteria", []):
+                total_ac += 1
+                ac_id = ac.get("ac_id", "?")
+                tests = ac.get("tests", [])
+                passing = [t for t in tests if t.get("status") == "passing"]
+                v_levels = list({t.get("v_level", "unit") for t in passing})
+
+                if passing:
+                    verified_ac += 1
+                    status = "verified"
+                else:
+                    status = "not_verified"
+                    blocking_gaps.append({
+                        "ac_id": ac_id,
+                        "recommendation": f"Add test for {ac.get('description', ac_id)}",
+                    })
+
+                details.append({
+                    "ac_id": ac_id,
+                    "status": status,
+                    "tests": [t.get("test_id", "?") for t in tests],
+                    "v_levels_covered": v_levels,
+                })
+
+    pct = round(verified_ac / total_ac * 100) if total_ac > 0 else 0
+    return {
+        "acceptance_verification": {
+            "total_ac": total_ac,
+            "verified": verified_ac,
+            "not_verified": total_ac - verified_ac,
+            "coverage": f"{pct}%",
+            "verdict": "PASS" if verified_ac == total_ac else "FAIL",
+            "details": details,
+            "blocking_gaps": blocking_gaps,
         }
     }
 
@@ -96,6 +178,9 @@ def detect_orphans(entries: list, phase: str) -> dict:
         "components_without_requirements": [],
         "requirements_without_components": [],
         "acceptance_criteria_without_tests": [],
+        "ac_without_acceptance_tests": [],
+        "api_contracts_without_integration_tests": [],
+        "stride_threats_without_security_tests": [],
     }
 
     for entry in entries:
@@ -105,12 +190,22 @@ def detect_orphans(entries: list, phase: str) -> dict:
 
         for story in entry.get("stories", []):
             for ac in story.get("acceptance_criteria", []):
-                if not ac.get("tests"):
+                tests = ac.get("tests", [])
+                if not tests:
                     orphans["acceptance_criteria_without_tests"].append(ac.get("ac_id", "?"))
                 else:
                     has_any_test = True
+                    # V-Model level orphan checks
+                    v_levels = {t.get("v_level", "unit") for t in tests}
+                    if "acceptance" not in v_levels and "system" not in v_levels:
+                        orphans["ac_without_acceptance_tests"].append(ac.get("ac_id", "?"))
                 if ac.get("components"):
                     has_any_component = True
+                # Check API contracts have integration tests
+                if ac.get("api_endpoints") and tests:
+                    if "integration" not in {t.get("v_level") for t in tests}:
+                        for ep in ac.get("api_endpoints", []):
+                            orphans["api_contracts_without_integration_tests"].append(ep)
 
         if not has_any_test:
             orphans["requirements_without_tests"].append(req_id)
@@ -217,6 +312,9 @@ def main():
     impact_p.add_argument("--matrix", required=True, help="Path to matrix YAML")
     impact_p.add_argument("--changed", required=True, help="Comma-separated REQ IDs")
 
+    accept_p = sub.add_parser("acceptance", help="Acceptance verification")
+    accept_p.add_argument("--matrix", required=True, help="Path to matrix YAML")
+
     args = parser.parse_args()
 
     if args.command == "init":
@@ -241,6 +339,22 @@ def main():
         changed = [r.strip() for r in args.changed.split(",")]
         result = impact_analysis(matrix, changed)
         print(yaml.dump(result, default_flow_style=False))
+
+    elif args.command == "acceptance":
+        matrix = load_yaml(args.matrix)
+        result = acceptance_verification(matrix)
+        verdict = result["acceptance_verification"]["verdict"]
+        coverage = result["acceptance_verification"]["coverage"]
+        print(yaml.dump(result, default_flow_style=False))
+        if verdict == "FAIL":
+            gaps = result["acceptance_verification"]["blocking_gaps"]
+            print(f"\nACCEPTANCE VERIFICATION FAILED — {coverage} coverage")
+            print(f"{len(gaps)} acceptance criteria without passing tests:")
+            for gap in gaps:
+                print(f"  - {gap['ac_id']}: {gap['recommendation']}")
+            sys.exit(1)
+        else:
+            print(f"\nACCEPTANCE VERIFICATION PASSED — {coverage} coverage")
 
     else:
         parser.print_help()

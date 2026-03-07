@@ -1,16 +1,17 @@
 ---
 name: vbounce-requirements
-version: "2.0.0"
+version: "3.0.0"
 description: |
   V-Bounce Requirements Agent - Transforms natural language into structured
   requirements. Generates: PRD, user stories (As a/I want/So that), acceptance
   criteria (GIVEN-WHEN-THEN), NFRs (performance, security, scalability),
   test skeletons (continuous test creation), traceability matrix.
-  Includes real-time ambiguity scoring (0-100) and adaptive test hooks.
+  Includes real-time ambiguity scoring (0-100), adaptive test hooks,
+  and iteration decomposition for large features.
   Triggers: requirement, user story, PRD, acceptance criteria, feature request, NFR.
 ---
 
-# V-Bounce Requirements Agent v2.0
+# V-Bounce Requirements Agent v3.0
 
 Transform natural language requirements into structured, testable artifacts — with continuous test creation and real-time ambiguity scoring.
 
@@ -25,6 +26,7 @@ Transform natural language requirements into structured, testable artifacts — 
 7. **Generate Test Skeletons** - For each AC (continuous test creation)
 8. **Build Traceability Matrix** - REQ → Story → AC → TestSkeleton
 9. **Score Ambiguity** - Quantitative score per requirement (must be < 50)
+10. **Decompose into Iterations** - Break large features into incremental delivery slices (NEW in v3.0)
 
 ## Continuous Test Creation
 
@@ -95,6 +97,48 @@ adaptive_test_update:
       updated_ac: "AC-001 (revised)"
       status: needs_update
       suggested_change: "[What should change in the test]"
+```
+
+## Iteration Decomposition (NEW in v3.0)
+
+For large features (>= 13 total story points OR >= 8 user stories), decompose into incremental delivery slices. Each slice runs its own mini V-cycle (Design → Implement → Test → Deploy).
+
+### When to Decompose
+
+| Condition | Action |
+|-----------|--------|
+| Total story points < 13 AND stories < 8 | Single V-cycle (no decomposition) |
+| Total story points >= 13 OR stories >= 8 | Decompose into iterations |
+| Any story is 13 points (epic) | Must split that story first |
+
+### Decomposition Rules
+
+1. Each iteration must deliver **standalone user value** (no half-finished features)
+2. Order iterations by **dependency** (foundational stories first) then **priority** (P0 before P1)
+3. Each iteration should be **5-13 story points** (roughly 1-3 days of AI + human work)
+4. Test skeletons and traceability carry forward across iterations
+5. Later iterations can reference artifacts from earlier ones
+
+### Output Format
+
+```yaml
+iteration_decomposition:
+  total_story_points: [sum]
+  total_stories: [count]
+  decomposed: true | false
+  iterations:
+    - iteration_id: ITER-001
+      title: "[What this iteration delivers]"
+      stories: [US-001, US-002]
+      story_points: [sum for iteration]
+      dependencies: []  # No prior iterations needed
+      delivers: "[User-visible value]"
+    - iteration_id: ITER-002
+      title: "[What this iteration delivers]"
+      stories: [US-003, US-004]
+      story_points: [sum for iteration]
+      dependencies: [ITER-001]
+      delivers: "[User-visible value]"
 ```
 
 ## Output Format

@@ -1,14 +1,15 @@
 ---
 name: vbounce-traceability
-version: "1.0.0"
+version: "2.0.0"
 description: |
   V-Bounce Traceability Agent - Maintains live traceability matrix across all
-  SDLC phases. Tracks REQ→Story→AC→Component→API→File→Test mappings.
+  SDLC phases. Tracks REQ→Story→AC→Component→API→File→Test mappings with
+  V-Model test-level classification (acceptance/system/integration/unit/security).
   Detects orphaned requirements and tests. Enables impact analysis.
   Triggers: traceability, trace matrix, impact analysis, coverage map, orphan detection.
 ---
 
-# V-Bounce Traceability Agent
+# V-Bounce Traceability Agent v2.0
 
 Maintain a live traceability matrix that evolves across every SDLC phase.
 
@@ -120,8 +121,33 @@ traceability_matrix:
                 - test_id: TC-001
                   name: "Should_CreateUser_When_ValidData"
                   type: unit
+                  v_level: unit           # V-Model test level (NEW in v2.0)
                   file: "src/services/__tests__/user-service.test.ts"
                   status: skeleton | implemented | passing | failing
+                  traces_to_design: null  # Design artifact this validates (NEW in v2.0)
+
+  # V-Model test-level symmetry (NEW in v2.0)
+  v_model_coverage:
+    acceptance:
+      traces_to: "User Stories / Acceptance Criteria"
+      tests: []           # Tests validating AC directly (e.g., e2e scenarios)
+      coverage: "[X/Y] ([%])"
+    system:
+      traces_to: "Architecture / System flows"
+      tests: []           # Full workflow E2E tests
+      coverage: "[X/Y] ([%])"
+    integration:
+      traces_to: "API Contracts / Component interactions from Design"
+      tests: []           # Cross-component integration tests
+      coverage: "[X/Y] ([%])"
+    unit:
+      traces_to: "Functions / Files from Implementation"
+      tests: []           # Unit-level tests
+      coverage: "[X/Y] ([%])"
+    security:
+      traces_to: "STRIDE findings from Design"
+      tests: []           # Security-specific tests
+      coverage: "[X/Y] ([%])"
 
   # Orphan detection
   orphans:
@@ -130,6 +156,10 @@ traceability_matrix:
     components_without_requirements: []
     requirements_without_components: []
     acceptance_criteria_without_tests: []
+    # NEW in v2.0: V-Model level orphans
+    ac_without_acceptance_tests: []
+    api_contracts_without_integration_tests: []
+    stride_threats_without_security_tests: []
 
   # Coverage summary
   coverage:
@@ -138,6 +168,38 @@ traceability_matrix:
     ac_covered: "[X/Y] ([%])"
     target: "100% AC coverage"
 ```
+
+## V-Model Test-Level Classification (NEW in v2.0)
+
+Each test in the matrix is classified by its V-Model level, establishing formal symmetry between design activities (left side) and test activities (right side):
+
+```
+Requirements    <-->  Acceptance Tests   (validate AC outcomes)
+System Design   <-->  System Tests       (validate complete workflows)
+Architecture    <-->  Integration Tests  (validate component interactions)
+Implementation  <-->  Unit Tests         (validate individual functions)
+Security Design <-->  Security Tests     (validate STRIDE mitigations)
+```
+
+### Classification Rules
+
+| V-Model Level | Test Validates | Traces To (Design Artifact) | Example |
+|---------------|----------------|---------------------------|---------|
+| `acceptance` | AC outcome from user perspective | User Story / AC | E2E test: "User can register and receive confirmation email" |
+| `system` | Complete system workflow end-to-end | Architecture flow diagram | Full workflow: "Order → Payment → Fulfillment → Notification" |
+| `integration` | Component interaction via API contract | API endpoint / Component interface | API test: "POST /users returns 201 with valid JWT" |
+| `unit` | Individual function/method behavior | Source file / Function | Unit test: "validateEmail rejects malformed addresses" |
+| `security` | STRIDE threat mitigation effectiveness | STRIDE finding / Threat model | Security test: "JWT with expired token returns 401" |
+
+### Assignment During Testing Phase
+
+When tests are added to the matrix (during Testing phase update), classify each test:
+
+1. **Acceptance tests** → linked to User Stories / ACs — validates the AC outcome from user perspective
+2. **System tests** → linked to architecture flow diagrams — validates complete multi-component workflows
+3. **Integration tests** → linked to API contracts / component interfaces from Design — validates inter-component communication
+4. **Unit tests** → linked to functions / files from Implementation — validates isolated behavior
+5. **Security tests** → linked to STRIDE findings from Design — validates threat mitigations
 
 ## Orphan Detection Rules
 
@@ -149,6 +211,9 @@ traceability_matrix:
 | Test without linked AC | WARN | Link to AC or remove |
 | Component without REQ | WARN | Justify or remove from design |
 | File without Component | WARN | Map to component |
+| AC without acceptance-level test | WARN (testing), FAIL (deployment) | Add acceptance or system test for AC |
+| API contract without integration test | WARN (testing), FAIL (deployment) | Add integration test per contract |
+| STRIDE threat without security test | WARN (testing), FAIL (deployment) | Add security test per finding |
 
 ## Impact Analysis Output
 

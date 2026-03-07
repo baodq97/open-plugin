@@ -1,6 +1,6 @@
 ---
 name: vbounce-quality-gate
-version: "1.0.0"
+version: "2.0.0"
 description: |
   V-Bounce Quality Gate Agent - Per-phase quality checksum that validates ANY
   phase output before human review. Implements the "Quality Agent" pattern from
@@ -51,6 +51,7 @@ quality_gate_input:
 | Testability | Every AC is GIVEN-WHEN-THEN with measurable outcome | 100% AC testable |
 | Story Independence | Each story delivers standalone value | No circular deps |
 | Traceability | REQ→Story→AC mapping complete | No orphans |
+| Iteration Decomposition | If >= 13 SP or >= 8 stories, iterations defined | Each iter 5-13 SP, standalone value |
 
 ### Design Phase
 
@@ -62,6 +63,9 @@ quality_gate_input:
 | Data Model Integrity | All entities have PK, FK relationships valid | No orphan entities |
 | ADR Presence | Key decisions documented with rationale | >= 1 ADR |
 | Diagram Accuracy | Mermaid diagrams match described components | No phantom components |
+| Integration Test Specs | Every API endpoint has integration test specification | 100% endpoint coverage |
+| System Test Specs | Every architecture flow has system test specification | >= 1 per flow |
+| Security Test Specs | Every STRIDE finding has security test specification | 100% threat coverage |
 
 ### Implementation Phase
 
@@ -78,12 +82,14 @@ quality_gate_input:
 
 | Criterion | Check | Threshold |
 |-----------|-------|-----------|
-| Distribution | 40% positive, 30% negative, 20% edge, 10% security | Within 5% tolerance |
+| Distribution | 40% positive, 20% negative, 10% edge, 10% security, 10% component integration, 10% system/E2E | Within 5% tolerance |
 | AC Coverage | Every acceptance criterion has >= 1 test | 100% coverage |
+| V-Model Level Coverage | Tests classified by v_level (acceptance/system/integration/unit/security) | All levels present |
 | Edge Cases | Boundary conditions, null/empty, concurrent scenarios | >= 5 edge cases |
 | Test Naming | `Should_[Behavior]_When_[Condition]` convention | 100% compliance |
 | Test Independence | No test depends on another test's side effects | 0 dependencies |
-| Security Tests | Auth bypass, injection, XSS scenarios | >= 3 security tests |
+| Security Tests | Auth bypass, injection, XSS scenarios, STRIDE mitigations | >= 3 security tests |
+| Design Spec Compliance | Tests implement design-time test specs (ITS-*, STS-*, SECTS-*) | 100% specs covered |
 
 ### Review Phase
 
@@ -99,6 +105,7 @@ quality_gate_input:
 
 | Criterion | Check | Threshold |
 |-----------|-------|-----------|
+| Acceptance Verification | All ACs verified by passing tests | 100% AC coverage |
 | Checklist Complete | All pre-deployment items addressed | 100% items |
 | Rollback Plan | Documented with trigger conditions and steps | Present + tested |
 | Approval Status | Required approvers identified | All roles assigned |

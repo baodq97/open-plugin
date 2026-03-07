@@ -56,6 +56,17 @@ Score each requirement individually:
 4. PII fields identified and handling documented
 5. Encryption standards (at-rest, in-transit) specified
 
+### Design-Time Test Specifications (NEW in v3.0)
+
+The design phase MUST produce complete test specifications (not just skeletons):
+
+| Check | Status |
+|-------|--------|
+| Every API endpoint has ITS-* spec | PASS if 100%, WARN if >= 80%, FAIL if < 80% |
+| Every architecture flow has STS-* spec | PASS if 100%, FAIL if 0 |
+| Every STRIDE finding has SECTS-* spec | PASS if 100%, WARN if >= 80%, FAIL if < 80% |
+| Specs include preconditions, expected responses, error scenarios | PASS if complete |
+
 ## Implementation Phase — Deep Dive
 
 ### Hallucination Severity
@@ -71,9 +82,9 @@ Score each requirement individually:
 
 ## Testing Phase — Deep Dive
 
-### Distribution Tolerance
+### Distribution Tolerance (v3.0 — V-Model Aligned)
 
-Target: 40% positive / 30% negative / 20% edge / 10% security
+Target: 40% positive / 20% negative / 10% edge / 10% security / 10% component integration / 10% system/E2E
 
 | Actual | Status |
 |--------|--------|
@@ -81,14 +92,51 @@ Target: 40% positive / 30% negative / 20% edge / 10% security
 | Within 10% of target | WARN |
 | Beyond 10% of target | FAIL |
 
+### V-Model Level Coverage
+
+Every test suite MUST include tests at all V-Model levels:
+
+| Level | Required | Traces To |
+|-------|----------|-----------|
+| acceptance | >= 1 per AC | User Stories / ACs |
+| system | >= 1 per architecture flow | Architecture flow diagrams |
+| integration | >= 1 per API endpoint | API contracts from Design |
+| unit | >= 1 per source file | Functions from Implementation |
+| security | >= 1 per STRIDE finding | Threat model from Design |
+
+### Design Spec Compliance
+
+Tests MUST implement the design-time test specifications (ITS-*, STS-*, SECTS-*):
+1. Every `ITS-*` spec → at least one integration test
+2. Every `STS-*` spec → at least one system/E2E test
+3. Every `SECTS-*` spec → at least one security test
+4. Unimplemented specs are flagged as FAIL
+
 ### Coverage Gap Detection
 
 For each AC without a test:
 1. Flag as FAIL
 2. Suggest test name: `Should_[AC outcome]_When_[AC condition]`
-3. Suggest test type (unit/integration/e2e)
+3. Suggest test type (unit/integration/e2e) and v_level
 
 ## Deployment Phase — Deep Dive
+
+### Acceptance Verification (NEW in v2.0)
+
+Before any deployment activity, verify all original acceptance criteria have passing test coverage:
+
+1. Load all ACs from the requirements phase output
+2. Load test results from the testing phase
+3. Map each AC to its test results via the traceability matrix
+4. Generate acceptance coverage report
+
+| Check | Status |
+|-------|--------|
+| 100% ACs have >= 1 passing test | PASS |
+| 90-99% ACs have >= 1 passing test | WARN (list uncovered ACs) |
+| < 90% ACs have >= 1 passing test | FAIL (block deployment) |
+
+**Blocking rule**: Any AC without at least one passing test at `acceptance` or `system` v_level MUST block production deployment. ACs covered only by `unit` tests get a WARN.
 
 ### Rollback Plan Validation
 

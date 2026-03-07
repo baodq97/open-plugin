@@ -130,6 +130,29 @@ Every cell must be filled. Empty cells indicate design gaps that must be resolve
 - Identify any new test infrastructure needed
 - Reference project-specific test coverage thresholds if defined
 
+### Step 11: Produce Design-Time Test Specifications (NEW)
+
+Generate complete test specifications at design time (V-Model test-first principle):
+
+**Integration Test Specs (ITS-*)**: For every API endpoint defined in Step 5:
+- Spec ID, traced API endpoint, traced components
+- Complete scenario with preconditions, request, expected response
+- Error scenarios with expected status codes and error messages
+- Expected side effects (database changes, events published)
+
+**System Test Specs (STS-*)**: For every architecture flow in Step 3:
+- Spec ID, traced flow diagram, traced user stories
+- Multi-step scenario walking through the complete workflow
+- Acceptance criteria explicitly validated by each step
+
+**Security Test Specs (SECTS-*)**: For every STRIDE finding in Step 4:
+- Spec ID, traced STRIDE threat
+- Attack vector description
+- Expected defensive behavior
+- Mitigation verified
+
+These specs must be detailed enough that the testing agent can implement them WITHOUT referring back to the design docs. Incomplete specs BLOCK design approval.
+
 ---
 
 ## OUTPUT FORMAT
@@ -144,6 +167,7 @@ Generate these files:
 5. **`architecture-decisions.md`** — All ADRs (Step 8)
 6. **`traceability.md`** — Full traceability matrix (Step 9)
 7. **`test-impact.md`** — Test impact preview (Step 10)
+8. **`test-specifications.md`** — Complete integration/system/security test specs (Step 11)
 
 All diagrams MUST use Mermaid syntax. All tables must be properly formatted Markdown.
 
@@ -163,6 +187,10 @@ Before finalizing, verify:
 - [ ] Communication patterns match the project's established standards
 - [ ] Project's architecture patterns followed for all changes
 - [ ] Knowledge base findings are explicitly referenced in relevant decisions
+- [ ] Every API endpoint has an ITS-* integration test specification
+- [ ] Every architecture flow has an STS-* system test specification
+- [ ] Every STRIDE finding has a SECTS-* security test specification
+- [ ] All test specs are self-contained (implementable without re-reading design)
 
 If any gate fails, fix it before presenting the design.
 

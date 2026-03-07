@@ -37,7 +37,7 @@ Adapt to the current project's architecture, tech stack, and conventions. Read t
 
 ---
 
-## MANDATORY 8-STEP PROCESS
+## MANDATORY 9-STEP PROCESS
 
 You MUST execute these steps in order. Do not skip steps.
 
@@ -48,16 +48,43 @@ Testing phase must be APPROVED before deployment:
 - Check that quality gate passed for testing phase
 - Confirm review phase verdict was APPROVE or COMMENT (not REQUEST_CHANGES)
 
-### Step 2: Load Context
+### Step 2: Acceptance Verification (NEW)
+
+Before any deployment activity, verify all original acceptance criteria have passing test coverage:
+
+1. Load all ACs from the requirements phase output
+2. Load test results from the testing phase
+3. Load the traceability matrix to map ACs → tests
+4. For each AC, verify at least one linked test is passing
+5. Generate acceptance coverage report
+
+```yaml
+acceptance_verification:
+  total_ac: [count]
+  verified: [count]
+  not_verified: [count]
+  coverage: "[%]"
+  verdict: PASS | FAIL
+  blocking_gaps:
+    - ac_id: "[AC without passing tests]"
+      recommendation: "[What test to add]"
+```
+
+**Blocking rule**: If ANY AC lacks a passing test, deployment is BLOCKED. All gaps must be addressed before proceeding.
+
+**Priority rule**: ACs covered only by `unit`-level tests (no `acceptance` or `system` level test) get a WARN — they should have higher-level test coverage.
+
+### Step 3: Load Context
 
 Load all relevant artifacts:
 - Test results from testing phase
+- Acceptance verification results from Step 2
 - Deployment configuration from existing infrastructure
 - Rollback templates from knowledge base (if available)
 - Breaking changes from implementation artifacts
 - Environment variable requirements from code changes
 
-### Step 3: Create Pre-Deployment Checklist
+### Step 4: Create Pre-Deployment Checklist
 
 All items must be addressed before deployment proceeds:
 
@@ -77,7 +104,7 @@ All items must be addressed before deployment proceeds:
 - [ ] On-call engineer available
 - [ ] Rollback plan reviewed and approved
 
-### Step 4: Create Deployment Plan
+### Step 5: Create Deployment Plan
 
 Select deployment strategy and define steps:
 
@@ -114,7 +141,7 @@ flowchart LR
 Define staging steps and production steps with:
 - Order, action, responsible person, rollback procedure for each step
 
-### Step 5: Create Rollback Plan
+### Step 6: Create Rollback Plan
 
 **Mandatory quantitative trigger conditions**:
 
@@ -141,7 +168,7 @@ rollback_triggers:
 4. Notify stakeholders (channels: Slack, Email)
 5. Post-mortem scheduling
 
-### Step 6: Configure Monitoring
+### Step 7: Configure Monitoring
 
 Minimum >= 2 alert rules for 24-hour post-deployment monitoring:
 
@@ -164,14 +191,14 @@ monitoring:
       expected: "200 OK with service status"
 ```
 
-### Step 7: Document Breaking Changes and Environment Variables
+### Step 8: Document Breaking Changes and Environment Variables
 
 - List all breaking changes with migration paths
 - Document all new/modified environment variables
 - Specify which environment variables need to be added to Docker Compose `environment:` block
 - Note any database migration requirements
 
-### Step 8: Generate Approval Request
+### Step 9: Generate Approval Request
 
 ```yaml
 approvals:
@@ -199,6 +226,20 @@ deployment_info:
   version: "[App version]"
   release_notes: "[Summary of changes]"
   breaking_changes: ["[List if any]"]
+
+acceptance_verification:
+  requirement_ref: REQ-[###]
+  total_ac: [count]
+  verified: [count]
+  not_verified: [count]
+  coverage: "[%]"
+  verdict: PASS | FAIL
+  details:
+    - ac_id: AC-001
+      status: verified | not_verified
+      tests: [TC-001, TC-005]
+      v_levels_covered: [acceptance, unit]
+  blocking_gaps: []
 
 pre_deployment:
   checklist:
@@ -281,6 +322,7 @@ Deployment plans go to the project's technical design directory (e.g., alongside
 ## QUALITY GATES (Self-Verification)
 
 Before presenting your output, verify ALL of these:
+- [ ] Acceptance verification passed — 100% ACs have passing tests
 - [ ] Pre-deployment checklist 100% complete — all items addressed
 - [ ] Rollback plan present with quantitative trigger conditions
 - [ ] >= 2 monitoring alert rules configured

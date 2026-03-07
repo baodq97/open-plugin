@@ -1,15 +1,17 @@
 ---
 name: vbounce-testing
-version: "2.0.0"
+version: "3.0.0"
 description: |
   V-Bounce Testing Agent - Generates comprehensive test suites from code and
   requirements. Supports 3 modes: Full (standard), Early (skeleton generation
   during requirements), Adaptive (update tests when requirements change).
-  Test distribution: 40% positive, 30% negative, 20% edge, 10% security.
+  Test distribution: 40% positive, 20% negative, 10% edge, 10% security,
+  10% system/E2E, 10% component integration.
+  V-Model test-level classification for formal design-test symmetry.
   Triggers: test, generate tests, coverage, edge cases, QA, quality.
 ---
 
-# V-Bounce Testing Agent v2.0
+# V-Bounce Testing Agent v3.0
 
 Generate comprehensive test suites with support for continuous test creation and adaptive updates.
 
@@ -17,13 +19,13 @@ Generate comprehensive test suites with support for continuous test creation and
 
 ### 1. Full Mode (Standard — after implementation)
 
-Standard test generation from code and requirements. Same as v1.x behavior.
+Standard test generation from code and requirements.
 
 **Prerequisites**: Implementation phase must be APPROVED and pass auto-review.
 
 ### 2. Early Test Mode (During requirements phase)
 
-**NEW in v2.0**: Invoked by the orchestrator during the requirements phase to generate test skeletons alongside requirements.
+**Since v2.0**: Invoked by the orchestrator during the requirements phase to generate test skeletons alongside requirements.
 
 **Input**: User stories + acceptance criteria (no code yet).
 
@@ -42,9 +44,10 @@ output:
       linked_story: US-001
       name: "Should_[AC outcome]_When_[AC condition]"
       type: unit | integration | e2e
-      category: positive | negative | edge | security
+      v_level: unit | integration | system | acceptance | security  # NEW in v3.0
+      category: positive | negative | edge | security | component_integration | system_e2e
       status: skeleton
-      rationale: "[Why this test type was chosen]"
+      rationale: "[Why this test type and v_level were chosen]"
 ```
 
 **Rules for Early Mode**:
@@ -57,7 +60,7 @@ output:
 
 ### 3. Adaptive Update Mode (On requirement change)
 
-**NEW in v2.0**: Invoked when requirements change after initial test skeletons were generated.
+**Since v2.0**: Invoked when requirements change after initial test skeletons were generated.
 
 **Input**: Changed requirements + existing test skeletons + traceability matrix.
 
@@ -90,7 +93,7 @@ output:
 
 ### Traceability Validation
 
-**NEW in v2.0**: In all modes, validate traceability:
+**Since v2.0**: In all modes, validate traceability:
 
 ```yaml
 traceability_validation:
@@ -101,14 +104,28 @@ traceability_validation:
   coverage_percentage: "[%]"
 ```
 
-## Test Distribution
+## Test Distribution (v3.0 — V-Model Aligned)
 
-| Category | % | Focus |
-|----------|---|-------|
-| Positive | 40% | Happy path, valid inputs |
-| Negative | 30% | Invalid inputs, errors |
-| Edge | 20% | Boundaries, limits |
-| Security | 10% | Injection, auth bypass |
+| Category | % | Focus | V-Model Level |
+|----------|---|-------|---------------|
+| Positive | 40% | Happy path, valid inputs | unit, integration |
+| Negative | 20% | Invalid inputs, errors | unit, integration |
+| Edge | 10% | Boundaries, limits | unit |
+| Security | 10% | Injection, auth bypass, STRIDE mitigations | security |
+| Component Integration | 10% | Cross-module interactions, API contracts | integration |
+| System/E2E | 10% | Full workflow end-to-end, acceptance criteria | system, acceptance |
+
+### V-Model Test-Level Classification (NEW in v3.0)
+
+Every test MUST be classified with a `v_level` that maps it to its corresponding V-Model design artifact:
+
+| V-Model Level | Validates Against | Design Artifact |
+|---------------|-------------------|-----------------|
+| `acceptance` | User Story / AC outcome | Requirements |
+| `system` | Complete system workflow | Architecture flow |
+| `integration` | Component interaction | API contract / interface |
+| `unit` | Individual function behavior | Source file / function |
+| `security` | STRIDE threat mitigation | Threat model finding |
 
 ## Process (Full Mode)
 
@@ -140,13 +157,23 @@ summary:
     negative: [count]
     edge_case: [count]
     security: [count]
+    component_integration: [count]  # NEW in v3.0
+    system_e2e: [count]             # NEW in v3.0
+  by_v_level:                       # NEW in v3.0 — V-Model classification
+    acceptance: [count]
+    system: [count]
+    integration: [count]
+    unit: [count]
+    security: [count]
   estimated_coverage: "[%]"
 
 tests:
   - id: TC-001
     from_skeleton: TSK-001  # Links to skeleton if applicable
     type: unit | integration | e2e
-    category: positive | negative | edge | security
+    v_level: unit | integration | system | acceptance | security  # NEW in v3.0
+    traces_to_design: "[Design artifact this test validates]"     # NEW in v3.0
+    category: positive | negative | edge | security | component_integration | system_e2e
     name: "Should_[Behavior]_When_[Condition]"
     requirement_traced: AC-001
     test_data:
@@ -163,6 +190,25 @@ traceability_validation:
   orphaned_tests: [count]
   coverage_percentage: "[%]"
 
+# NEW in v3.0 — V-Model level coverage
+v_model_coverage:
+  acceptance_tests:
+    total: [count]
+    ac_covered: "[X/Y] ([%])"
+    gaps: ["AC without acceptance-level test"]
+  system_tests:
+    total: [count]
+    workflows_covered: "[X/Y] ([%])"
+  integration_tests:
+    total: [count]
+    api_contracts_covered: "[X/Y] ([%])"
+  unit_tests:
+    total: [count]
+    functions_covered: "[X/Y] ([%])"
+  security_tests:
+    total: [count]
+    stride_threats_covered: "[X/Y] ([%])"
+
 coverage_gaps:
   - requirement: "[REQ/AC]"
     gap: "[What's not covered]"
@@ -177,62 +223,7 @@ approval_gate:
 
 ## Edge Cases Checklist
 
-### Inputs
-
-#### Strings
-| Case | Value | Test |
-|------|-------|------|
-| Empty | `""` | Handle gracefully |
-| Whitespace | `"   "` | Trim or reject |
-| Long | 10K+ chars | Check limits |
-| Unicode | `"日本語"` | Encoding |
-| XSS | `"<script>"` | Sanitize |
-| SQL | `"'; DROP"` | Parameterize |
-
-#### Numbers
-| Case | Value | Test |
-|------|-------|------|
-| Zero | `0` | Division |
-| Negative | `-1` | Validation |
-| Max int | `2147483647` | Overflow |
-| Decimal | `0.1 + 0.2` | Precision |
-
-#### Arrays
-| Case | Value | Test |
-|------|-------|------|
-| Empty | `[]` | Empty state |
-| Single | `[1]` | Edge iteration |
-| Large | 10K+ items | Performance |
-
-#### Dates
-| Case | Value | Test |
-|------|-------|------|
-| Epoch | `1970-01-01` | Min date |
-| Future | `2099-12-31` | Max date |
-| Leap year | `2024-02-29` | Validity |
-| DST | `2023-03-12T02:30` | Timezone |
-
-### State
-
-#### Concurrency
-- Two users edit same resource
-- Read during write
-- Simultaneous creates
-
-#### Timing
-- Request timeout
-- Network delay
-- Retry mid-operation
-
-#### Resources
-- Disk full
-- Memory limit
-- Connection pool exhausted
-
-### Business Logic
-- Boundary conditions
-- Permission edge cases
-- Pagination limits
+For the complete edge cases checklist, see [`references/edge-cases.md`](references/edge-cases.md).
 
 ## Test Naming
 
