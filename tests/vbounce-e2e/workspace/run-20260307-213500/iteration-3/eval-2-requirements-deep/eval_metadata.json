@@ -1,0 +1,20 @@
+{
+  "eval_id": 2,
+  "eval_name": "requirements-phase-full-anatomy",
+  "prompt": "Full 6-Activity Phase Anatomy for Requirements: PRD parse, requirements-analyst agent, separate quality-gate-validator, human review, traceability-analyst + knowledge-curator on approval.",
+  "assertions": [
+    "All 4 artifact files exist",
+    "User Story IDs match US-XXX-XXX format",
+    "All ACs use GIVEN-WHEN-THEN format",
+    "At least 3 ACs per user story",
+    "NFRs have measurable thresholds with NFR-XXX-XXX IDs",
+    "Test skeleton IDs match T-AC-XXX format",
+    "Traceability matrix links PRD -> Story -> AC -> Test with no orphans",
+    "All ambiguity scores below 50",
+    "QG produces YAML verdict with QG-REQ-* ID",
+    "Quality gate was a SEPARATE agent invocation",
+    "Artifacts presented for human review",
+    "Knowledge-curator captured phase learnings",
+    "Traceability-analyst updated matrix"
+  ]
+}

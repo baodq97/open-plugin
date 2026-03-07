@@ -1,0 +1,9 @@
+{
+  "total_tokens": 48133,
+  "duration_ms": 174904,
+  "total_duration_seconds": 175,
+  "status": "completed",
+  "agent_breakdown": {
+    "cross_phase_verifier": {"tokens": 48133, "duration_ms": 174904}
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "eval_id": 5,
+  "eval_name": "design-phase-full-anatomy",
+  "prompt": "Full 6-Activity Phase Anatomy for Design: design-architect agent produces 8 files, separate quality-gate-validator, human review, traceability-analyst + knowledge-curator on approval.",
+  "assertions": [
+    "All 8 design output files exist",
+    "Component and sequence diagrams use Mermaid (no ASCII art)",
+    "STRIDE analysis covers all 6 categories (S/T/R/I/D/E)",
+    "STRIDE applied to every component and data flow",
+    "Every STRIDE threat has severity + mitigation strategy",
+    "Every US-* maps to >= 1 API endpoint",
+    ">= 1 ADR with >= 2 alternatives considered",
+    "ITS-* integration test specs for API endpoints",
+    "STS-* system test specs for architecture flows",
+    "SECTS-* security test specs for STRIDE findings",
+    "Traceability: REQ->Story->API->Component->STRIDE->ADR",
+    "Separate QG agent produces qg-design.yaml",
+    "Knowledge-curator captured design learnings",
+    "Traceability-analyst updated matrix with design mappings"
+  ]
+}

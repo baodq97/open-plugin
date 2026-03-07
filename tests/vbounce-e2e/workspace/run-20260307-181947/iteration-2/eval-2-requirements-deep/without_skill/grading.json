@@ -1,0 +1,74 @@
+{
+  "eval_id": 2,
+  "eval_name": "requirements-phase-full-anatomy",
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "All 4 artifact files exist (requirements.md, test-skeletons.md, traceability.md, ambiguity-report.md)",
+      "passed": true,
+      "evidence": "All 4 files present: requirements.md (17KB), test-skeletons.md (18KB), traceability.md (6KB), ambiguity-report.md (7KB)"
+    },
+    {
+      "text": "User Story IDs match US-XXX-XXX format",
+      "passed": false,
+      "evidence": "Uses US-1, US-2, ..., US-9 format (simple numbering). Not US-XXX-XXX vbounce format. 10 US-\\d+ occurrences"
+    },
+    {
+      "text": "All ACs use GIVEN-WHEN-THEN format",
+      "passed": true,
+      "evidence": "94 GIVEN/WHEN/THEN clause matches in requirements.md. All ACs use proper format"
+    },
+    {
+      "text": "At least 3 ACs per user story",
+      "passed": true,
+      "evidence": "30 ACs across 9 stories = 3.3 ACs per story average"
+    },
+    {
+      "text": "NFRs have measurable thresholds with NFR-XXX-XXX IDs",
+      "passed": false,
+      "evidence": "Uses NFR-1, NFR-2, ..., NFR-6 format (simple numbering). Not NFR-XXX-XXX vbounce format. 6 NFRs with measurable thresholds but wrong ID convention"
+    },
+    {
+      "text": "Test skeleton IDs match T-AC-XXX format",
+      "passed": false,
+      "evidence": "Uses TEST-1.1, TEST-2.1 format. Not T-AC-XXX vbounce format. 33 test skeletons total"
+    },
+    {
+      "text": "Traceability matrix links PRD -> Story -> AC -> Test with no orphans",
+      "passed": true,
+      "evidence": "Bidirectional traceability matrix with PRD Feature -> Story -> AC -> Test mapping. Coverage summary states 0 orphans, 0 untested criteria"
+    },
+    {
+      "text": "All ambiguity scores below 50",
+      "passed": true,
+      "evidence": "8 ambiguities identified. All story-level scores below 50 (average 26.7, max 40)"
+    },
+    {
+      "text": "Step 3: Separate QG verdict file with QG-REQ-* ID and per-criterion PASS/WARN/FAIL",
+      "passed": false,
+      "evidence": "No separate QG verdict file. Quality self-assessment is embedded in requirements.md as section '3. Quality Self-Assessment' — not a separate agent output"
+    },
+    {
+      "text": "Step 3: QG is clearly separate agent role (not self-check embedded in requirements)",
+      "passed": false,
+      "evidence": "Quality assessment is a self-check inside requirements.md, not a separate agent invocation"
+    },
+    {
+      "text": "Step 4: Human review summary presented with artifacts and QG verdict",
+      "passed": false,
+      "evidence": "No explicit human review presentation step. Output is a direct dump of all artifacts"
+    },
+    {
+      "text": "Step 6: Knowledge capture file exists with phase learnings",
+      "passed": false,
+      "evidence": "No separate knowledge capture file. A brief 'Knowledge Capture Summary' is embedded in requirements.md section 4"
+    },
+    {
+      "text": "Step 6: Traceability update confirmed (matrix initialized with phase completion marker)",
+      "passed": false,
+      "evidence": "No phase completion marker or traceability initialization confirmation. Matrix exists but no lifecycle metadata"
+    }
+  ],
+  "pass_rate": 0.385,
+  "summary": "5/13 assertions passed. Baseline produces good artifacts (4 files, GIVEN-WHEN-THEN ACs, traceability matrix, ambiguity scoring) but misses all vbounce-specific conventions: ID formats (US-XXX-XXX, NFR-XXX-XXX, T-AC-XXX), separate QG agent, phase anatomy steps (review presentation, knowledge capture, traceability lifecycle)."
+}

@@ -1,0 +1,27 @@
+{
+  "eval_id": 2,
+  "eval_name": "requirements-phase-full-anatomy",
+  "iteration": 2,
+  "prompt": "Full 6-Activity Phase Anatomy: INPUT -> GENERATE (requirements-analyst 9-step) -> QUALITY GATE (separate quality-gate-validator) -> HUMAN REVIEW -> REFINEMENT -> APPROVAL + KC (traceability + knowledge capture)",
+  "assertions": [
+    "All 4 artifact files exist",
+    "User Story IDs match US-XXX-XXX format",
+    "All ACs use GIVEN-WHEN-THEN format",
+    "At least 3 ACs per user story",
+    "NFRs have measurable thresholds with NFR-XXX-XXX IDs",
+    "Test skeleton IDs match T-AC-XXX format",
+    "Traceability matrix links PRD -> Story -> AC -> Test with no orphans",
+    "All ambiguity scores below 50",
+    "Step 3: Separate QG verdict file with QG-REQ-* ID and per-criterion PASS/WARN/FAIL",
+    "Step 3: QG is clearly separate agent role (not self-check)",
+    "Step 4: Human review summary presented",
+    "Step 6: Knowledge capture file exists with phase learnings",
+    "Step 6: Traceability update confirmed with phase completion marker"
+  ],
+  "changes_from_iteration_1": [
+    "Added 5 new assertions for Steps 3-6 of Phase Anatomy (previously only tested Step 2)",
+    "Eval prompt explicitly demands all 6 anatomy steps",
+    "QG must be a SEPARATE file/agent, not embedded self-check",
+    "Knowledge capture and traceability confirmation required"
+  ]
+}

@@ -1,0 +1,275 @@
+# Knowledge Capture: Deployment Phase
+# Cycle: CYCLE-TASKFLOW-20260307-001
+# Agent: knowledge-curator
+# Generated: 2026-03-08
+
+capture_id: KC-DEP-TASKFLOW-20260307
+phase: deployment
+cycle_id: CYCLE-TASKFLOW-20260307-001
+project: TaskFlow API
+timestamp: "2026-03-08T00:15:00Z"
+
+source_artifacts:
+  - deployment/deployment-plan.md
+  - deployment/acceptance-verification.md
+  - deployment/monitoring.md
+  - deployment/pre-deploy-checklist.md
+
+deployment_summary:
+  strategy: "Blue-Green with 10% Canary Validation"
+  target: "Production Kubernetes Cluster (taskflow namespace)"
+  estimated_downtime: "Zero (blue-green swap)"
+  rollback_time: "< 2 minutes"
+  total_deployment_duration: "~54 minutes (5 phases)"
+  acceptance_coverage: "56/56 ACs (100%)"
+  total_tests_passing: 210
+  deployment_decision: PROCEED
+  pre_deploy_checklist_items: 65
+  monitoring_alerts_configured: 22
+  grafana_panels: 20
+  slo_targets: 4
+  escalation_levels: 3
+
+learnings:
+
+  # --- DEPLOYMENT PLANNING ---
+
+  - id: L-DEP-001
+    category: deployment_planning
+    title: "Blue-green with canary validation provides zero-downtime with controlled risk exposure"
+    severity: medium
+    reusable: true
+    description: >
+      The deployment plan uses a 5-phase approach: database migration (5 min),
+      green environment deployment (3 min), canary validation at 10% traffic
+      (15 min), full traffic switch (instant), and observation window (30 min),
+      totaling approximately 54 minutes. The canary phase limits blast radius
+      to 10% of traffic, allowing detection of issues before full exposure. The
+      blue environment remains running as an instant fallback throughout,
+      enabling rollback in under 2 minutes via a simple service selector change.
+      This phased approach with explicit duration windows and quantitative
+      exit criteria at each phase converts deployment from a risky big-bang
+      event to a controlled, observable process.
+    evidence: "deployment-plan.md, Sections 3-5 -- 5-phase timeline with duration estimates"
+    pattern: >
+      For stateful applications with database migrations, deploy the schema
+      changes first (they must be backward-compatible), then the application
+      code. Never couple migration execution with application startup. Keep
+      the previous version running until the observation window passes. Define
+      quantitative exit criteria (error rate, latency, resource usage) for
+      each phase transition.
+
+  - id: L-DEP-002
+    category: deployment_planning
+    title: "Pre-deployment checklists with evidence requirements prevent assumption-based deployments"
+    severity: high
+    reusable: true
+    description: >
+      The pre-deploy checklist contains 65 verifiable items across 10 categories:
+      test results (7 items), code review (7 items), security findings (8 items),
+      database migrations (6 items), environment variables (8 items), Docker
+      image (6 items), Kubernetes manifests (15 items), monitoring (12 items),
+      operational readiness (8 items), and documentation (5 items). Each item
+      specifies what to verify and how to verify it (e.g., exact kubectl commands,
+      expected output values). The checklist requires explicit sign-off from three
+      roles: deployment engineer, on-call engineer, and engineering lead. This
+      level of specificity prevents the common failure where checklists become
+      rubber-stamp exercises -- each item is either concretely verifiable or not.
+    evidence: "pre-deploy-checklist.md -- 65 checklist items with verification commands and evidence requirements"
+    pattern: >
+      Pre-deployment checklists must specify three things for each item: (1)
+      what to check, (2) how to verify it (exact command or procedure), and
+      (3) what constitutes a passing result. Require multi-role sign-off to
+      prevent single-person blind spots. Group items by failure category
+      (test, security, infrastructure, monitoring) so that a gap in one area
+      does not cascade.
+
+  # --- ACCEPTANCE VERIFICATION ---
+
+  - id: L-DEP-003
+    category: acceptance_verification
+    title: "100% acceptance criteria coverage with traceable test mapping provides deployment confidence"
+    severity: high
+    reusable: true
+    description: >
+      The acceptance verification document maps all 56 acceptance criteria to
+      specific test IDs (ITS-001 through ITS-060) with individual pass/fail
+      status. Additionally, it verifies 14 NFR tests, 51 security test vectors,
+      8 system tests, and 6 E2E tests -- all passing. The verification is
+      organized by feature area (F1-F5) with each AC showing its description,
+      test ID, test result, and verification status. This granular traceability
+      from AC to test to result means the deployment decision is based on
+      evidence, not assertion. Any single AC failure would be immediately
+      visible and would block the PROCEED decision.
+    evidence: "acceptance-verification.md -- 56/56 ACs mapped to test IDs with PASS status, plus NFR, security, system, and E2E verification"
+    pattern: >
+      The deployment acceptance gate should produce a traceability matrix that
+      maps every acceptance criterion to at least one test with a recorded
+      result. The matrix should be organized by feature area and include
+      separate sections for functional ACs, NFRs, security tests, and system
+      tests. The deployment decision (PROCEED/HOLD/ABORT) should be a computed
+      field based on the matrix: PROCEED only when 100% of ACs have at least
+      one passing test and zero blockers exist.
+
+  # --- MONITORING ---
+
+  - id: L-DEP-004
+    category: monitoring
+    title: "Multi-layer alert thresholds with escalation procedures prevent alert fatigue and missed incidents"
+    severity: high
+    reusable: true
+    description: >
+      The monitoring configuration defines 22 alert rules across 7 categories
+      (error rate, latency, resources, DB pool, webhooks, pod health, rate
+      limiting), each with two severity tiers (WARNING and CRITICAL). WARNING
+      alerts notify via Slack; CRITICAL alerts page on-call via PagerDuty.
+      Each alert includes a specific PromQL expression, time window, threshold,
+      and action. The escalation procedure defines 3 levels (L1 on-call in
+      5 min, L2 team lead in 15 min, L3 engineering manager in 30 min) with
+      automatic escalation if acknowledgment deadlines are missed. SLO burn
+      rate alerts (fast burn at 14.4x rate, slow burn at 6x rate) detect
+      budget consumption before SLOs are actually violated. This multi-layer
+      approach prevents both alert fatigue (tuned thresholds) and missed
+      incidents (automatic escalation).
+    evidence: "monitoring.md -- 22 alert rules with PromQL, 3 escalation levels, 4 SLO targets with burn rate alerts"
+    pattern: >
+      For production monitoring, configure at least two severity tiers per
+      metric category: a WARNING tier for early detection (higher sensitivity,
+      lower urgency) and a CRITICAL tier for immediate action (lower
+      sensitivity, higher urgency). Pair each alert with a specific runbook
+      URL. Implement SLO burn rate alerts to detect slow degradation that
+      individual threshold alerts miss. Auto-escalation timers prevent
+      incidents from stalling at a single responder level.
+
+  - id: L-DEP-005
+    category: monitoring
+    title: "Structured log format with log-based alerts catches application-level failures invisible to metrics"
+    severity: medium
+    reusable: true
+    description: >
+      The monitoring plan includes log-based alerts that detect patterns metrics
+      cannot capture: ECONNREFUSED indicating database connectivity failure,
+      OutOfMemory indicating memory leaks, and WEBHOOK_ENCRYPTION_KEY appearing
+      in logs indicating accidental secret exposure. The structured JSON log
+      format (level, timestamp, requestId, userId, method, path, statusCode,
+      duration, error) enables both human troubleshooting and machine-parseable
+      alerting. The plan identifies a current gap -- the application uses
+      console.log rather than a structured logger like pino -- and recommends
+      migration. This dual monitoring approach (metrics for quantitative
+      thresholds, logs for qualitative patterns) provides comprehensive
+      observability.
+    evidence: "monitoring.md, Section 6 -- Structured Log Format and Log-Based Alerts"
+    pattern: >
+      Complement metrics-based monitoring with log-based alerting for patterns
+      that metrics cannot capture: specific error types (connection refused,
+      OOM), secret exposure (environment variable names in logs), and business
+      logic failures (orphaned records, inconsistent state). Require structured
+      JSON logging from day one -- retrofitting is significantly harder. Include
+      requestId and userId in every log entry for correlation.
+
+  # --- ROLLBACK ---
+
+  - id: L-DEP-006
+    category: rollback
+    title: "Quantitative rollback triggers with automatic and manual procedures eliminate ambiguous decision-making"
+    severity: high
+    reusable: true
+    description: >
+      The deployment plan defines 12 specific rollback triggers organized into
+      4 categories: error rate (3 metrics -- 5xx rate >5%, 5xx count >50,
+      webhook failure >10%), latency (3 metrics -- p95 >500ms, p99 >1000ms,
+      DB p95 >200ms), resource utilization (3 metrics -- CPU >85%, memory >90%,
+      DB pool >85%), and health checks (3 metrics -- readiness failures,
+      liveness failures, pod restarts). Each trigger specifies the exact
+      threshold, measurement window, and PromQL query. Rollback procedures
+      are split into automatic (during canary -- 5 steps) and manual (after
+      full switch -- 6 steps), with the manual procedure including a database
+      migration rollback path. This eliminates the "should we roll back?"
+      debate during incidents -- the answer is pre-determined by the triggers.
+    evidence: "deployment-plan.md, Section 6 -- 12 rollback triggers; Section 7 -- automatic and manual rollback procedures"
+    pattern: >
+      Define rollback triggers as quantitative thresholds before deployment
+      begins, not during an incident. Include error rate, latency, resource
+      utilization, and health check categories. Separate canary-phase rollback
+      (automatic, low risk) from post-switch rollback (manual, requires DB
+      assessment). Every rollback step must have a post-verification check
+      to confirm the system returned to a healthy state. Pre-commit to
+      "rollback first, investigate second" for any trigger breach.
+
+  # --- ENVIRONMENT MANAGEMENT ---
+
+  - id: L-DEP-007
+    category: environment_management
+    title: "Negative environment variable validation prevents production misconfigurations"
+    severity: medium
+    reusable: true
+    description: >
+      The deployment plan explicitly documents that JWT_SECRET must NOT be
+      set in production (it enables insecure HS256 mode), with a kubectl
+      verification command to confirm absence. This negative validation
+      (asserting that something is NOT configured) is as important as positive
+      validation (asserting that required variables ARE configured). The plan
+      also groups environment variables into three tiers: required (application
+      fails without them), optional with defaults (safe to omit), and
+      forbidden (security risk if present). This three-tier classification
+      eliminates guesswork about which variables are critical.
+    evidence: "deployment-plan.md, Section 4 -- Environment Variables with Required/Optional/Must-NOT-Be-Set tiers; pre-deploy-checklist.md Section 5"
+    pattern: >
+      Classify environment variables into three explicit tiers: REQUIRED
+      (fail-fast if missing), OPTIONAL (safe defaults documented), and
+      FORBIDDEN (security risk if present in specific environments). Include
+      verification commands for all three tiers in the deployment checklist.
+      For FORBIDDEN variables, add a startup check that fails with a clear
+      error message if the variable is detected in the wrong environment.
+
+  # --- KUBERNETES-SPECIFIC ---
+
+  - id: L-DEP-008
+    category: kubernetes
+    title: "Three-probe health check strategy (liveness, readiness, startup) prevents premature traffic and false restarts"
+    severity: medium
+    reusable: true
+    description: >
+      The deployment configures three distinct Kubernetes probes: liveness
+      (GET /healthz every 10s, 3 failure threshold -- restarts pod if
+      application is hung), readiness (GET /readyz every 5s, 3 failure
+      threshold -- removes pod from service if database is disconnected),
+      and startup (GET /healthz every 2s, 15 failure threshold for 30s max
+      -- prevents liveness kills during slow initialization). The readiness
+      endpoint checks database connectivity, ensuring traffic only routes to
+      pods with active database connections. This three-probe strategy
+      prevents the common failure modes of premature traffic routing (startup
+      not complete), unnecessary restarts (temporary database hiccup), and
+      indefinite unhealthy pods (genuine application failure).
+    evidence: "deployment-plan.md Section 2 checklist; pre-deploy-checklist.md Section 7 -- probe configurations"
+    pattern: >
+      Always configure all three Kubernetes probe types for stateful
+      applications. Liveness: checks if the process is alive (simple health
+      endpoint). Readiness: checks if the application can serve traffic
+      (includes dependency health like database). Startup: gives slow-starting
+      applications time to initialize without liveness kills. Set startup
+      probe's failureThreshold * periodSeconds >= maximum expected startup
+      time. Readiness probe should be more sensitive (shorter interval, lower
+      threshold) than liveness probe.
+
+summary: >
+  The deployment phase produced four comprehensive artifacts: a deployment
+  plan with blue-green + canary strategy spanning 5 phases over ~54 minutes,
+  an acceptance verification confirming 56/56 ACs with all 210 tests passing,
+  a monitoring configuration with 22 alert rules across 7 categories with
+  3-level escalation, and a pre-deployment checklist with 65 verifiable items.
+  The deployment decision is PROCEED based on 100% acceptance coverage, 90.1
+  review score, and all security findings triaged. Key deployment learnings
+  include: quantitative rollback triggers eliminate ambiguous decisions,
+  negative environment variable validation prevents misconfigurations, and
+  multi-layer monitoring with SLO burn rate alerts catches both acute
+  incidents and slow degradation. The primary risk carried forward is that
+  all 210 tests ran against mocks -- live-environment validation should occur
+  during the canary phase or as part of a pre-deployment staging run.
+
+recommendations:
+  - "Execute the full 210-test suite against a live PostgreSQL 16 instance before or during the canary phase to validate infrastructure integration assumptions"
+  - "Add startup validation that fails fast when WEBHOOK_ENCRYPTION_KEY is missing or set to the hardcoded default in production mode"
+  - "Add startup validation that rejects JWT_SECRET when NODE_ENV is production to prevent accidental HS256 enablement"
+  - "Automate the pre-deploy checklist verification commands as a CI/CD pipeline step to reduce manual checking errors"
+  - "Consider implementing the monitoring.md recommendation to migrate from console.log to pino for structured JSON logging before the first production incident"

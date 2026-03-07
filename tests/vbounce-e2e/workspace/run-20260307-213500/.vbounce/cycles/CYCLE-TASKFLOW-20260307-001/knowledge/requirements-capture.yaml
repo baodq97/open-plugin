@@ -1,0 +1,139 @@
+phase: requirements
+captured_at: "2026-03-07T21:48:00Z"
+cycle_id: CYCLE-TASKFLOW-20260307-001
+
+learnings:
+  - category: ambiguity_patterns
+    finding: >
+      14 ambiguities detected in total across the PRD. The most common pattern was
+      'missing implementation detail' (items 3, 4, 6, 8, 9, 11, 12, 14 — 8 of 14),
+      where the PRD specified what to do but omitted the how (e.g., HMAC algorithm,
+      JSON:API version, search operator semantics, JWT validation parameters).
+    recommendation: >
+      For API-focused PRDs, create a supplementary 'Technical Decisions' section
+      covering: wire format version, authentication algorithm, search operator
+      semantics, retry timing tolerances, and header conventions. This would have
+      prevented 8 of 14 ambiguities upfront.
+
+  - category: ambiguity_patterns
+    finding: >
+      Boundary ambiguities appeared 3 times (max columns, 90-day retention
+      inclusivity, retry timing tolerance). All were low severity (3-5) but
+      required assumptions that could diverge from stakeholder intent.
+    recommendation: >
+      PRDs should explicitly state boundary conditions (inclusive/exclusive) and
+      upper limits for any constrained value. A boundary checklist during PRD
+      authoring would catch these systematically.
+
+  - category: ambiguity_patterns
+    finding: >
+      Zero high-severity ambiguities (score >= 7) were found. The maximum
+      ambiguity score across all 85 artifacts was 10 (NFR-007-001, container
+      deployment). This indicates the PRD was well-written with clear functional
+      requirements; gaps were limited to infrastructure and protocol details.
+    recommendation: >
+      This PRD quality level is a good benchmark. The pattern of specifying
+      functional behavior clearly while leaving infrastructure details implicit
+      is acceptable when assumptions are documented, but should be flagged earlier
+      in PRD review.
+
+  - category: prd_quality
+    finding: >
+      PRD was clear on functional requirements across all 5 feature areas (CRUD,
+      Board Management, Webhooks, Search, Activity Log). The phased structure
+      (MVP / Must Have / Nice to Have) with explicit priority levels (P0/P1/P2)
+      enabled clean story decomposition. Tech stack was fully specified
+      (Node.js v20+, Express, PostgreSQL 16, TypeScript, Docker/K8s).
+    recommendation: >
+      Retain the phased PRD structure with explicit priority tiers as a template.
+      It directly maps to sprint planning and prevents scope creep during MVP.
+
+  - category: prd_quality
+    finding: >
+      15 assumptions were required to complete the requirements phase. Key
+      clusters: webhook protocol details (5 assumptions), search/filter behavior
+      (2 assumptions), infrastructure defaults (2 assumptions), data handling
+      (2 assumptions), and standards versioning (2 assumptions). All were
+      reasonable industry-standard choices.
+    recommendation: >
+      Stakeholder sign-off on assumptions should happen before the design phase
+      begins. Group assumptions by risk: protocol assumptions (low risk, industry
+      standard) vs. business logic assumptions (higher risk, may diverge from
+      intent). Prioritize review of business logic assumptions.
+
+  - category: ac_generation
+    finding: >
+      55 acceptance criteria were generated across 16 user stories, averaging
+      3.4 ACs per story (range: 3-5). Every AC used strict GIVEN-WHEN-THEN
+      Gherkin format. Coverage pattern: each story includes at minimum a happy
+      path, one error/validation case, and one edge case or authorization
+      scenario. All 55 ACs scored 0-5 on ambiguity (0 items >= 50).
+    recommendation: >
+      The 3-AC minimum (happy path + error + edge case) is an effective baseline.
+      For RBAC-heavy APIs, ensure every endpoint has an explicit authorization
+      denial AC for each restricted role — this was done consistently here and
+      should be a standing rule.
+
+  - category: ac_generation
+    finding: >
+      4 ACs contained assumption markers (AC-US-003-001-02, AC-US-003-002-01,
+      AC-US-003-003-03, AC-US-005-003-02), indicating where the requirements
+      analyst had to fill gaps. These all passed ambiguity scoring but represent
+      points where implementation could diverge from stakeholder expectations.
+    recommendation: >
+      ACs with embedded assumptions should be flagged for explicit stakeholder
+      review. Consider adding an 'assumption_count' field to QG criteria to
+      track this across cycles.
+
+  - category: test_skeleton_generation
+    finding: >
+      69 test skeletons were generated (55 functional from ACs + 14 NFR test
+      skeletons). Each skeleton includes: type, priority, preconditions, steps,
+      expected result, test data, and automation notes. Functional tests are
+      predominantly integration tests using HTTP assertions. NFR tests specify
+      measurement methods (k6 load testing, chaos testing, schema validation).
+    recommendation: >
+      The 1:1 AC-to-test-skeleton ratio ensures no AC is untestable. NFR test
+      skeletons with explicit measurement tools (k6, c8/istanbul, tsc) provide
+      clear implementation guidance for the testing-engineer agent.
+
+  - category: qg_results
+    finding: >
+      Quality gate QG-REQ-001 passed on all 6 criteria: completeness (100% PRD
+      coverage), ambiguity_score (max 10, threshold 50), nfr_coverage (7
+      categories with measurable thresholds), testability (55/55 ACs + 14/14
+      NFRs with skeletons), story_independence (16/16 INVEST-compliant, 0
+      circular dependencies), and traceability (0 orphans at all levels).
+    recommendation: >
+      No blocking issues. Three warnings issued: (1) NFR-007-001 proposed
+      defaults need stakeholder confirmation, (2) NFR-006-002 80% coverage
+      threshold is a proposed default, (3) 15 assumptions need stakeholder
+      acknowledgment. These should be resolved before implementation begins.
+
+  - category: qg_results
+    finding: >
+      Traceability chain is complete: 5 PRD features -> 16 stories -> 55 ACs ->
+      55 test skeletons, plus 14 NFRs -> 14 test skeletons. Zero orphans at
+      any level. Story points range 2-5, total estimated at ~52 story points
+      across 3 phases.
+    recommendation: >
+      The zero-orphan traceability is the gold standard. Maintain this discipline
+      in design phase by ensuring every story maps to at least one design
+      component and every AC maps to at least one API endpoint specification.
+
+metrics:
+  stories_count: 16
+  acs_count: 55
+  nfrs_count: 14
+  test_skeletons_count: 69
+  ambiguity_max_score: 10
+  ambiguity_items_detected: 14
+  ambiguity_items_severe: 0
+  assumptions_count: 15
+  qg_verdict: PASS
+  qg_warnings_count: 3
+  qg_blocking_issues: 0
+  phases_covered: 3
+  feature_areas: 5
+  invest_compliant: 16
+  traceability_orphans: 0

@@ -1,0 +1,22 @@
+{
+  "eval_id": 9,
+  "eval_name": "deployment-phase-full-anatomy",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "deployment-plan.md, acceptance-verification.md, pre-deploy-checklist.md, monitoring.md exist", "passed": true, "evidence": "All 4 files present: deployment-plan.md (466 lines), acceptance-verification.md (259 lines), pre-deploy-checklist.md (219 lines), monitoring.md (657 lines). Total: 1601 lines."},
+    {"text": "Rollback triggers have quantitative thresholds (%, ms)", "passed": true, "evidence": "12+ quantitative triggers: 5xx > 5%, p95 > 500ms, p99 > 1000ms, CPU > 85%, memory > 90%, DB pool > 85%. No vague language found."},
+    {"text": "Step-by-step rollback procedures documented", "passed": true, "evidence": "Two procedures: 5-step canary rollback (R1-R5) + 6-step post-switch rollback (R1-R6), each with bash commands and verification checks."},
+    {"text": "100% AC coverage verified against test results", "passed": true, "evidence": "56/56 ACs mapped to test IDs, all showing PASS. 0 blockers. Deployment decision: PROCEED."},
+    {"text": "ACs without passing tests block deployment", "passed": true, "evidence": "Blocking policy enforced: 'ACs Blocked: 0', explicit rule that ACs without passing tests block deployment."},
+    {"text": "Pre-deploy checklist items are all checkable (not vague)", "passed": true, "evidence": "121 checkbox items in pre-deploy-checklist.md, each with specific numbers, commands, file references, or artifact citations. No vague items."},
+    {"text": "Alert thresholds with specific numbers (error rate, latency, CPU)", "passed": true, "evidence": "22 alert rules: error rate >5% (5min window), p95 >500ms, p99 >1000ms, CPU >85% (3min), memory >90%, DB pool >85%, webhook failure >10%. Full PromQL expressions."},
+    {"text": "Escalation procedures defined", "passed": true, "evidence": "3-level escalation: L1 <5min, L2 <15min, L3 <30min. Timeline from T+0 to T+1:00. 10-condition decision matrix."},
+    {"text": "Notification channels specified", "passed": true, "evidence": "3 channels: PagerDuty (phone+push), Slack (#taskflow-alerts, #taskflow-deploys, #engineering-incidents), Email (HTML with graphs). Full Alertmanager config."},
+    {"text": "Deployment steps documented with pre/post verification", "passed": true, "evidence": "5 deployment phases, 13 steps, each with pre/post verification. Estimated total: ~54 minutes. Blue-green with canary validation."},
+    {"text": "Separate QG agent produces qg-deployment.yaml", "passed": true, "evidence": "quality-gates/qg-deployment.yaml created by separate agent. QG-DEP-001, verdict: PASS, 10/10 criteria PASS."},
+    {"text": "Knowledge-curator end-of-cycle retrospective", "passed": true, "evidence": "cycle-retrospective.yaml created with RETRO-TASKFLOW-20260307. 68 total learnings across 6 phases. 7 cross-phase patterns, 12 prevention rules (PR-001 to PR-012)."},
+    {"text": "Prevention rules written to vbounce-learned-rules.md", "passed": true, "evidence": "vbounce-learned-rules.md created with 12 prevention rules: 5 HIGH severity, 7 MEDIUM. Each with trigger/action/severity."}
+  ],
+  "pass_rate": 1.0,
+  "summary": "13/13 assertions passed. Full 6-Activity Anatomy for Deployment. 4 deployment files (1601 lines), quantitative rollback triggers, 100% AC acceptance, 22 alert rules, 3-level escalation, separate QG (PASS), end-of-cycle retrospective with 12 prevention rules."
+}

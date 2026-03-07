@@ -1,0 +1,465 @@
+# Knowledge Capture: Testing Phase
+# Cycle: CYCLE-TASKFLOW-20260307-001
+# Agent: knowledge-curator
+# Generated: 2026-03-07
+
+capture_id: KC-TEST-TASKFLOW-20260307
+phase: testing
+cycle_id: CYCLE-TASKFLOW-20260307-001
+project: TaskFlow API
+timestamp: "2026-03-07T23:30:00Z"
+
+source_artifacts:
+  - testing/test-report.md
+  - testing/coverage-matrix.md
+  - testing/test-results.md
+
+testing_summary:
+  total_tests: 210
+  passed: 210
+  failed: 0
+  skipped: 0
+  pass_rate: 100
+  execution_time_estimated: "~2.8s"
+  run_mode: "simulated (mock repositories, no live DB)"
+  test_files: 18
+  runner: "node:test via npx tsx --test"
+  ac_coverage: "56/56 (100%)"
+  skeleton_coverage: "74/74 (100%)"
+  its_coverage: "60/60 (100%)"
+  sts_coverage: "8/8 (100%)"
+  sects_coverage: "10/10 (100%)"
+  attack_vectors_total: 51
+
+learnings:
+
+  # --- TEST STRATEGY ---
+
+  - id: L-TS-001
+    category: test_strategy
+    title: "Skeleton-to-executable promotion creates traceable test suites"
+    severity: info
+    reusable: true
+    description: >
+      The implementation phase produced 74 test skeletons with structured IDs
+      (T-AC-US-{feature}-{story}-{ac}) and the testing phase promoted all 74 to
+      fully executable tests, then added 136 more for a total of 210. The
+      skeleton-first approach ensured zero coverage gaps: every acceptance
+      criterion had at least one test before the testing engineer started work,
+      and the structured IDs provided bidirectional traceability from requirement
+      to test and back. This eliminated the risk of the testing phase
+      reinterpreting requirements differently than the implementation phase.
+    evidence: >
+      coverage-matrix.md: 56/56 ACs covered; test-report.md: all 74 skeletons
+      from requirements instantiated plus 78 design-time test specifications
+      implemented; Self-Verification Checklist: all 11 checks PASS.
+    pattern: >
+      In multi-agent SDLC workflows, have the implementation agent produce test
+      skeletons with structured IDs that trace to requirements. The testing
+      agent then promotes these to executable tests and adds supplementary
+      tests for edge cases, security, and system integration. This creates a
+      handoff contract that preserves traceability across agent boundaries.
+
+  - id: L-TS-002
+    category: test_strategy
+    title: "Six-category test organization with tolerance bands prevents distribution skew"
+    severity: info
+    reusable: true
+    description: >
+      The test suite was organized into six categories -- Positive (37.1%),
+      Negative (22.9%), Edge Case (18.1%), Security (11.4%), Component
+      Integration (6.7%), and System/E2E (3.8%) -- each with a target
+      percentage and tolerance band. All six categories fell within their
+      tolerance bands. This self-regulating distribution prevents the common
+      failure mode where test suites are dominated by happy-path tests (often
+      70-80%) with minimal negative, edge, and security coverage.
+    evidence: >
+      test-report.md: Test Distribution table shows all 6 categories within
+      tolerance. Positive target ~40% (30-50%), actual 37.1%; Negative target
+      ~20% (10-30%), actual 22.9%; Edge target ~10% (0-20%), actual 18.1%;
+      Security target ~10% (0-20%), actual 11.4%.
+    pattern: >
+      Define target distribution percentages with explicit tolerance bands for
+      each test category before writing tests. Include a self-verification
+      check that validates the final distribution. Recommended starting
+      distribution: Positive 30-50%, Negative 10-30%, Edge 5-20%,
+      Security 5-20%, Integration 5-15%, System/E2E 3-10%.
+
+  # --- COVERAGE ---
+
+  - id: L-COV-001
+    category: coverage
+    title: "Multi-layer coverage matrices catch gaps that single-metric coverage misses"
+    severity: medium
+    reusable: true
+    description: >
+      The coverage matrix tracked five independent coverage dimensions:
+      acceptance criteria (56/56), test skeletons (74/74), integration specs
+      ITS-* (60/60), system specs STS-* (8/8), and security specs SECTS-*
+      (10/10). Each dimension represents a different verification concern:
+      ACs verify user-facing behavior, ITS-* verify component interactions,
+      STS-* verify end-to-end flows, and SECTS-* verify threat mitigations.
+      A suite could achieve 100% AC coverage while having zero system tests,
+      so tracking all dimensions independently is essential.
+    evidence: >
+      coverage-matrix.md: Coverage Summary table shows all 5 dimensions at
+      100%; test-report.md: V-Model Level Classification shows Level 1-5
+      all at 100% coverage with independent counts.
+    pattern: >
+      Track coverage across at least four dimensions: (1) acceptance criteria
+      from requirements, (2) integration specs from design, (3) system/E2E
+      specs from design, (4) security specs from threat model. Report each
+      dimension separately in the coverage matrix. A single "coverage %" that
+      conflates these dimensions hides critical gaps.
+
+  - id: L-COV-002
+    category: coverage
+    title: "100% mock-based pass rate requires live-environment validation"
+    severity: high
+    reusable: true
+    description: >
+      All 210 tests passed with a 100% pass rate, but the entire suite runs
+      against mock repositories with no live database, no real HTTP delivery,
+      and no actual concurrency. The test-results.md explicitly warns that
+      live PostgreSQL testing may reveal issues in: database constraint
+      enforcement, connection pooling under load, transaction isolation for
+      concurrent operations, full-text search indexing accuracy, and actual
+      webhook HTTP delivery timing. A 100% pass rate on mocks provides
+      confidence in logic correctness but zero confidence in infrastructure
+      integration.
+    evidence: >
+      test-results.md: "Run Mode: Simulated (mock repositories, no live DB)";
+      Defects Found section: "No defects found... Full integration tests
+      against a live PostgreSQL database may reveal additional issues";
+      Recommendations 1-5 all call for live-environment execution.
+    pattern: >
+      Treat mock-based test results as "logic verification" and explicitly
+      label them as such. The deployment phase must include a live-environment
+      test run (testcontainers, staging env, or canary deploy) before
+      production release. Track mock-pass-rate and live-pass-rate as separate
+      metrics. A test suite that only runs against mocks is a specification,
+      not a verification.
+
+  # --- SECURITY TESTING ---
+
+  - id: L-SEC-001
+    category: security_testing
+    title: "51 attack vectors across 10 security specs provide systematic threat coverage"
+    severity: medium
+    reusable: true
+    description: >
+      The security test file implements 10 SECTS-* specifications with 51
+      total attack vectors covering: JWT auth bypass (7 vectors including
+      alg:none, algorithm mismatch, wrong key, expiry, payload tampering),
+      SQL injection (5 vectors across task, board, search, and filter inputs),
+      RBAC escalation (8 vectors for viewer/member privilege escalation),
+      SSRF via webhook (7 vectors for private IP ranges and link-local),
+      HMAC verification (4 vectors), and activity log immutability (3 vectors).
+      Each vector maps to a specific threat from the STRIDE analysis performed
+      during the review phase.
+    evidence: >
+      test-report.md: Level 5 Security Tests table shows 10 specs with 51
+      vectors, all implemented; test-results.md: security.test.ts 39 tests
+      all PASS (some vectors are counted across multiple specs for overlap).
+    pattern: >
+      Structure security tests around a threat model (STRIDE, OWASP Top 10)
+      rather than ad-hoc "try some attacks." Each threat category should have
+      a spec ID (SECTS-*) with multiple attack vectors. Include both known-bad
+      inputs (negative security tests) and boundary conditions (edge security
+      tests). Track vector count separately from test count, since one test
+      may exercise multiple vectors.
+
+  - id: L-SEC-002
+    category: security_testing
+    title: "Review-phase security findings drive targeted testing priorities"
+    severity: medium
+    reusable: true
+    description: >
+      The review phase identified specific security gaps (dead SSRF code in
+      L-SEC-001, hardcoded encryption key in L-SEC-002, middleware ordering
+      in L-SEC-003, DNS rebinding in L-SEC-004) with explicit
+      recommendation_for_testing fields. The testing phase addressed these
+      by implementing SECTS-006 (SSRF with 7 vectors including private IP
+      ranges), SECTS-007 (secret exposure with 4 vectors), and SECTS-001
+      (JWT bypass including algorithm confusion). This cross-phase handoff
+      ensures that known vulnerabilities from code review are systematically
+      verified rather than left as open findings.
+    evidence: >
+      review-capture.yaml: L-SEC-001 through L-SEC-004 each include
+      recommendation_for_testing; test-report.md: SECTS-006 implements 7
+      SSRF vectors, SECTS-001 implements 7 JWT vectors, SECTS-007 implements
+      4 secret exposure vectors -- all addressing review findings.
+    pattern: >
+      In the review phase, attach a recommendation_for_testing field to every
+      security finding. The testing agent should consume these recommendations
+      as mandatory test requirements. Track which review findings are covered
+      by which test IDs. Any review finding without a corresponding test is an
+      unverified vulnerability.
+
+  # --- DISTRIBUTION ---
+
+  - id: L-DIST-001
+    category: distribution
+    title: "V-Model test pyramid with 5 levels ensures appropriate granularity"
+    severity: info
+    reusable: true
+    description: >
+      The test suite implements a 5-level V-Model pyramid: Level 1 Acceptance
+      (74 tests covering 56 ACs), Level 2 System (8 STS-* multi-step E2E
+      scenarios), Level 3 Integration (60 ITS-* component interaction tests),
+      Level 4 Unit (45 tests across 8 files), and Level 5 Security (39 tests
+      across 10 SECTS-* specs). Additionally, 6 E2E workflow tests and 38
+      edge case tests provide supplementary coverage. The pyramid shape is
+      inverted compared to traditional test pyramids (more integration than
+      unit tests), which is appropriate for an API-first application where
+      HTTP contract verification matters more than isolated function behavior.
+    evidence: >
+      test-report.md: V-Model Level Classification shows Level 1 (74),
+      Level 2 (8), Level 3 (60), Level 4 (45), Level 5 (39); test file
+      inventory: 18 files organized by test/unit, test/integration,
+      test/system, test/security, test/e2e, test/edge.
+    pattern: >
+      For API-first applications, accept an inverted test pyramid where
+      integration tests outnumber unit tests. Unit tests should focus on
+      validation schemas, security utilities, and complex business rules.
+      Integration tests should verify HTTP contracts, RBAC enforcement, and
+      cross-component workflows. System tests should cover multi-step
+      scenarios that span the entire API surface.
+
+  # --- V-MODEL ---
+
+  - id: L-VM-001
+    category: vmodel
+    title: "V-Model symmetry validates that each design artifact has corresponding tests"
+    severity: medium
+    reusable: true
+    description: >
+      The V-Model structure creates symmetric verification: requirements
+      produce ACs (left side), design produces ITS-*/STS-*/SECTS-* specs
+      (left side), and testing implements corresponding tests at each level
+      (right side). This cycle achieved perfect symmetry: 56 ACs -> 56 AC
+      test mappings, 60 ITS -> 60 integration tests, 8 STS -> 8 system
+      tests, 10 SECTS -> 10 security test suites. The symmetry check is a
+      powerful quality gate because any mismatch (e.g., 58 ITS specs but
+      only 55 integration tests) immediately signals missing coverage.
+    evidence: >
+      coverage-matrix.md: all 5 coverage dimensions at 100%;
+      test-report.md: Self-Verification Checklist confirms all V-Model
+      levels present and all specs implemented; state.yaml shows
+      requirements, design, implementation, review all APPROVED before
+      testing began.
+    pattern: >
+      At the testing quality gate, verify V-Model symmetry by counting
+      left-side artifacts (ACs, ITS, STS, SECTS) and confirming each has
+      a 1:1 or 1:N mapping to right-side tests. Any deficit (tests < specs)
+      is a coverage gap. Any surplus (tests without spec IDs) should be
+      classified as supplementary and documented as such. Automate this
+      count check as a gating criterion.
+
+  # --- PATTERNS ---
+
+  - id: L-PAT-001
+    category: patterns
+    title: "Self-verification checklist as final testing gate prevents silent gaps"
+    severity: medium
+    reusable: true
+    description: >
+      The test report includes an 11-item Self-Verification Checklist that
+      the testing agent runs against its own output before declaring
+      completion. Checks include: distribution within tolerance bands (all 6
+      categories), all V-Model levels present, 100% AC coverage, all ITS/STS/
+      SECTS specs implemented, all test skeletons instantiated, all NFR
+      skeletons implemented, correct runner (node:test), correct language
+      (TypeScript with tsx), and traceability annotations in test comments.
+      All 11 checks passed. This self-audit mechanism catches the common
+      failure where an agent declares "done" while missing specs it failed
+      to enumerate.
+    evidence: >
+      test-report.md: Self-Verification Checklist table with 11 items,
+      all STATUS = PASS.
+    pattern: >
+      Require every agent to include a self-verification checklist in its
+      output artifact. The checklist should enumerate quantitative checks
+      (counts, percentages, coverage ratios) rather than subjective
+      assessments. The quality gate validator should independently verify
+      at least 3 items from the checklist to detect self-assessment bias.
+
+  - id: L-PAT-002
+    category: patterns
+    title: "Structured test file naming by concern enables selective execution"
+    severity: low
+    reusable: true
+    description: >
+      The 18 test files are organized into 6 directories by concern:
+      test/unit (8 files), test/integration (6 files), test/system (1 file),
+      test/security (1 file), test/e2e (1 file), test/edge (1 file). Each
+      directory can be executed independently via glob pattern
+      (npx tsx --test test/unit/*.test.ts). This enables fast feedback loops
+      during development (run only unit tests in <0.5s) while preserving the
+      ability to run the full suite for CI/CD. Integration tests are further
+      split by feature domain (task-crud, board-management, webhook, search,
+      activity-log, nfr) enabling feature-scoped regression runs.
+    evidence: >
+      test-report.md: Test File Inventory table (18 files); Run Command
+      section shows per-category execution commands; test-results.md shows
+      unit tests completing in ~260ms vs full suite in ~2.8s.
+    pattern: >
+      Organize test files by test level first (unit/integration/system/
+      security/e2e/edge), then by feature domain within each level. Use
+      consistent naming: {domain}.test.ts for integration, {module}.test.ts
+      for unit. Provide per-level run commands in the test report. This
+      structure supports both developer workflow (fast unit tests) and CI
+      workflow (full suite).
+
+  - id: L-PAT-003
+    category: patterns
+    title: "Exponential backoff and retry semantics require timing-aware test design"
+    severity: low
+    reusable: true
+    description: >
+      The webhook retry tests (ITS-037 through ITS-039, STS-004) verify
+      retry behavior including exponential backoff timing, max attempt
+      limits, and permanent failure marking. In mock mode, these tests
+      complete in 1-2ms by stubbing timers, but the test-results.md warns
+      that real HTTP delivery timing must be verified in live environment.
+      The webhook-retry-queue unit tests used actual setTimeout delays
+      (105ms, 152ms) showing that even "unit" tests sometimes need real
+      timing. This highlights a design tension: mock-based tests verify
+      logic but not timing, and timing bugs in retry systems cause
+      production incidents (retry storms, delayed delivery).
+    evidence: >
+      test-results.md: webhook-retry-queue.test.ts tests 1-2 show 105ms
+      and 152ms durations (real timers); ITS-037 through ITS-039 show 1-2ms
+      (mocked timers); Recommendations #4 calls for real HTTP backoff
+      verification.
+    pattern: >
+      For retry and backoff systems, write two test variants: (1) logic
+      tests with mocked timers that verify attempt counting, state
+      transitions, and failure marking; (2) timing tests with real timers
+      (at reduced scale) that verify actual delays fall within expected
+      ranges. Flag timing tests as slow and exclude from unit test suite.
+      In CI, run timing tests as a separate stage.
+
+  # --- CROSS-PHASE LEARNING ---
+
+  - id: L-XP-001
+    category: patterns
+    title: "Review findings with testing recommendations create a verification pipeline"
+    severity: info
+    reusable: true
+    description: >
+      The review phase captured 12 findings (L-SEC-001 through L-PAT-003),
+      each with a recommendation_for_testing field. The testing phase
+      consumed these recommendations and implemented corresponding tests:
+      SECTS-006 addresses L-SEC-001 (SSRF dead code), SECTS-007 addresses
+      L-SEC-002 (hardcoded keys), SECTS-001 addresses L-PAT-003 (HS256
+      gating), and STS-007/STS-008 address L-PROC-001 (transaction
+      integrity). This creates a verification pipeline where review
+      findings flow forward as test requirements, ensuring that identified
+      risks are not just documented but actively verified.
+    evidence: >
+      review-capture.yaml: testing_phase_recommendations lists 8 priority
+      items and 3 focus areas; test-report.md: corresponding SECTS and STS
+      specs cover each recommendation; testing_focus_areas from review
+      capture align with implemented security and integration tests.
+    pattern: >
+      Formalize the review-to-testing handoff as a structured contract:
+      each review finding produces a testing_recommendation with (a) test
+      type (unit/integration/security), (b) specific assertion to verify,
+      (c) expected behavior when the bug exists vs. when it is fixed. The
+      testing quality gate should verify that every HIGH/MEDIUM review
+      finding has at least one corresponding test.
+
+summary: >
+  The TaskFlow API testing phase produced a comprehensive suite of 210 tests
+  across 18 files with 100% pass rate on mock repositories. Coverage is
+  complete across all five V-Model dimensions: 56/56 ACs, 74/74 test
+  skeletons, 60/60 ITS specs, 8/8 STS specs, and 10/10 SECTS specs (51
+  attack vectors). Test distribution meets all tolerance bands with strong
+  representation across positive (37%), negative (23%), edge (18%), and
+  security (11%) categories. The primary risk is that all tests run against
+  mocks -- zero live-environment verification has been performed. The
+  deployment phase must include testcontainers or staging-environment test
+  execution to validate infrastructure integration, particularly for
+  database constraints, connection pooling, webhook HTTP delivery timing,
+  and full-text search indexing accuracy.
+
+deployment_phase_recommendations:
+  critical:
+    - title: "Run test suite against live PostgreSQL 16 via testcontainers"
+      rationale: >
+        All 210 tests currently run against mock repositories. Database
+        constraint enforcement, connection pooling, transaction isolation,
+        and full-text search indexing have zero verification. Use
+        @testcontainers/postgresql to spin up a real PG16 instance in CI
+        and re-run the full integration and system test suite.
+      tests_affected: "All 60 ITS-* tests, all 8 STS-* tests, 14 NFR tests"
+
+    - title: "Execute security tests with real HTTP against running service"
+      rationale: >
+        Security tests (SECTS-001 through SECTS-010, 51 attack vectors) run
+        against mocked middleware and service stubs. Real HTTP execution is
+        needed to verify that JWT rejection, SSRF blocking, rate limiting,
+        and HMAC verification work end-to-end through the full Express
+        middleware chain. SSRF protection was flagged as dead code in the
+        review phase (L-SEC-001) -- only live HTTP testing can confirm the
+        fix is wired correctly.
+      tests_affected: "All 39 security tests, all 6 E2E tests"
+
+    - title: "Validate webhook delivery timing with real HTTP endpoints"
+      rationale: >
+        Webhook retry tests (ITS-037 through ITS-039, STS-004) use mocked
+        timers and do not verify actual exponential backoff delays or HTTP
+        timeout behavior. Deploy a webhook receiver (e.g., webhook.site or
+        a local echo server) and verify that retry attempts follow the
+        expected [1s, 4s, 16s] schedule with real network latency.
+      tests_affected: "ITS-037 through ITS-039, STS-003, STS-004"
+
+  important:
+    - title: "Measure actual code coverage with c8"
+      rationale: >
+        Test-results.md recommends running `npx c8 tsx --test test/**/*.test.ts`
+        to measure line/branch coverage. NFR-006-002 requires >= 80% test
+        coverage but this was verified with a mock assertion, not actual
+        measurement. The deployment checklist should include a coverage gate.
+      command: "npx c8 --reporter=lcov tsx --test test/**/*.test.ts"
+
+    - title: "Run load tests for NFR performance targets"
+      rationale: >
+        NFR-001-001 (p95 <= 200ms), NFR-003-001 (p95 with 10K tasks), and
+        NFR-003-002 (50 concurrent users) were verified with simulated
+        assertions. Use k6 or autocannon against the deployed service to
+        measure actual latency percentiles under realistic load.
+      command: "k6 run load-test.js --vus 50 --duration 60s"
+
+    - title: "Verify startup validation rejects missing security config"
+      rationale: >
+        Review phase finding L-SEC-002 identified that WEBHOOK_ENCRYPTION_KEY
+        falls back to a hardcoded default. The deployment environment must
+        ensure the application fails fast when critical environment variables
+        (WEBHOOK_ENCRYPTION_KEY, JWT_SECRET/JWKS_URI, DATABASE_URL) are
+        missing or set to default values. Add a startup health check to the
+        deployment pipeline.
+
+  nice_to_have:
+    - title: "Add graceful shutdown integration test"
+      rationale: >
+        No test verifies that pool.end() and scheduler.stop() execute
+        cleanly during SIGTERM handling. In containerized deployments,
+        ungraceful shutdown can cause connection leaks and lost retry
+        queue items.
+
+    - title: "Add architecture dependency direction test"
+      rationale: >
+        Review finding L-CQ-001 identified a Clean Architecture dependency
+        violation (interface layer imported by application layer). A static
+        analysis test using eslint-plugin-import or a custom script should
+        enforce that src/application/ and src/domain/ never import from
+        src/interface/ or src/infrastructure/.
+
+    - title: "Add pagination consistency test under concurrent writes"
+      rationale: >
+        Review finding L-PAT-002 identified that separate COUNT and SELECT
+        queries for pagination can produce inconsistent results under
+        concurrent writes. A testcontainers-based test with concurrent
+        inserts during paginated search would verify this.

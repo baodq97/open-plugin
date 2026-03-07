@@ -1,0 +1,163 @@
+capture_id: KC-DESIGN-TASKFLOW-20260307
+phase: design
+cycle_id: CYCLE-TASKFLOW-20260307-001
+timestamp: "2026-03-07T22:15:00Z"
+learnings:
+  - category: architecture
+    insight: >
+      Clean Architecture with strict dependency inversion keeps business logic
+      framework-agnostic. Domain entities and repository interfaces (ports) live
+      at the core, while Express controllers and PostgreSQL adapters sit at the
+      outer layers. This enables swapping infrastructure (e.g., replacing pg with
+      an ORM, or Express with Fastify) without touching business rules.
+    evidence: "design.md, Section 1 — Architecture Overview, Layer Diagram"
+    reusable: true
+
+  - category: architecture
+    insight: >
+      Using an in-process async queue with database-backed state for webhook
+      delivery is an effective starting pattern at moderate scale. It avoids
+      external queue infrastructure while still providing delivery persistence
+      and retry-on-restart semantics. The key enabler is persisting delivery
+      records to the database before returning, then processing asynchronously
+      via setTimeout with a polling fallback for multi-replica deployments.
+    evidence: "architecture-decisions.md, ADR-004 — Webhook Delivery Strategy"
+    reusable: true
+
+  - category: architecture
+    insight: >
+      Placing the repository interface (port) in the domain layer and the
+      implementation (adapter) in the infrastructure layer creates a clean seam
+      for testing. Integration tests can run against a real PostgreSQL instance
+      while unit tests mock the repository interface, achieving both fidelity
+      and speed in the test pyramid.
+    evidence: "design.md, Section 3 — Directory Structure (domain/ports/ vs infrastructure/repositories/)"
+    reusable: true
+
+  - category: security
+    insight: >
+      A comprehensive STRIDE analysis covering 12 components identified 73
+      threats (12 Critical, 18+ High). The most impactful pattern: never trust
+      role claims from JWT tokens. Roles must be stored in the database
+      (board_members table) and checked per-request at the service layer. JWT
+      provides identity only (sub claim); authorization is always database-driven.
+    evidence: "security-design.md, Section 2.1.1 — STR-AUTH-E01 (Elevation of Privilege)"
+    reusable: true
+
+  - category: security
+    insight: >
+      SSRF prevention for webhook URLs requires blocking private IP ranges
+      (127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16,
+      169.254.0.0/16, ::1, fc00::/7) at both configuration time (URL validation)
+      and delivery time (DNS resolution check). This dual-gate approach prevents
+      DNS rebinding attacks where a public domain resolves to a private IP.
+    evidence: "security-design.md, Section 2.4.2 — STR-WHD-D01 (SSRF via Webhook URL)"
+    reusable: true
+
+  - category: security
+    insight: >
+      Activity logs should be immutable by design: INSERT-only at the database
+      level, with no UPDATE or DELETE API endpoints exposed. Transactional
+      logging (activity log INSERT in the same transaction as the mutation)
+      ensures no audit gaps. The only deletion path is the automated retention
+      purge via an internal scheduler, never via an API endpoint.
+    evidence: "security-design.md, Section 2.6 — Activity Log Subsystem (STR-ALOG-T01, STR-ALOG-R01)"
+    reusable: true
+
+  - category: api_design
+    insight: >
+      JSON:API v1.1 as the response format provides a standardized contract for
+      resource serialization, relationships, pagination links, and error objects.
+      The consistent structure (data.type, data.id, data.attributes,
+      data.relationships, links, meta) reduces client-side parsing complexity and
+      enables generic API client libraries. Error responses with source.pointer
+      (e.g., /data/attributes/title) give precise field-level error location.
+    evidence: "api-spec.md, Sections 1-9 — all endpoints use JSON:API format with source pointers in 422 errors"
+    reusable: true
+
+  - category: api_design
+    insight: >
+      Webhook delivery payloads should include a unique delivery_id, event type,
+      ISO 8601 timestamp, actor identity, and an HMAC-SHA256 signature in the
+      X-Signature-256 header. For state-change events, including both the
+      previous and new values in a 'changes' object enables consumers to react
+      to transitions without needing to maintain their own state.
+    evidence: "api-spec.md, Section 5.2 — Webhook Delivery Payload (status change event with changes object)"
+    reusable: true
+
+  - category: data_modeling
+    insight: >
+      Soft delete using a deleted_at TIMESTAMPTZ column combined with partial
+      indexes (WHERE deleted_at IS NULL) is preferable to a boolean flag because
+      it preserves deletion timing for audit purposes. The partial index ensures
+      queries on active records are not degraded by the presence of deleted rows.
+      The repository layer must encapsulate the filter to prevent accidental
+      inclusion of deleted records in any query.
+    evidence: "architecture-decisions.md, ADR-003 — Soft Delete Approach"
+    reusable: true
+
+  - category: data_modeling
+    insight: >
+      PostgreSQL built-in full-text search (tsvector + GIN index) is sufficient
+      for moderate-scale applications (up to ~500K tasks). Using
+      plainto_tsquery() sanitizes user input against injection, weighted ranking
+      (title weight A > description weight B) provides relevance ordering, and a
+      database trigger on INSERT/UPDATE maintains the search_vector column
+      automatically. This avoids the operational overhead of a separate search
+      engine like Elasticsearch.
+    evidence: "architecture-decisions.md, ADR-005 — Search Implementation; design.md Section 2.3 — Full-Text Search Flow"
+    reusable: true
+
+  - category: decisions
+    insight: >
+      Choosing raw SQL with pg (node-postgres) over an ORM like Prisma or
+      TypeORM provides full control over PostgreSQL-specific features (tsvector,
+      GIN indexes, partial indexes, JSONB, plainto_tsquery). The trade-off is
+      more boilerplate and manual result mapping, but this is mitigated by
+      TypeScript interfaces for entities and a thin repository layer that
+      provides a clean abstraction boundary.
+    evidence: "architecture-decisions.md, ADR-006 — Database Connection and ORM Strategy"
+    reusable: true
+
+  - category: decisions
+    insight: >
+      Rate limiting should be keyed on authenticated user identity (JWT sub
+      claim), not IP address, to prevent bypass via multiple IPs and avoid
+      penalizing shared-IP environments. Running the rate limiter middleware
+      after the auth middleware (not before) is essential for this approach. For
+      multi-replica deployments, in-memory rate limiting provides a conservative
+      per-replica limit that is acceptable at low scale, with a clear upgrade
+      path to Redis-backed shared state.
+    evidence: "architecture-decisions.md, ADR-008 — Rate Limiting Strategy"
+    reusable: true
+
+  - category: testing
+    insight: >
+      The test specification defines 60 integration tests, 8 system tests, and
+      10 security tests — totaling 78 test cases. Test coverage spans all CRUD
+      operations, RBAC enforcement, webhook delivery and retry mechanics,
+      full-text search scoping, pagination completeness, activity log integrity,
+      and retention purge boundary conditions. The security tests directly
+      reference STRIDE threat IDs, creating traceability from threat model to
+      test execution.
+    evidence: "test-specifications.md, Sections 1-3 — ITS-001 through ITS-060, STS-001 through STS-008, SECTS-001 through SECTS-010"
+    reusable: true
+
+summary: >
+  The design phase produced a comprehensive Clean Architecture for the TaskFlow
+  API with 7 application services, 7 repository interfaces, and 17 API
+  endpoints (including health checks). Security analysis identified 73 STRIDE
+  threats with mitigations, and 8 architecture decision records document key
+  trade-offs. The most reusable patterns are: database-driven RBAC (never trust
+  JWT role claims), soft delete with partial indexes, in-process async webhook
+  delivery with DB-backed state, and PostgreSQL native full-text search as a
+  pragmatic alternative to dedicated search infrastructure.
+
+recommendations:
+  - "Implement the domain layer (entities, enums, ports) first, as all other layers depend on it. Start with TypeScript interfaces for all 6 entities and 7 repository ports before writing any infrastructure code."
+  - "Set up the database migration pipeline (node-pg-migrate) early and create all 6 migration files in sequence, including the tsvector trigger and GIN index for search. Run migrations in integration test setup."
+  - "Implement SSRF protection for webhook URLs as a standalone utility module with comprehensive unit tests covering all private IP ranges, IPv6, and DNS rebinding scenarios — this is a Critical-severity security control (STR-WHD-D01)."
+  - "Wire up the activity log within the same database transaction as each mutation from the start (SEC-AUDIT-02). Retrofitting transactional logging later is significantly harder than building it in from day one."
+  - "Build the webhook retry mechanism with the polling-based fallback (scan webhook_deliveries for failed + next_retry_at <= now on startup and every 5s) rather than relying solely on setTimeout, to ensure retries survive process restarts across replicas."
+
+quality_gate_status: "QG pending — quality-gates/qg-design.yaml does not yet exist in the workspace"

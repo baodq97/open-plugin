@@ -1,0 +1,12 @@
+{
+  "total_tokens": 193621,
+  "duration_ms": 826000,
+  "total_duration_seconds": 826,
+  "status": "completed",
+  "agent_breakdown": {
+    "requirements_analyst": {"tokens": 56858, "duration_ms": 600151},
+    "quality_gate_validator": {"tokens": 54679, "duration_ms": 85209},
+    "traceability_analyst": {"tokens": 49262, "duration_ms": 83851},
+    "knowledge_curator": {"tokens": 32822, "duration_ms": 69773}
+  }
+}

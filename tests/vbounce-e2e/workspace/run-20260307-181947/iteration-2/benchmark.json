@@ -1,0 +1,97 @@
+{
+  "skill_name": "vbounce-e2e-test",
+  "iteration": 2,
+  "timestamp": "2026-03-07T18:35:00Z",
+  "eval_name": "requirements-phase-full-anatomy",
+  "changes_from_iteration_1": "Added 5 anatomy-step assertions (Steps 3-6). Total assertions: 13 (was 8). Prompt explicitly demands all 6 anatomy steps.",
+  "configurations": [
+    {
+      "name": "with_skill",
+      "label": "With vbounce skill (6-Activity Phase Anatomy)",
+      "results": {
+        "pass_rate": 1.0,
+        "assertions_passed": 13,
+        "assertions_total": 13,
+        "total_tokens": 65729,
+        "duration_ms": 510406,
+        "duration_seconds": 510.4
+      },
+      "per_assertion": [
+        {"text": "files_exist", "passed": true},
+        {"text": "story_id_format", "passed": true},
+        {"text": "ac_gwt_format", "passed": true},
+        {"text": "ac_count_per_story", "passed": true},
+        {"text": "nfr_measurable", "passed": true},
+        {"text": "test_skeleton_ids", "passed": true},
+        {"text": "traceability_completeness", "passed": true},
+        {"text": "ambiguity_below_50", "passed": true},
+        {"text": "step3_separate_qg_verdict", "passed": true},
+        {"text": "step3_qg_separate_agent", "passed": true},
+        {"text": "step4_human_review_presented", "passed": true},
+        {"text": "step6_knowledge_capture", "passed": true},
+        {"text": "step6_traceability_update", "passed": true}
+      ],
+      "artifacts": {
+        "stories": 17,
+        "acceptance_criteria": 53,
+        "nfrs": 10,
+        "test_skeletons": 57,
+        "ambiguity_max_score": 15,
+        "ambiguity_avg_score": 7.9,
+        "qg_verdict": "PASS",
+        "qg_criteria_passed": 6,
+        "output_files": 6
+      }
+    },
+    {
+      "name": "without_skill",
+      "label": "Baseline (no vbounce skill)",
+      "results": {
+        "pass_rate": 0.385,
+        "assertions_passed": 5,
+        "assertions_total": 13,
+        "total_tokens": 25806,
+        "duration_ms": 269705,
+        "duration_seconds": 269.7
+      },
+      "per_assertion": [
+        {"text": "files_exist", "passed": true},
+        {"text": "story_id_format", "passed": false},
+        {"text": "ac_gwt_format", "passed": true},
+        {"text": "ac_count_per_story", "passed": true},
+        {"text": "nfr_measurable", "passed": false},
+        {"text": "test_skeleton_ids", "passed": false},
+        {"text": "traceability_completeness", "passed": true},
+        {"text": "ambiguity_below_50", "passed": true},
+        {"text": "step3_separate_qg_verdict", "passed": false},
+        {"text": "step3_qg_separate_agent", "passed": false},
+        {"text": "step4_human_review_presented", "passed": false},
+        {"text": "step6_knowledge_capture", "passed": false},
+        {"text": "step6_traceability_update", "passed": false}
+      ],
+      "artifacts": {
+        "stories": 9,
+        "acceptance_criteria": 30,
+        "nfrs": 6,
+        "test_skeletons": 33,
+        "ambiguity_max_score": 40,
+        "ambiguity_avg_score": 26.7,
+        "output_files": 4
+      }
+    }
+  ],
+  "delta": {
+    "pass_rate": "+61.5% (100% vs 38.5%)",
+    "tokens": "+155% (66K vs 26K)",
+    "duration": "+89% (510s vs 270s)",
+    "stories": "+89% (17 vs 9)",
+    "acceptance_criteria": "+77% (53 vs 30)",
+    "nfrs": "+67% (10 vs 6)",
+    "test_skeletons": "+73% (57 vs 33)",
+    "analysis": "Iteration 2 confirms the 6-Activity Anatomy fix works. With-skill now passes all 13 assertions including Steps 3-6 (separate QG, human review, knowledge capture, traceability update). Iteration 1 only verified Step 2 (artifact generation) — with-skill passed 8/8 but was MISSING Steps 3-6. The updated SKILL.md + explicit eval prompt successfully drives all 6 anatomy steps. Baseline falls to 38.5% (from 75% in iter-1) because new assertions test vbounce-specific process behavior that baseline cannot produce without the plugin."
+  },
+  "iteration_comparison": {
+    "iteration_1": {"with_skill": "8/8 (100%)", "without_skill": "6/8 (75%)", "assertions": 8, "note": "Only tested Step 2 artifacts"},
+    "iteration_2": {"with_skill": "13/13 (100%)", "without_skill": "5/13 (38.5%)", "assertions": 13, "note": "Tests full 6-Activity Anatomy (Steps 2-6)"}
+  }
+}

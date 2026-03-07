@@ -1,0 +1,20 @@
+{
+  "eval_id": 9,
+  "eval_name": "deployment-phase-full-anatomy",
+  "prompt": "Full 6-Activity Phase Anatomy for Deployment: deployment-engineer produces 4 files, separate QG, end-of-cycle KC retrospective with prevention rules.",
+  "assertions": [
+    "deployment-plan.md, acceptance-verification.md, pre-deploy-checklist.md, monitoring.md exist",
+    "Rollback triggers have quantitative thresholds (%, ms)",
+    "Step-by-step rollback procedures documented",
+    "100% AC coverage verified against test results",
+    "ACs without passing tests block deployment",
+    "Pre-deploy checklist items are all checkable (not vague)",
+    "Alert thresholds with specific numbers (error rate, latency, CPU)",
+    "Escalation procedures defined",
+    "Notification channels specified",
+    "Deployment steps documented with pre/post verification",
+    "Separate QG agent produces qg-deployment.yaml",
+    "Knowledge-curator end-of-cycle retrospective",
+    "Prevention rules written to vbounce-learned-rules.md"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "eval_id": 8,
+  "eval_name": "testing-phase-full-anatomy",
+  "prompt": "Full 6-Activity Phase Anatomy for Testing: testing-engineer agent produces test suite + docs, separate quality-gate-validator, human review, traceability-analyst + knowledge-curator on approval.",
+  "assertions": [
+    "test-report.md, coverage-matrix.md, test-results.md exist",
+    "Test files created in project test/ directories",
+    "Positive tests ~40% (within 10% tolerance)",
+    "Negative tests ~20% (within 10% tolerance)",
+    "Edge case tests ~10% (within 10% tolerance)",
+    "Security tests ~10% (within 10% tolerance)",
+    "Component integration tests ~10% (within 10% tolerance)",
+    "System/E2E tests ~10% (within 10% tolerance)",
+    "V-Model levels present: acceptance, system, integration, unit, security",
+    "100% AC coverage — every AC mapped to >= 1 test",
+    "ITS-*/STS-*/SECTS-* from design implemented as tests",
+    "Separate QG agent produces qg-testing.yaml",
+    "Knowledge-curator captured testing learnings",
+    "Traceability-analyst updated matrix with test mappings"
+  ]
+}

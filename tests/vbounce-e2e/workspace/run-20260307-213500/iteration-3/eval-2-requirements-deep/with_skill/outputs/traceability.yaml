@@ -1,0 +1,485 @@
+matrix_id: TM-TASKFLOW-20260307
+last_updated: "2026-03-07T21:37:00Z"
+current_depth: requirements
+cycle_id: CYCLE-TASKFLOW-20260307-001
+agent: traceability-analyst
+mode: initialize
+
+entries:
+  # ──────────────────────────────────────────────────
+  # F1: Task CRUD (Phase 1 — MVP)
+  # ──────────────────────────────────────────────────
+  - prd_section: "F1: Task CRUD"
+    phase: "Phase 1 — MVP"
+    stories:
+      - id: US-001-001
+        title: "Create a Task"
+        priority: P0
+        acceptance_criteria:
+          - id: AC-US-001-001-01
+            summary: "Happy Path — create task with valid payload"
+            test_skeleton: T-AC-US-001-001-01
+            test_type: Integration
+          - id: AC-US-001-001-02
+            summary: "Validation Error — missing title"
+            test_skeleton: T-AC-US-001-001-02
+            test_type: Integration
+          - id: AC-US-001-001-03
+            summary: "Validation Error — title exceeds 200 chars"
+            test_skeleton: T-AC-US-001-001-03
+            test_type: Integration
+          - id: AC-US-001-001-04
+            summary: "Authorization Error — Viewer role"
+            test_skeleton: T-AC-US-001-001-04
+            test_type: Integration
+          - id: AC-US-001-001-05
+            summary: "Edge Case — maximum tags (11 > 10)"
+            test_skeleton: T-AC-US-001-001-05
+            test_type: Integration
+
+      - id: US-001-002
+        title: "Read / View a Task"
+        priority: P0
+        acceptance_criteria:
+          - id: AC-US-001-002-01
+            summary: "Happy Path — single task by ID"
+            test_skeleton: T-AC-US-001-002-01
+            test_type: Integration
+          - id: AC-US-001-002-02
+            summary: "Happy Path — list all tasks on board"
+            test_skeleton: T-AC-US-001-002-02
+            test_type: Integration
+          - id: AC-US-001-002-03
+            summary: "Error — task not found (404)"
+            test_skeleton: T-AC-US-001-002-03
+            test_type: Integration
+          - id: AC-US-001-002-04
+            summary: "Edge Case — soft-deleted task hidden from list"
+            test_skeleton: T-AC-US-001-002-04
+            test_type: Integration
+
+      - id: US-001-003
+        title: "Update a Task"
+        priority: P0
+        acceptance_criteria:
+          - id: AC-US-001-003-01
+            summary: "Happy Path — update status and priority"
+            test_skeleton: T-AC-US-001-003-01
+            test_type: Integration
+          - id: AC-US-001-003-02
+            summary: "Error — invalid status value"
+            test_skeleton: T-AC-US-001-003-02
+            test_type: Integration
+          - id: AC-US-001-003-03
+            summary: "Error — Viewer cannot update"
+            test_skeleton: T-AC-US-001-003-03
+            test_type: Integration
+          - id: AC-US-001-003-04
+            summary: "Edge Case — description at max length (5000 chars)"
+            test_skeleton: T-AC-US-001-003-04
+            test_type: Integration
+
+      - id: US-001-004
+        title: "Soft-Delete a Task"
+        priority: P0
+        acceptance_criteria:
+          - id: AC-US-001-004-01
+            summary: "Happy Path — creator deletes own task"
+            test_skeleton: T-AC-US-001-004-01
+            test_type: Integration
+          - id: AC-US-001-004-02
+            summary: "Happy Path — Admin deletes another's task"
+            test_skeleton: T-AC-US-001-004-02
+            test_type: Integration
+          - id: AC-US-001-004-03
+            summary: "Error — non-creator Member cannot delete"
+            test_skeleton: T-AC-US-001-004-03
+            test_type: Integration
+          - id: AC-US-001-004-04
+            summary: "Edge Case — delete already-deleted task (404)"
+            test_skeleton: T-AC-US-001-004-04
+            test_type: Integration
+
+  # ──────────────────────────────────────────────────
+  # F2: Board Management (Phase 1 — MVP)
+  # ──────────────────────────────────────────────────
+  - prd_section: "F2: Board Management"
+    phase: "Phase 1 — MVP"
+    stories:
+      - id: US-002-001
+        title: "Create a Board"
+        priority: P0
+        acceptance_criteria:
+          - id: AC-US-002-001-01
+            summary: "Happy Path — create board with defaults"
+            test_skeleton: T-AC-US-002-001-01
+            test_type: Integration
+          - id: AC-US-002-001-02
+            summary: "Error — missing name"
+            test_skeleton: T-AC-US-002-001-02
+            test_type: Integration
+          - id: AC-US-002-001-03
+            summary: "Error — name exceeds 100 chars"
+            test_skeleton: T-AC-US-002-001-03
+            test_type: Integration
+          - id: AC-US-002-001-04
+            summary: "Edge Case — custom 2-column layout"
+            test_skeleton: T-AC-US-002-001-04
+            test_type: Integration
+          - id: AC-US-002-001-05
+            summary: "Error — fewer than 2 columns"
+            test_skeleton: T-AC-US-002-001-05
+            test_type: Integration
+
+      - id: US-002-002
+        title: "Manage Board Columns"
+        priority: P1
+        acceptance_criteria:
+          - id: AC-US-002-002-01
+            summary: "Happy Path — rename columns"
+            test_skeleton: T-AC-US-002-002-01
+            test_type: Integration
+          - id: AC-US-002-002-02
+            summary: "Error — reduce below minimum 2 columns"
+            test_skeleton: T-AC-US-002-002-02
+            test_type: Integration
+          - id: AC-US-002-002-03
+            summary: "Error — non-owner Member cannot edit columns"
+            test_skeleton: T-AC-US-002-002-03
+            test_type: Integration
+
+      - id: US-002-003
+        title: "Invite Members and Assign Roles"
+        priority: P0
+        acceptance_criteria:
+          - id: AC-US-002-003-01
+            summary: "Happy Path — invite with role"
+            test_skeleton: T-AC-US-002-003-01
+            test_type: Integration
+          - id: AC-US-002-003-02
+            summary: "Error — invalid role"
+            test_skeleton: T-AC-US-002-003-02
+            test_type: Integration
+          - id: AC-US-002-003-03
+            summary: "Error — non-owner Member cannot invite"
+            test_skeleton: T-AC-US-002-003-03
+            test_type: Integration
+          - id: AC-US-002-003-04
+            summary: "Edge Case — update role of existing member"
+            test_skeleton: T-AC-US-002-003-04
+            test_type: Integration
+
+  # ──────────────────────────────────────────────────
+  # F3: Webhook Notifications (Phase 1 — MVP)
+  # ──────────────────────────────────────────────────
+  - prd_section: "F3: Webhook Notifications"
+    phase: "Phase 1 — MVP"
+    stories:
+      - id: US-003-001
+        title: "Configure Webhooks per Board"
+        priority: P0
+        acceptance_criteria:
+          - id: AC-US-003-001-01
+            summary: "Happy Path — configure webhook URL and secret"
+            test_skeleton: T-AC-US-003-001-01
+            test_type: Integration
+          - id: AC-US-003-001-02
+            summary: "Error — invalid URL"
+            test_skeleton: T-AC-US-003-001-02
+            test_type: Integration
+          - id: AC-US-003-001-03
+            summary: "Error — non-owner/non-Admin cannot configure"
+            test_skeleton: T-AC-US-003-001-03
+            test_type: Integration
+
+      - id: US-003-002
+        title: "Receive Webhook on Task Events"
+        priority: P0
+        acceptance_criteria:
+          - id: AC-US-003-002-01
+            summary: "Happy Path — task.created event fires"
+            test_skeleton: T-AC-US-003-002-01
+            test_type: Integration
+          - id: AC-US-003-002-02
+            summary: "Happy Path — task.status_changed with before/after"
+            test_skeleton: T-AC-US-003-002-02
+            test_type: Integration
+          - id: AC-US-003-002-03
+            summary: "Edge Case — no webhook configured, no delivery"
+            test_skeleton: T-AC-US-003-002-03
+            test_type: Integration
+          - id: AC-US-003-002-04
+            summary: "Edge Case — multiple rapid events, separate deliveries"
+            test_skeleton: T-AC-US-003-002-04
+            test_type: Integration
+
+      - id: US-003-003
+        title: "Webhook Retry on Failure"
+        priority: P1
+        acceptance_criteria:
+          - id: AC-US-003-003-01
+            summary: "Happy Path — successful retry after initial failure"
+            test_skeleton: T-AC-US-003-003-01
+            test_type: Integration
+          - id: AC-US-003-003-02
+            summary: "Error — all retries exhausted, permanently failed"
+            test_skeleton: T-AC-US-003-003-02
+            test_type: Integration
+          - id: AC-US-003-003-03
+            summary: "Edge Case — retry timing follows exponential backoff"
+            test_skeleton: T-AC-US-003-003-03
+            test_type: Integration
+
+  # ──────────────────────────────────────────────────
+  # F4: Search and Filtering (Phase 2 — Must Have)
+  # ──────────────────────────────────────────────────
+  - prd_section: "F4: Search and Filtering"
+    phase: "Phase 2 — Must Have"
+    stories:
+      - id: US-004-001
+        title: "Full-Text Search Tasks"
+        priority: P1
+        acceptance_criteria:
+          - id: AC-US-004-001-01
+            summary: "Happy Path — search returns matching tasks across boards"
+            test_skeleton: T-AC-US-004-001-01
+            test_type: Integration
+          - id: AC-US-004-001-02
+            summary: "Edge Case — no results returns empty collection"
+            test_skeleton: T-AC-US-004-001-02
+            test_type: Integration
+          - id: AC-US-004-001-03
+            summary: "Error — empty/missing query parameter"
+            test_skeleton: T-AC-US-004-001-03
+            test_type: Integration
+          - id: AC-US-004-001-04
+            summary: "Edge Case — results scoped to accessible boards"
+            test_skeleton: T-AC-US-004-001-04
+            test_type: Integration
+
+      - id: US-004-002
+        title: "Filter Tasks by Attributes"
+        priority: P1
+        acceptance_criteria:
+          - id: AC-US-004-002-01
+            summary: "Happy Path — single filter by priority"
+            test_skeleton: T-AC-US-004-002-01
+            test_type: Integration
+          - id: AC-US-004-002-02
+            summary: "Happy Path — combined filters (AND logic)"
+            test_skeleton: T-AC-US-004-002-02
+            test_type: Integration
+          - id: AC-US-004-002-03
+            summary: "Edge Case — due date range filter"
+            test_skeleton: T-AC-US-004-002-03
+            test_type: Integration
+          - id: AC-US-004-002-04
+            summary: "Error — unknown filter field"
+            test_skeleton: T-AC-US-004-002-04
+            test_type: Integration
+
+      - id: US-004-003
+        title: "Paginate and Sort Search Results"
+        priority: P1
+        acceptance_criteria:
+          - id: AC-US-004-003-01
+            summary: "Happy Path — default pagination at 20 items"
+            test_skeleton: T-AC-US-004-003-01
+            test_type: Integration
+          - id: AC-US-004-003-02
+            summary: "Happy Path — custom page size with sort"
+            test_skeleton: T-AC-US-004-003-02
+            test_type: Integration
+          - id: AC-US-004-003-03
+            summary: "Error — page size exceeds 100"
+            test_skeleton: T-AC-US-004-003-03
+            test_type: Integration
+          - id: AC-US-004-003-04
+            summary: "Edge Case — last page with fewer items"
+            test_skeleton: T-AC-US-004-003-04
+            test_type: Integration
+
+  # ──────────────────────────────────────────────────
+  # F5: Activity Log (Phase 3 — Nice to Have)
+  # ──────────────────────────────────────────────────
+  - prd_section: "F5: Activity Log"
+    phase: "Phase 3 — Nice to Have"
+    stories:
+      - id: US-005-001
+        title: "Record Activity Log Entries"
+        priority: P2
+        acceptance_criteria:
+          - id: AC-US-005-001-01
+            summary: "Happy Path — task update logged with before/after"
+            test_skeleton: T-AC-US-005-001-01
+            test_type: Integration
+          - id: AC-US-005-001-02
+            summary: "Happy Path — task creation logged"
+            test_skeleton: T-AC-US-005-001-02
+            test_type: Integration
+          - id: AC-US-005-001-03
+            summary: "Edge Case — multi-field update creates single entry"
+            test_skeleton: T-AC-US-005-001-03
+            test_type: Integration
+
+      - id: US-005-002
+        title: "Retrieve Activity Log via API"
+        priority: P2
+        acceptance_criteria:
+          - id: AC-US-005-002-01
+            summary: "Happy Path — task activity log in reverse chronological"
+            test_skeleton: T-AC-US-005-002-01
+            test_type: Integration
+          - id: AC-US-005-002-02
+            summary: "Happy Path — board activity log paginated"
+            test_skeleton: T-AC-US-005-002-02
+            test_type: Integration
+          - id: AC-US-005-002-03
+            summary: "Error — unauthorized user cannot view board activity"
+            test_skeleton: T-AC-US-005-002-03
+            test_type: Integration
+
+      - id: US-005-003
+        title: "Activity Log Retention Policy"
+        priority: P2
+        acceptance_criteria:
+          - id: AC-US-005-003-01
+            summary: "Happy Path — entries older than 90 days purged"
+            test_skeleton: T-AC-US-005-003-01
+            test_type: Integration
+          - id: AC-US-005-003-02
+            summary: "Edge Case — boundary at exactly 90 days retained"
+            test_skeleton: T-AC-US-005-003-02
+            test_type: Integration
+          - id: AC-US-005-003-03
+            summary: "Edge Case — purge no-op when no old entries"
+            test_skeleton: T-AC-US-005-003-03
+            test_type: Integration
+
+# ──────────────────────────────────────────────────
+# NFR Traceability
+# ──────────────────────────────────────────────────
+nfr_entries:
+  - id: NFR-001-001
+    title: "API Response Time (p95 <= 200ms, 50 concurrent users)"
+    test_skeleton: T-NFR-001-001
+    test_type: Performance
+    linked_stories: [US-001-001, US-001-002, US-001-003, US-002-001, US-004-001, US-004-002]
+  - id: NFR-001-002
+    title: "Rate Limiting (100 req/min/user)"
+    test_skeleton: T-NFR-001-002
+    test_type: Integration
+    linked_stories: ["cross-cutting"]
+  - id: NFR-002-001
+    title: "JWT Authentication"
+    test_skeleton: T-NFR-002-001
+    test_type: Security
+    linked_stories: ["cross-cutting"]
+  - id: NFR-002-002
+    title: "RBAC Enforcement"
+    test_skeleton: T-NFR-002-002
+    test_type: Security
+    linked_stories: [US-001-001, US-001-003, US-001-004, US-002-002, US-002-003, US-003-001, US-004-001, US-005-002]
+  - id: NFR-002-003
+    title: "Webhook HMAC Signing"
+    test_skeleton: T-NFR-002-003
+    test_type: Security
+    linked_stories: [US-003-001, US-003-002]
+  - id: NFR-003-001
+    title: "Task Volume (10K tasks per board)"
+    test_skeleton: T-NFR-003-001
+    test_type: Performance
+    linked_stories: [US-001-002, US-004-001]
+  - id: NFR-003-002
+    title: "Concurrent User Support (50 users)"
+    test_skeleton: T-NFR-003-002
+    test_type: Performance
+    linked_stories: ["cross-cutting"]
+  - id: NFR-004-001
+    title: "Uptime (99.5%)"
+    test_skeleton: T-NFR-004-001
+    test_type: Reliability
+    linked_stories: ["cross-cutting"]
+  - id: NFR-004-002
+    title: "Zero Data Loss"
+    test_skeleton: T-NFR-004-002
+    test_type: Reliability
+    linked_stories: [US-001-001, US-001-003, US-001-004]
+  - id: NFR-004-003
+    title: "Webhook Delivery Rate (>= 99%)"
+    test_skeleton: T-NFR-004-003
+    test_type: Reliability
+    linked_stories: [US-003-002, US-003-003]
+  - id: NFR-005-001
+    title: "JSON:API v1.1 Compliance"
+    test_skeleton: T-NFR-005-001
+    test_type: Integration
+    linked_stories: ["cross-cutting"]
+  - id: NFR-006-001
+    title: "TypeScript Strict Mode"
+    test_skeleton: T-NFR-006-001
+    test_type: Unit
+    linked_stories: ["build-quality"]
+  - id: NFR-006-002
+    title: "Test Coverage (>= 80%)"
+    test_skeleton: T-NFR-006-002
+    test_type: Unit
+    linked_stories: ["build-quality"]
+  - id: NFR-007-001
+    title: "Docker/K8s Container Health"
+    test_skeleton: T-NFR-007-001
+    test_type: Integration
+    linked_stories: ["deployment"]
+
+# ──────────────────────────────────────────────────
+# Coverage Analysis
+# ──────────────────────────────────────────────────
+coverage:
+  prd_sections:
+    total: 5
+    traced: 5
+    prd_to_story: "100%"
+  stories:
+    total: 16
+    traced_to_prd: 16
+    story_to_ac: "100%"
+  acceptance_criteria:
+    total: 55
+    traced_to_story: 55
+    ac_to_test: "100%"
+  test_skeletons:
+    functional: 55
+    nfr: 14
+    total: 69
+    traced_to_ac_or_nfr: 69
+    test_to_source: "100%"
+  nfrs:
+    total: 14
+    traced: 14
+    nfr_to_test: "100%"
+
+orphans:
+  prd_sections_without_stories: 0
+  stories_without_ac: 0
+  ac_without_test: 0
+  tests_without_ac: 0
+  nfrs_without_test: 0
+  total: 0
+
+# ──────────────────────────────────────────────────
+# Summary
+# ──────────────────────────────────────────────────
+summary:
+  status: PASS
+  depth: requirements
+  chain: "PRD Section -> User Story -> Acceptance Criteria -> Test Skeleton"
+  total_links: 69
+  orphan_count: 0
+  coverage_percentage: "100%"
+  notes:
+    - "All 5 PRD feature sections map to at least one user story"
+    - "All 16 user stories have >= 3 acceptance criteria"
+    - "All 55 acceptance criteria have a 1:1 test skeleton"
+    - "All 14 NFRs have a dedicated test skeleton"
+    - "Matrix will deepen as design/implementation/testing phases complete"
+    - "Next depth additions: design artifacts (API specs, DB schema) and implementation modules"

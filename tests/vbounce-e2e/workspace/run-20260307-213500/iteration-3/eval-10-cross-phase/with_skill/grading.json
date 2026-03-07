@@ -1,0 +1,19 @@
+{
+  "eval_id": 10,
+  "eval_name": "cross-phase-verification",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Full chain: PRD->Story->AC->Test->Component->File->DeployCheck", "passed": true, "evidence": "traceability.yaml (4315 lines) contains 16-level chain from PRD sections through deployment checks. 784 total traceability links across 6 phases."},
+    {"text": "0 orphans at every level in traceability matrix", "passed": true, "evidence": "0 orphans across all 30 orphan categories spanning 6 phases. Cross-phase report confirms zero orphans at every level."},
+    {"text": "Traceability chain depth >= 6 levels", "passed": true, "evidence": "Chain depth = 16 levels: PRD -> Story -> AC -> Test Skeleton -> API Endpoint -> Component -> STRIDE Threat -> Test Spec -> Source File -> Test File -> Migration File -> Review Finding -> Security Verification -> Test Execution -> Acceptance Check -> Deploy Check."},
+    {"text": "6 knowledge capture files (one per phase)", "passed": true, "evidence": "All 6 capture files present: requirements-capture.yaml, design-capture.yaml, implementation-capture.yaml, review-capture.yaml, testing-capture.yaml, deployment-capture.yaml."},
+    {"text": "Each KC file contains phase-specific learnings", "passed": true, "evidence": "68 total learnings across 6 files: requirements(10), design(13), implementation(13), review(13), testing(12), deployment(8). Each file contains categorized insights specific to its phase."},
+    {"text": "state.yaml shows all 6 phases approved", "passed": true, "evidence": "All 6 phases show status: approved with qg_verdict: PASS and approved_by: human. current_phase: complete."},
+    {"text": "cycle_id matches CYCLE-* format", "passed": true, "evidence": "cycle_id: CYCLE-TASKFLOW-20260307-001 matches CYCLE-* pattern."},
+    {"text": "History entries exist for each phase transition", "passed": true, "evidence": "8 history entries with monotonically increasing timestamps covering: initialization, requirements approved, design approved, implementation approved, review approved, testing approved, deployment approved, cycle complete."},
+    {"text": "6 QG YAML files in quality-gates/ directory", "passed": true, "evidence": "All 6 QG files present: qg-requirements.yaml (QG-REQ-001), qg-design.yaml (QG-DES-001), qg-implementation.yaml (QG-IMPL-001), qg-review.yaml (QG-REV-001), qg-testing.yaml (QG-TEST-001), qg-deployment.yaml (QG-DEP-001). All verdicts: PASS."},
+    {"text": "End-of-cycle retrospective with prevention rules", "passed": true, "evidence": "cycle-retrospective.yaml: 7 cross-phase patterns, 12 prevention rules (PR-001 to PR-012). vbounce-learned-rules.md deployed with all 12 rules (5 HIGH, 7 MEDIUM)."}
+  ],
+  "pass_rate": 1.0,
+  "summary": "10/10 assertions passed. Full cycle verified: 16-level traceability chain (784 links, 0 orphans), 6/6 KC files (68 learnings), 6/6 QG files (all PASS), state valid, retrospective with 12 prevention rules."
+}

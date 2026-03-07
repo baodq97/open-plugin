@@ -1,0 +1,277 @@
+# Cycle Retrospective: CYCLE-TASKFLOW-20260307-001
+# Agent: knowledge-curator (END-OF-CYCLE mode)
+# Generated: 2026-03-08
+
+retrospective_id: RETRO-TASKFLOW-20260307
+cycle_id: CYCLE-TASKFLOW-20260307-001
+project: TaskFlow API
+timestamp: "2026-03-08T00:30:00Z"
+
+phases_completed: 6
+phase_summary:
+  requirements:
+    status: approved
+    qg_verdict: PASS
+    learnings_count: 10
+    capture_ref: knowledge/requirements-capture.yaml
+  design:
+    status: approved
+    qg_verdict: PASS
+    learnings_count: 13
+    capture_ref: knowledge/design-capture.yaml
+  implementation:
+    status: approved
+    qg_verdict: PASS
+    learnings_count: 13
+    capture_ref: knowledge/implementation-capture.yaml
+  review:
+    status: approved
+    qg_verdict: PASS
+    score: 90.1
+    learnings_count: 12
+    capture_ref: knowledge/review-capture.yaml
+  testing:
+    status: approved
+    qg_verdict: PASS
+    tests: 210
+    pass_rate: 100
+    learnings_count: 12
+    capture_ref: knowledge/testing-capture.yaml
+  deployment:
+    status: completed
+    decision: PROCEED
+    learnings_count: 8
+    capture_ref: knowledge/deployment-capture.yaml
+
+total_learnings: 68
+
+cross_phase_patterns:
+
+  - pattern: "Security controls must be verified on the actual execution path, not just present in the codebase"
+    phases: [design, implementation, review, testing, deployment]
+    impact: high
+    description: >
+      The SSRF protection was designed correctly (design phase), implemented as a
+      utility class (implementation phase), found to be dead code not wired into
+      the service layer (review phase), targeted with 7 attack vector tests
+      (testing phase), and listed as a pre-deploy checklist item requiring
+      risk acceptance or remediation (deployment phase). This single security
+      issue touched every phase of the cycle, demonstrating that security
+      controls must be traced from design through deployment, not just
+      audited at one point. The review phase was the only phase that caught
+      the gap between "code exists" and "code executes."
+
+  - pattern: "Mock-based testing provides logic verification but zero infrastructure confidence"
+    phases: [implementation, testing, deployment]
+    impact: high
+    description: >
+      The implementation phase produced 31 unit tests against mocks, the testing
+      phase expanded to 210 tests all running against mock repositories, and
+      the deployment phase explicitly flagged this as a risk requiring
+      live-environment validation during canary. All three phases independently
+      acknowledged the limitation: mock tests verify logic correctness but
+      cannot validate database constraints, connection pooling, transaction
+      isolation, full-text search indexing, or real HTTP delivery timing.
+      The cycle achieved 100% pass rate but 0% infrastructure integration
+      verification.
+
+  - pattern: "Structured cross-phase handoff contracts prevent knowledge loss at agent boundaries"
+    phases: [requirements, design, implementation, review, testing]
+    impact: high
+    description: >
+      Requirements produced ACs with structured IDs that design consumed to
+      create test specifications. Implementation produced test skeletons with
+      IDs tracing to ACs. Review produced findings with recommendation_for_testing
+      fields. Testing consumed all three handoff artifacts and achieved 100%
+      coverage across all dimensions. This chain of structured contracts (AC IDs,
+      test skeleton IDs, review finding IDs with testing recommendations) eliminated
+      the common failure where each phase re-interprets requirements independently.
+      Zero coverage gaps resulted from this approach.
+
+  - pattern: "Hardcoded security defaults create multi-phase detection and remediation burden"
+    phases: [implementation, review, testing, deployment]
+    impact: medium
+    description: >
+      The hardcoded default encryption key ('default-encryption-key-32bytes!!')
+      was introduced in implementation, flagged as HIGH severity in review,
+      targeted with tests in testing, and added as a mandatory pre-deploy
+      checklist item requiring Kubernetes secret verification in deployment.
+      A single fail-fast startup check (rejecting default values in production)
+      would have made the review finding, test, and checklist item unnecessary.
+      Prevention is cheaper than multi-phase detection and remediation.
+
+  - pattern: "Traceability from requirements to deployment enables evidence-based decisions"
+    phases: [requirements, design, implementation, review, testing, deployment]
+    impact: high
+    description: >
+      The cycle maintained complete traceability: 5 PRD features -> 16 stories ->
+      56 ACs -> 78 test specifications -> 210 executable tests -> 56/56 AC
+      verification in the deployment acceptance matrix. At no point was a
+      deployment decision based on subjective assessment -- every gate used
+      quantitative criteria (ambiguity scores, review scores, test counts,
+      coverage percentages, rollback thresholds). The zero-orphan traceability
+      achieved in the requirements phase was maintained through all subsequent
+      phases.
+
+  - pattern: "Defense-in-depth requires verification at each layer, not just the outermost"
+    phases: [design, implementation, review]
+    impact: medium
+    description: >
+      The design phase specified RBAC checks at both middleware and service
+      layers. Implementation applied checkBoardAccess middleware on some routes
+      but not all (board member and webhook routes), relying solely on
+      service-layer RBAC for those routes. Review caught this gap and classified
+      it as MEDIUM severity (S-08), accepting the risk because service-layer
+      RBAC was verified. This pattern repeated for rate limiting (middleware
+      ordering relative to auth) and activity logging (separate queries
+      instead of transactional). Each defense-in-depth gap that is "accepted"
+      rather than fixed becomes a latent vulnerability that compounds with
+      future changes.
+
+  - pattern: "Environment-gated development features are a recurring security concern"
+    phases: [design, implementation, review, deployment]
+    impact: medium
+    description: >
+      The HS256 JWT mode was designed as a development convenience, implemented
+      without environment gating, flagged in review as a risk if JWT_SECRET is
+      accidentally set in production, and addressed in deployment by explicitly
+      forbidding JWT_SECRET in production environment variables. This four-phase
+      journey for a single dev-convenience feature suggests that development
+      shortcuts with security implications should be gated behind NODE_ENV
+      checks at the point of implementation, not caught later through review
+      and deployment controls.
+
+what_went_well:
+  - "Complete traceability from PRD to deployment acceptance: 5 features -> 16 stories -> 56 ACs -> 210 tests -> 100% AC coverage, zero orphans at any level"
+  - "Structured cross-phase handoffs via AC IDs, test skeleton IDs, and review findings with testing recommendations eliminated coverage gaps between agent boundaries"
+  - "Quality gates at every phase transition (6 phases, all PASS) provided incremental confidence rather than end-of-cycle surprises"
+  - "PRD quality was high: zero high-severity ambiguities, well-structured feature areas with clear priority tiers (P0/P1/P2), complete tech stack specification"
+  - "Review phase caught critical security issues (dead SSRF code, hardcoded encryption key) that would have been deployed to production undetected"
+  - "Test distribution across 6 categories with tolerance bands prevented happy-path-dominated test suites"
+  - "Deployment plan with quantitative rollback triggers and phased canary validation converts deployment from a risky event to a controlled process"
+  - "V-Model symmetry verification (left-side specs = right-side tests) provided a powerful quality gate for test completeness"
+  - "Hallucination detection with 100% pass rate across 97 items (19 npm packages, 75 API methods, 5 built-in modules) confirmed no fabricated dependencies"
+  - "Security review using STRIDE framework achieved systematic coverage of 73 threats across 12 components, catching gaps that ad-hoc review would miss"
+
+what_could_improve:
+  - "All 210 tests run against mock repositories -- zero live-environment verification performed during the cycle; live PostgreSQL testing should be part of the testing phase, not deferred to deployment"
+  - "Hardcoded security defaults (encryption key, database password) were introduced in implementation and required multi-phase remediation; fail-fast startup validation should be a standard implementation pattern"
+  - "SSRF protection was implemented but not wired into the execution path (dead code) -- integration verification of security controls should be an implementation-phase quality gate, not just a review-phase finding"
+  - "Activity logging was implemented without transactional guarantees, creating a known audit gap accepted for v1.0 -- transactional audit logging should be a non-negotiable requirement from design phase"
+  - "The in-process webhook retry queue loses pending retries on process restart -- durability requirements should be captured as NFRs in the requirements phase rather than discovered in implementation"
+  - "No graceful shutdown testing was performed -- SIGTERM handling for connection pool and scheduler cleanup is critical for containerized deployments and should be part of the standard test suite"
+  - "Pre-deployment checklist verification is manual (65 items) -- automating verification commands as a CI/CD pipeline step would reduce human error and speed up the deployment gate"
+  - "Application uses console.log instead of structured JSON logging (pino) -- this gap was identified in monitoring planning and should have been caught in the design phase's NFR specifications"
+
+prevention_rules:
+
+  - rule_id: PR-001
+    title: "Fail-fast startup validation for security-critical configuration"
+    trigger: "When implementing services that depend on encryption keys, signing secrets, or database credentials"
+    action: "Add a startup validation function that checks all required security environment variables are present, non-empty, and not set to default/example values. The application must refuse to start if any check fails. Never provide fallback values for security-critical configuration."
+    severity: high
+    source_phase: review
+    source_finding: "S-01 (hardcoded encryption key), L-SEC-002"
+
+  - rule_id: PR-002
+    title: "Security control integration verification"
+    trigger: "When a security control module (SSRF protection, input sanitization, rate limiter) is implemented as a separate class or utility"
+    action: "Write an integration test that verifies the security control is on the actual execution path, not just present in the codebase. The test should fail if the control is bypassed. Include a negative test that attempts the attack vector the control is designed to prevent."
+    severity: high
+    source_phase: review
+    source_finding: "S-03 (SSRF dead code), L-SEC-001"
+
+  - rule_id: PR-003
+    title: "Environment-gate all development convenience features"
+    trigger: "When implementing development shortcuts that weaken security (symmetric JWT, mock auth, debug endpoints, verbose logging)"
+    action: "Gate the feature behind an explicit NODE_ENV !== 'production' check at the point of implementation. Log a WARNING at startup when the feature is active. Add a test that verifies the feature is rejected in production mode."
+    severity: high
+    source_phase: review
+    source_finding: "S-02 (HS256 in production), L-PAT-003"
+
+  - rule_id: PR-004
+    title: "Transactional audit logging for all state mutations"
+    trigger: "When implementing any state-changing operation (create, update, delete) that requires an audit trail"
+    action: "Wrap the mutation and the audit log insert in a single database transaction (BEGIN/COMMIT). Never rely on separate sequential queries for mutation + audit log. Test by simulating a failure after mutation but before log insert and verifying the entire operation is rolled back."
+    severity: high
+    source_phase: review
+    source_finding: "S-06 (non-transactional audit logging), L-PROC-001"
+
+  - rule_id: PR-005
+    title: "Live-environment test execution before deployment gate"
+    trigger: "When a test suite achieves 100% pass rate on mock/stub repositories"
+    action: "Before the deployment quality gate, execute the full test suite against a live infrastructure instance (testcontainers, staging environment, or ephemeral preview environment). Track mock-pass-rate and live-pass-rate as separate metrics. A suite that only runs against mocks is a specification, not a verification."
+    severity: high
+    source_phase: testing
+    source_finding: "L-COV-002 (100% mock-based pass rate), deployment-phase critical recommendation #1"
+
+  - rule_id: PR-006
+    title: "Defense-in-depth at both middleware and service layers"
+    trigger: "When adding new API routes that access board-scoped or resource-scoped data"
+    action: "Apply access control checks at both the middleware layer (checkBoardAccess or equivalent) AND the service layer. Never rely on a single layer for authorization. Review middleware application on all routes as a dedicated security audit step during implementation."
+    severity: medium
+    source_phase: review
+    source_finding: "S-08 (missing checkBoardAccess on some routes), L-SEC-003"
+
+  - rule_id: PR-007
+    title: "Quantitative rollback triggers defined before deployment begins"
+    trigger: "When preparing a deployment plan for any production service"
+    action: "Define specific rollback triggers with quantitative thresholds (error rate %, latency ms, resource %, health check failures), measurement windows, and PromQL/query expressions BEFORE the deployment starts. Pre-commit to 'rollback first, investigate second' for any trigger breach. Include both canary-phase (automatic) and post-switch (manual) rollback procedures."
+    severity: medium
+    source_phase: deployment
+    source_finding: "L-DEP-006 (quantitative rollback triggers)"
+
+  - rule_id: PR-008
+    title: "Negative environment variable validation in deployment checklists"
+    trigger: "When deploying applications that have environment-gated features or different security modes"
+    action: "Include FORBIDDEN variable checks (variables that must NOT be set) alongside REQUIRED variable checks in the deployment checklist. Add startup validation that detects and rejects forbidden variables (e.g., JWT_SECRET in production). Classify all environment variables into three tiers: REQUIRED, OPTIONAL, and FORBIDDEN."
+    severity: medium
+    source_phase: deployment
+    source_finding: "L-DEP-007 (negative environment variable validation)"
+
+  - rule_id: PR-009
+    title: "Structured test skeletons as implementation-to-testing handoff contract"
+    trigger: "When the implementation agent produces test files alongside source code"
+    action: "Generate test skeletons with structured IDs (T-AC-{feature}-{story}-{ac}) that trace directly to acceptance criteria. Each skeleton must include: test name, AC reference, test type (positive/negative/edge/security), and expected behavior. The testing agent must promote all skeletons to executable tests and report any skeletons that could not be implemented."
+    severity: medium
+    source_phase: testing
+    source_finding: "L-TS-001 (skeleton-to-executable promotion)"
+
+  - rule_id: PR-010
+    title: "Multi-dimensional coverage tracking at the testing quality gate"
+    trigger: "When evaluating test coverage at the testing phase quality gate"
+    action: "Track coverage across at least 4 independent dimensions: (1) acceptance criteria from requirements, (2) integration specs from design, (3) system/E2E specs, (4) security specs from threat model. Report each dimension separately. A single conflated coverage percentage hides critical gaps. Verify V-Model symmetry: left-side spec count must match right-side test count."
+    severity: medium
+    source_phase: testing
+    source_finding: "L-COV-001 (multi-layer coverage), L-VM-001 (V-Model symmetry)"
+
+  - rule_id: PR-011
+    title: "Review findings must include testing recommendations"
+    trigger: "When the review agent produces security findings or code quality findings"
+    action: "Attach a recommendation_for_testing field to every HIGH and MEDIUM finding, specifying: (a) test type (unit/integration/security), (b) specific assertion to verify, (c) expected behavior when the bug exists vs. when it is fixed. The testing quality gate must verify that every HIGH/MEDIUM review finding has at least one corresponding test."
+    severity: medium
+    source_phase: review
+    source_finding: "L-XP-001 (review-to-testing verification pipeline)"
+
+  - rule_id: PR-012
+    title: "Durability requirements for async processing captured as NFRs"
+    trigger: "When designing or implementing async processing (queues, retry mechanisms, scheduled jobs)"
+    action: "Capture durability requirements as explicit NFRs in the requirements phase: what happens to pending items on process restart? What is the acceptable message loss rate? For retry mechanisms, verify that pending retries survive process restarts. If in-process queues are used for simplicity, document the durability limitation and include an upgrade path."
+    severity: medium
+    source_phase: implementation
+    source_finding: "KC-IMPL L-PAT pattern on webhook retry queue (in-process setTimeout, lost on restart)"
+
+cycle_health:
+  total_quality_gates: 6
+  quality_gates_passed: 6
+  quality_gates_failed: 0
+  total_tests: 210
+  tests_passed: 210
+  tests_failed: 0
+  review_score: 90.1
+  security_findings_high: 2
+  security_findings_medium: 3
+  security_findings_low: 3
+  ac_coverage: "56/56 (100%)"
+  traceability_orphans: 0
+  deployment_decision: PROCEED
