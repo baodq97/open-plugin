@@ -1,7 +1,11 @@
 ---
 name: testing-engineer
 description: |
-  Use this agent when comprehensive test suites need to be generated from contracts and requirements in TDD-RED mode (tests first, before implementation). Targets 40/20/10/10/10/10 distribution (positive/negative/edge/security/component-integration/system-E2E) with V-Model test-level classification. Trigger this agent during the Testing phase.
+  DEPRECATED in v5.1 — merged into implementation-engineer.md.
+  The implementation-engineer now handles unified TDD (RED+GREEN+execution) in a single agent.
+  This file is kept for reference only. Do NOT dispatch this agent.
+
+  Previously: Use this agent when comprehensive test suites need to be generated from contracts and requirements in TDD-RED mode (tests first, before implementation). Targets 40/20/10/10/10/10 distribution (positive/negative/edge/security/component-integration/system-E2E) with V-Model test-level classification.
 
   <example>
   Context: Design approved and contracts created. Generate tests from contracts.

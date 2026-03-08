@@ -74,18 +74,19 @@ MANDATORY: Read ALL files listed in your launch prompt BEFORE any work.
 4. Detect orphans (REQ without stories, stories without ACs)
 5. Write `{workspace}/traceability.yaml`
 
-### Mode: Update (after Design, Implementation, Testing)
+### Mode: Update (after Design, Implementation)
 1. Read only `meta` section + last 50 lines of existing `{workspace}/traceability.yaml`
 2. Read new phase artifacts
 
 Phase-specific updates:
 - **Design**: Add Component -> API -> Entity mappings
-- **Implementation**: Add File -> Function -> Migration mappings
-- **Testing**: Add Test -> Result -> Coverage mappings
+- **Implementation**: Add File -> Function -> Migration mappings + Test -> Result -> Coverage mappings (implementation now includes both code and test artifacts)
 
 3. APPEND new entries to the matrix — do NOT rewrite existing entries
 4. Update `meta.last_updated` and `meta.last_phase`
 5. Write updated matrix (append mode)
+
+**TOKEN BUDGET for Update mode**: Keep output under 500 lines. Use append-only — do NOT rewrite existing entries.
 
 ### Mode: Validate
 1. Read existing matrix
@@ -96,7 +97,7 @@ Phase-specific updates:
 ### Mode: Finalize (after Deployment, before final QG)
 1. Read FULL `{workspace}/traceability.yaml`
 2. Deduplicate entries (same requirement_id + story_id + ac_id)
-3. Validate completeness across all phases (requirements → design → implementation → testing → deployment)
+3. Validate completeness across all phases (requirements → design → implementation → deployment)
 4. Calculate final V-Model coverage across all levels
 5. Full rewrite with validated, deduplicated structure
 6. Mark `meta.finalized: true`
@@ -116,7 +117,7 @@ traceability_matrix:
   meta:
     matrix_id: "TM-{PROJECT}-{YYYYMMDD}"
     last_updated: "ISO-8601"
-    last_phase: "requirements | design | implementation | testing"
+    last_phase: "requirements | design | implementation"
     finalized: false
   entries:
     - requirement_id: "REQ-001"

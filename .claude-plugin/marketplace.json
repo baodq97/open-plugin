@@ -9,10 +9,10 @@
   "plugins": [
     {
       "name": "vbounce",
-      "description": "V-Bounce AI-Native SDLC Orchestrator v4.0 — Agent-first architecture with explicit contracts, shared workspace, state management, and multi-layer quality assurance",
+      "description": "V-Bounce AI-Native SDLC Orchestrator v5.1 — Agent-first architecture with unified TDD, per-phase specialized QG agents, mixed-model assignment, tech-aware context injection, explicit contracts, shared workspace, state management, and multi-layer quality assurance for complete software development lifecycle",
       "source": "./plugins/vbounce",
       "category": "development",
-      "version": "4.0.0"
+      "version": "5.1.0"
     },
     {
       "name": "skills-ontology",

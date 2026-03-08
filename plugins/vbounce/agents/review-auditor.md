@@ -64,7 +64,7 @@ tools: ["Read", "Write", "Bash", "Grep", "Glob", "WebFetch"]
 - `references/id-conventions.md` — ID format standards
 
 ### Handoff
-- Next: quality-gate-validator (phase=review)
+- No separate QG for review phase — review IS the deep check
 - Consumed by: implementation-engineer (if CHANGES REQUESTED)
 
 ---
@@ -117,17 +117,31 @@ Then execute these steps.
 - Unbounded operations
 - Missing caching where design specified it
 
-### Step 7: Contract Conformance Check
+### Step 7: Contract + Test-Source Cross-Check
+
+#### 7a: Source vs Contracts (signatures match)
 - Verify source code implements ALL interfaces/protocols defined in `contracts/`
-- Verify tests call methods that exist in source code (no phantom method calls)
 - Verify method signatures match contracts exactly (name, params, return type)
 - Flag any contract violations as HIGH severity
 
-### Step 8: Execution Results Review
+#### 7b: Test vs Source API Surface (MANDATORY)
+- Extract all method calls from test files (imports, function calls, class instantiations)
+- Verify every method called in tests actually exists in source code
+- Check parameter types and return types match between test expectations and source implementations
+- Flag phantom method calls (test calls method that doesn't exist in source) as CRITICAL
+
+#### 7c: Constructor Compatibility
+- Verify constructor signatures used in tests match source class constructors
+- Check dependency injection patterns are consistent between test mocks and source code
+- Flag constructor mismatches as HIGH severity
+
+### Step 8: Execution Results Review (Aggressive)
 - Read `{workspace}/implementation/execution-report.md`
+- **If execution-report.md is MISSING**: flag as CRITICAL — execution was not run
 - Review compile status and test results per iteration
 - Flag any remaining failures as HIGH severity findings
 - If execution passed, note it as positive evidence
+- Verify execution iterations count (> 2 iterations = WARN, > 3 = should have been escalated)
 
 ### Step 9: Produce Review Report
 Write to `{workspace}/review/`:
@@ -144,6 +158,8 @@ Before presenting output, verify:
 - [ ] Every STRIDE mitigation checked
 - [ ] All 5 categories scored
 - [ ] Contract conformance verified (all interfaces implemented, signatures match)
-- [ ] Execution report reviewed (failures flagged as HIGH)
+- [ ] Every method called in test files verified to exist in source
+- [ ] Constructor compatibility checked between tests and source
+- [ ] Execution report reviewed (missing report = CRITICAL, failures = HIGH)
 - [ ] Verdict calculated from weighted scores
 - [ ] All output files written to `{workspace}/review/`

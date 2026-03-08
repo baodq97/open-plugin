@@ -100,9 +100,8 @@ After each phase approval:
 |-------|----------|
 | Requirements | Ambiguity patterns, clarification effectiveness, NFR gaps |
 | Design | Architecture decisions, security findings, pattern reuse |
-| Implementation | Hallucination patterns, package issues, code quality insights |
+| Implementation | Hallucination patterns, package issues, code quality insights, coverage gaps, edge case patterns, test distribution balance |
 | Review | Common issues found, false positive rate, review effectiveness |
-| Testing | Coverage gaps, edge case patterns, test distribution balance |
 | Deployment | Environment issues, configuration surprises, rollback triggers |
 
 3. Write to `{workspace}/knowledge/{phase}-capture.yaml`

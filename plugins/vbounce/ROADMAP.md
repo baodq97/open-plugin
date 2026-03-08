@@ -171,6 +171,24 @@ Mixed-model assignment, TDD flow (contracts → TDD-RED → TDD-GREEN → execut
 
 ---
 
+## v5.1.0 (current)
+
+Architecture redesign based on FEAT-3877 real cycle and E2E benchmark results.
+
+### Completed (2026-03-09)
+
+- **Unified TDD**: Merged testing-engineer into implementation-engineer — one agent writes tests (RED), implements code (GREEN), and runs execution verification (max 3 iterations). Eliminates the #1 v5.0 failure mode: agent-to-agent contract mismatch
+- **Per-phase specialized QG agents**: Replaced generic quality-gate-validator (haiku) with 4 domain-specific QG agents (sonnet): qg-requirements, qg-design, qg-implementation, qg-deployment
+- **QG failure loop with KC**: QG FAIL → knowledge-curator captures → phase agent revises → QG re-run
+- **Parallel implementation support**: Task breakdown for independent modules, scope-restricted agent launches, combined integration verification
+- **Review agent enhancements**: Test-source cross-check (7a/7b/7c), aggressive execution report review, constructor compatibility check
+- **Design agent frontend support**: Step 3b for component hierarchy, field-to-UI mapping, error states, accessibility baseline
+- **Traceability token budget**: Update mode capped at 500 lines, append-only; only Finalize mode reads full matrix
+- **Phase reduction**: 8 → 6 phases (removed separate Testing and Execution phases)
+- **Agent count**: 9 → 12 active agents (8 core + 4 QG), 1 deprecated (testing-engineer)
+
+---
+
 ## v6.0.0 — Advanced Features
 
 ### 6.0.1 — Multi-cycle management

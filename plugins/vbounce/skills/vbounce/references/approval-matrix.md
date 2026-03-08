@@ -22,10 +22,6 @@ approval_matrix:
     quorum: 1
     note: "Review verdict accepted by requestor"
 
-  testing:
-    approvers: ["QA Lead"]
-    quorum: 1
-
   deployment:
     staging:
       approvers: ["QA Lead"]

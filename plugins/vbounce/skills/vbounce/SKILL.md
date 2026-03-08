@@ -1,14 +1,14 @@
 ---
 name: vbounce
-version: "5.0.0"
+version: "5.1.0"
 description: |
   Use this skill when the user wants to run a V-Bounce SDLC cycle, start a
   vbounce workflow, or manage a structured software development lifecycle with
-  the V-Bounce framework. Orchestrates 9 specialized agents through phases:
-  Requirements, Design, Contracts, Testing, Implementation, Execution, Review,
-  and Deployment with mixed-model assignment, TDD flow, tech-aware context
-  injection, state management, contract validation, and quality gates at every
-  transition.
+  the V-Bounce framework. Orchestrates 12 specialized agents through phases:
+  Requirements, Design, Contracts, Implementation (unified TDD), Review,
+  and Deployment with mixed-model assignment, per-phase specialized QG agents,
+  unified TDD flow, tech-aware context injection, state management, contract
+  validation, and quality gates at every transition.
   Triggers: "start vbounce cycle", "run sdlc pipeline", "resume vbounce",
   "APPROVED", "CHANGES REQUESTED", "START BUGFIX", "START CR", "tech-aware",
   "TDD flow".
@@ -16,9 +16,9 @@ description: |
   tasks outside the V-Bounce framework.
 ---
 
-# V-Bounce SDLC Orchestrator v5.0
+# V-Bounce SDLC Orchestrator v5.1
 
-Agent-first SDLC framework with explicit contracts, shared workspace, and state management.
+Agent-first SDLC framework with explicit contracts, shared workspace, state management, unified TDD, and per-phase specialized QG agents.
 
 Based on arXiv 2408.03416 (Hymel, 2024): AI handles implementation, humans shift to validators/verifiers.
 
@@ -37,7 +37,7 @@ Based on arXiv 2408.03416 (Hymel, 2024): AI handles implementation, humans shift
 When the user provides a PRD or says "start vbounce cycle":
 
 1. **Generate cycle ID**: `CYCLE-{PROJECT}-{YYYYMMDD}-{SEQ}` (derive PROJECT from directory name, SEQ starts at 001)
-2. **Create workspace**: `mkdir -p .vbounce/cycles/{cycle_id}/{requirements,design,contracts,implementation,review,testing,deployment,knowledge,quality-gates}`
+2. **Create workspace**: `mkdir -p .vbounce/cycles/{cycle_id}/{requirements,design,contracts,implementation,review,deployment,knowledge,quality-gates}`
 3. **Copy PRD**: Write/copy the user's PRD to `.vbounce/cycles/{cycle_id}/prd.md`
 4. **Tech Stack Detection**: Scan the project for manifest files to detect the tech stack:
    - Check in order: `package.json` (JS/TS), `pyproject.toml` / `requirements.txt` (Python), `*.csproj` (C#), `go.mod` (Go), `Cargo.toml` (Rust), `pom.xml` / `build.gradle` (Java/Kotlin)
@@ -52,7 +52,7 @@ When the user provides a PRD or says "start vbounce cycle":
    - Always check: `hallucination-patterns.md` for entries matching detected ecosystem, `coding-standards.md` for detected language, `CLAUDE.md` for project-specific conventions
    - If no skill matches any detected framework, graceful degradation: agents work without framework context (tech-context-prompt.md will only contain language + framework names + versions)
    - Write `{workspace}/tech-context-prompt.md` with: primary stack info, key patterns, known hallucination risks, testing conventions
-6. **Initialize state**: Write `.vbounce/cycles/{cycle_id}/state.yaml` with v5.0 state schema (all phases including contracts/execution set to `not_started`, `current_phase: requirements`, `anatomy_step: input`, `tech_context` populated from detection)
+6. **Initialize state**: Write `.vbounce/cycles/{cycle_id}/state.yaml` with v5.1 state schema (all phases including contracts set to `not_started`, `current_phase: requirements`, `anatomy_step: input`, `tech_context` populated from detection)
 7. **Set active cycle**: Write `.vbounce/state.yaml` with just `active_cycle: {cycle_id}` and `workspace: .vbounce/cycles/{cycle_id}`
 8. **Proceed**: Begin requirements phase (validate input contract, dispatch requirements-analyst)
 
@@ -84,10 +84,11 @@ Example: `{workspace}/requirements/requirements.md` → `.vbounce/cycles/CYCLE-M
         │   ├── test-skeletons.md
         │   ├── traceability.yaml
         │   └── ambiguity-report.md
-        ├── quality-gates/              # quality-gate-validator writes
+        ├── quality-gates/              # per-phase QG agents write
         │   ├── qg-requirements.yaml
         │   ├── qg-design.yaml
-        │   └── ...
+        │   ├── qg-implementation.yaml
+        │   └── qg-deployment.yaml
         ├── design/                     # design-architect writes
         │   ├── design.md
         │   ├── security-design.md
@@ -101,18 +102,16 @@ Example: `{workspace}/requirements/requirements.md` → `.vbounce/cycles/CYCLE-M
         │   ├── contracts.{ext}         # .ts/.py/.cs/.go/.md based on language
         │   ├── api-surface.yaml
         │   └── test-plan.yaml
-        ├── implementation/             # implementation-engineer writes
+        ├── implementation/             # implementation-engineer writes (unified TDD)
         │   ├── summary.md
         │   ├── package-verification.md
-        │   └── execution-report.md     # Orchestrator writes (execution verification results)
+        │   ├── test-report.md          # Distribution stats, V-Model levels
+        │   ├── coverage-matrix.md      # AC → test mapping
+        │   └── execution-report.md     # Compile + test results per iteration
         ├── review/                     # review-auditor writes
         │   ├── review-report.md
         │   ├── hallucination-report.md
         │   └── security-findings.md
-        ├── testing/                    # testing-engineer writes
-        │   ├── test-report.md
-        │   ├── coverage-matrix.md
-        │   └── test-results.md
         ├── deployment/                 # deployment-engineer writes
         │   ├── deployment-plan.md
         │   ├── acceptance-verification.md
@@ -147,14 +146,14 @@ phases:
     status: not_started
   contracts:
     status: not_started | generated
-  testing:
-    status: not_started
   implementation:
-    status: not_started
-  execution:
-    status: not_started | passed | failed | skipped
-    iterations: 0
-    # Detailed error counts in {workspace}/implementation/execution-report.md
+    status: not_started | in_progress | qg_pending | review_pending | approved
+    execution_status: not_started | running | passed | failed
+    execution_iterations: 0
+    task_groups: []  # for parallel agent teams [{group_id, modules, status, agent_id}]
+    artifacts: []
+    qg_verdict: null
+    approved_by: null
   review:
     status: not_started
   deployment:
@@ -225,6 +224,14 @@ history: + {timestamp, action}
 ```
 
 ### 6. ROUTE ON QG VERDICT
+Dispatch the appropriate per-phase QG agent:
+- **Requirements** → `qg-requirements`
+- **Design** → `qg-design`
+- **Implementation** → `qg-implementation`
+- **Deployment** → `qg-deployment`
+- **Review** → NO QG (review IS the deep check)
+
+Then route on verdict:
 - QG PASS/WARN(<=2) → go to step 7 (Present for Review)
 - QG FAIL → knowledge-curator captures failure → phase agent revises → QG re-run
 - **QG Retry Limit**: Max 3 failure→revise cycles. After 3 failures, escalate to user with QG report.
@@ -303,25 +310,9 @@ After Design approval and post-phase agents (trace+KC) complete:
 4. Generate `{workspace}/contracts/test-plan.yaml` — positive/negative/edge test cases per method, mapped to ACs
 5. Update state: `phases.contracts.status: generated`
 
-## Execution Verification (Orchestrator Step — after Implementation)
+## Execution Verification
 
-After implementation-engineer returns, the orchestrator runs execution verification directly via Bash:
-
-1. Read `{workspace}/tech-context.yaml` for resolved commands
-2. Run `install_command` (skip if null or no dependencies file exists)
-3. Run `compile_command` via Bash (skip if null — interpreted languages without type checker)
-4. Run `test_command` via Bash
-5. **On failure** (compile errors > 0 OR test failures > 0):
-   - Categorize the failure:
-     - **Contract mismatch** → re-dispatch both testing-engineer and implementation-engineer with errors
-     - **Implementation bug** → re-dispatch implementation-engineer with error output
-     - **Test bug** → re-dispatch testing-engineer with error output
-   - Re-run steps 2-4
-   - **Max 3 iterations**
-6. Write `{workspace}/implementation/execution-report.md`: compile status, test status per iteration, final PASS/FAIL
-7. Update state: `execution.status` (passed/failed), `execution.iterations`
-8. **PASS** → proceed to Review phase
-9. **FAIL after 3 iterations** → escalate to user with detailed error report
+Execution verification is handled internally by `implementation-engineer` (Steps 7-10 of its process). The agent runs install → compile → test with up to 3 fix iterations and writes the results to `{workspace}/implementation/execution-report.md`. The orchestrator no longer runs execution as a separate step.
 
 ## Agent Dispatch Table
 
@@ -330,11 +321,9 @@ After implementation-engineer returns, the orchestrator runs execution verificat
 | **Requirements** | requirements-analyst | opus | `prd.md`, `state.yaml` | `requirements/*.md` (4 files) |
 | **Design** | design-architect | opus | `requirements/*.md` (3 files), `state.yaml` | `design/*.md` (8 files) |
 | *(contracts)* | orchestrator direct | — | `design/*.md`, `requirements/*.md`, `tech-context.yaml` | `contracts/` (3 files) |
-| **Testing** | testing-engineer | sonnet | `contracts/`, `requirements/*.md`, `design/test-specifications.md`, `state.yaml` | `testing/*.md` (3 files) + test code |
-| **Implementation** | implementation-engineer | sonnet | `contracts/`, test dirs, `design/*.md`, `state.yaml` | `implementation/*.md` (2 files) + source code |
-| *(execution)* | orchestrator Bash | — | source + test code, `tech-context.yaml` (commands) | `implementation/execution-report.md` |
-| **Review** | review-auditor | sonnet | `contracts/`, `implementation/*.md`, source code, test code, `execution-report.md`, `design/`, `state.yaml` | `review/*.md` (3 files) |
-| **Deployment** | deployment-engineer | haiku | `testing/*.md` (2 files), `requirements/requirements.md`, `implementation/summary.md`, `state.yaml` | `deployment/*.md` (4 files) |
+| **Implementation** | implementation-engineer | sonnet | `contracts/`, `requirements/*.md`, `design/*.md`, `tech-context.yaml`, `state.yaml` | `implementation/*.md` (5 files) + source code + test code |
+| **Review** | review-auditor | sonnet | `contracts/`, `implementation/*.md`, source code, test code, `design/`, `state.yaml` | `review/*.md` (3 files) |
+| **Deployment** | deployment-engineer | haiku | `implementation/test-report.md`, `implementation/coverage-matrix.md`, `requirements/requirements.md`, `implementation/summary.md`, `state.yaml` | `deployment/*.md` (4 files) |
 
 Note: `tech-context-prompt.md` is injected into every phase agent dispatch prompt by the orchestrator (see Agent-to-Agent Context Passing). It is not listed as a file input because agents receive it inline in the prompt text.
 
@@ -342,15 +331,32 @@ Note: `tech-context-prompt.md` is injected into every phase agent dispatch promp
 
 | Agent | Model | When Invoked | Input | Output |
 |-------|-------|-------------|-------|--------|
-| **quality-gate-validator** | haiku | After every generation (anatomy step 3) | `{phase}/` artifacts, `state.yaml` | `quality-gates/qg-{phase}.yaml` |
+| **qg-requirements** | sonnet | After requirements generation (anatomy step 3) | `requirements/` artifacts, `state.yaml` | `quality-gates/qg-requirements.yaml` |
+| **qg-design** | sonnet | After design generation (anatomy step 3) | `design/` artifacts, `requirements/requirements.md`, `state.yaml` | `quality-gates/qg-design.yaml` |
+| **qg-implementation** | sonnet | After implementation generation (anatomy step 3) | `implementation/` artifacts, `contracts/`, source + test code, `state.yaml` | `quality-gates/qg-implementation.yaml` |
+| **qg-deployment** | sonnet | After deployment generation (anatomy step 3) | `deployment/` artifacts, `implementation/test-report.md`, `requirements/requirements.md`, `state.yaml` | `quality-gates/qg-deployment.yaml` |
 | **traceability-analyst** | haiku | PARALLEL after phase approval (mode=update); after deployment (mode=finalize) | Phase artifacts, existing matrix | `traceability.yaml` |
 | **knowledge-curator** | haiku | PARALLEL after phase approval; after QG failure | Phase artifacts, QG report | `knowledge/{phase}-capture.yaml`, learned rules |
+
+## Task Breakdown for Parallel Implementation
+
+When `api-surface.yaml` contains >= 3 independent modules (no cross-module method calls or shared types), the orchestrator MAY parallelize the Implementation phase:
+
+1. **Identify independent modules**: Group endpoints/interfaces by module from `api-surface.yaml`
+2. **Verify no cross-dependencies**: Module A must not import types from Module B
+3. **Launch N agents**: Each `implementation-engineer` gets scoped contracts + `Scope: [module-list]` in its prompt
+4. **Each agent runs full TDD loop**: Tests + code + execution for its scoped modules only
+5. **After all complete**: Orchestrator runs combined execution verification (`install_command` + `compile_command` + `test_command`) to catch cross-module integration issues
+6. **If cross-module failures**: Re-dispatch a SINGLE `implementation-engineer` with ALL modules and the error output (max 2 integration-fix iterations)
+7. **State tracking**: `implementation.task_groups: [{group_id: "auth", modules: ["auth-service", "auth-middleware"], status: "completed", agent_id: "..."}]`
+
+**When NOT to parallelize**: < 3 modules, shared base types across modules, or modules with circular imports.
 
 ## Quality Assurance: 4 Layers
 
 1. **Input Contract** (orchestrator validates before launch): Required files exist at expected paths
 2. **Output Contract** (orchestrator validates after return): Files written with required patterns
-3. **Semantic QG** (quality-gate-validator agent): Domain-specific criteria (ambiguity, coverage, etc.)
+3. **Semantic QG** (per-phase QG agent — sonnet): Domain-specific criteria (ambiguity, coverage, etc.)
 4. **Cross-Agent Compatibility** (next agent Step 1): "I parsed previous output successfully" acknowledgment
 
 ## Agent-to-Agent Context Passing
@@ -392,15 +398,17 @@ Each agent's CONTRACT section lists what files it needs — use that as the chec
 | `START CR [description]` | Pause feature cycle, start CR assessment |
 | `START BUGFIX [ticket-id]` | Start bugfix workflow |
 
-## TDD Flow: Contract-Driven Testing
+## TDD Flow: Unified Contract-Driven Development
 
 During the Requirements phase, test skeletons are generated alongside stories. After Design approval, the orchestrator generates `contracts/` — a shared API surface defining every interface, method signature, and type.
 
-The TDD flow ensures zero contract mismatches:
+The unified TDD flow runs in a single agent (`implementation-engineer`):
 1. **Contracts** define the shared API surface (generated by orchestrator from design + requirements + tech context)
-2. **Testing-engineer (TDD-RED)** generates tests from contracts — tests reference exact method names and parameter types from `api-surface.yaml`
-3. **Implementation-engineer (TDD-GREEN)** implements contracts to make existing tests pass — signatures MUST match exactly
-4. **Execution verification** (orchestrator) runs install → compile → test to catch any remaining mismatches, with up to 3 re-dispatch iterations
+2. **TDD-RED**: Implementation-engineer writes tests from contracts — tests reference exact method names and parameter types from `api-surface.yaml`
+3. **TDD-GREEN**: Implementation-engineer implements contracts to make those tests pass — signatures MUST match exactly
+4. **Execution**: Implementation-engineer runs install → compile → test internally, with up to 3 fix iterations
+
+This eliminates the agent-to-agent contract mismatch problem from v5.0 by having ONE agent own tests + code + execution.
 
 ## Self-Learning Memory
 
@@ -442,14 +450,14 @@ All agents can consult these reference files:
 | [phase-anatomy.md](references/phase-anatomy.md) | 7-Activity cycle definition | All agents |
 | [id-conventions.md](references/id-conventions.md) | US-XXX, AC-XXX, NFR-XXX formats | All agents |
 | [approval-matrix.md](references/approval-matrix.md) | Who approves each phase | Orchestrator |
-| [quality-criteria.md](references/quality-criteria.md) | Phase-specific QG criteria | quality-gate-validator |
+| [quality-criteria.md](references/quality-criteria.md) | Phase-specific QG criteria index | qg-requirements, qg-design, qg-implementation, qg-deployment |
 | [acceptance-criteria.md](references/acceptance-criteria.md) | GIVEN-WHEN-THEN patterns | requirements-analyst |
 | [ambiguity-checklist.md](references/ambiguity-checklist.md) | Ambiguity detection guide | requirements-analyst |
 | [user-story-patterns.md](references/user-story-patterns.md) | Story templates and sizing | requirements-analyst |
 | [architecture-patterns.md](references/architecture-patterns.md) | Architecture styles | design-architect |
 | [coding-standards.md](references/coding-standards.md) | Naming and structure | implementation-engineer |
 | [hallucination-patterns.md](references/hallucination-patterns.md) | Known fake packages | implementation-engineer, review-auditor |
-| [edge-cases.md](references/edge-cases.md) | Edge case checklist | testing-engineer |
+| [edge-cases.md](references/edge-cases.md) | Edge case checklist | implementation-engineer |
 | [tech-stack-commands.md](references/tech-stack-commands.md) | Tech stack command resolution | Orchestrator |
 | [workflows-bugfix-track.md](references/workflows-bugfix-track.md) | Bugfix workflow (P2/P3) | Orchestrator |
 | [workflows-hotfix-track.md](references/workflows-hotfix-track.md) | Hotfix workflow (P0/P1) | Orchestrator |

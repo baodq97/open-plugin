@@ -9,7 +9,7 @@ Skip to a target phase in the current V-Bounce cycle. User must provide the targ
 
 1. Read `.vbounce/state.yaml` to get the active workspace
 2. Read `{workspace}/state.yaml` to get the current phase
-3. Valid target phases: design, contracts, testing, implementation, execution, review, deployment
+3. Valid target phases: design, contracts, implementation, review, deployment
 4. Validate: target phase must be AFTER current phase in the sequence
 5. Validate prerequisites: check that all required input files for the target phase's agent exist (refer to the agent dispatch table in the orchestrator skill)
 6. If prerequisites are missing, report which files are needed and DO NOT skip

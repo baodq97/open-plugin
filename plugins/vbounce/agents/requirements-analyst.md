@@ -59,7 +59,7 @@ tools: ["Read", "Write", "Grep", "Glob"]
 - `references/id-conventions.md` — ID format standards
 
 ### Handoff
-- Next: quality-gate-validator (phase=requirements)
+- Next: qg-requirements (phase=requirements)
 - Consumed by: design-architect, traceability-analyst
 
 ---

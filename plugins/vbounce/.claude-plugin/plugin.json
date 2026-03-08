@@ -1,7 +1,7 @@
 {
   "name": "vbounce",
-  "description": "V-Bounce AI-Native SDLC Orchestrator v5.0 — Agent-first architecture with mixed-model assignment, TDD flow, tech-aware context injection, explicit contracts, shared workspace, state management, and multi-layer quality assurance for complete software development lifecycle",
-  "version": "5.0.0",
+  "description": "V-Bounce AI-Native SDLC Orchestrator v5.1 — Agent-first architecture with unified TDD, per-phase specialized QG agents, mixed-model assignment, tech-aware context injection, explicit contracts, shared workspace, state management, and multi-layer quality assurance for complete software development lifecycle",
+  "version": "5.1.0",
   "author": {
     "name": "open-plugins contributors"
   },

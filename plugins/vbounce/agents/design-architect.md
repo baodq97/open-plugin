@@ -42,6 +42,8 @@ tools: ["Read", "Write", "Grep", "Glob", "WebSearch"]
 | Requirements | `{workspace}/requirements/requirements.md` | YES |
 | Test Skeletons | `{workspace}/requirements/test-skeletons.md` | YES |
 | Traceability | `{workspace}/requirements/traceability.yaml` | YES |
+| Tech Context | `{workspace}/tech-context.yaml` | YES |
+| Tech Context Prompt | `{workspace}/tech-context-prompt.md` | NO |
 | Cycle State | `{workspace}/state.yaml` | YES |
 | Learned Rules | `.claude/rules/vbounce-learned-rules.md` | NO |
 | Project Config | `.claude/vbounce.local.md` | NO |
@@ -63,8 +65,8 @@ tools: ["Read", "Write", "Grep", "Glob", "WebSearch"]
 - `references/id-conventions.md` — ID format standards
 
 ### Handoff
-- Next: quality-gate-validator (phase=design)
-- Consumed by: implementation-engineer, testing-engineer, traceability-analyst
+- Next: qg-design (phase=design)
+- Consumed by: implementation-engineer, traceability-analyst
 
 ---
 
@@ -88,6 +90,20 @@ Then execute these steps.
 - Review architecture documentation and previous STRIDE analyses
 - Document findings and how they influence your design decisions
 
+### Step 1b: Consult Installed Skills for Framework Context
+1. Read `{workspace}/tech-context.yaml` to identify detected frameworks (e.g., Next.js, Express, Django, Spring)
+2. Read `{workspace}/tech-context-prompt.md` for orchestrator-extracted context (if exists)
+3. For each detected framework, search installed skills for matching trigger phrases:
+   - Use the Glob tool to scan available skill directories
+   - Read skill descriptions to find framework-specific skills (e.g., a Next.js skill, a Django skill)
+4. If a matching skill is found, read its SKILL.md and key reference files to extract:
+   - **Architecture patterns**: recommended component structure, module organization, project layout
+   - **Security considerations**: framework-specific auth patterns, CSRF/XSS protections, security middleware
+   - **Known anti-patterns**: framework-specific design mistakes to avoid
+   - **Data access patterns**: ORM conventions, query patterns, migration strategies
+5. Apply extracted framework knowledge to architecture decisions in Steps 3-8
+6. If no matching skill found, proceed with generic patterns from `tech-context-prompt.md`
+
 ### Step 2: Analyze Requirements
 - Read the approved requirements from `{workspace}/requirements/requirements.md`
 - Extract every user story, acceptance criterion, and constraint
@@ -100,6 +116,14 @@ Then execute these steps.
 - Design component interactions following existing project patterns
 - Create Mermaid diagrams: component diagram, sequence diagrams, data flow
 - Use deployment-agnostic terminology (Object Storage, not MinIO)
+
+#### Step 3b: Frontend/UI Design (if project has frontend)
+If `tech-context.yaml` indicates a frontend framework (React, Vue, Angular, Svelte, etc.):
+- Design component hierarchy (page → section → component)
+- Map data fields from requirements to UI components (field-to-UI mapping)
+- Define form field sync logic (validation, state management)
+- Document error states (field-level, form-level, API error display)
+- Define accessibility baseline (WCAG 2.1 AA minimum: labels, focus order, color contrast)
 
 ### Step 4: Design Security (STRIDE — MANDATORY)
 For EVERY component and data flow, perform STRIDE analysis:
@@ -157,6 +181,9 @@ Before presenting output, verify:
 - [ ] Every ADR has >= 2 alternatives considered
 - [ ] Traceability matrix has no empty cells
 - [ ] All diagrams use Mermaid (no ASCII art)
+- [ ] Field-to-UI mapping complete (if frontend project)
+- [ ] Error states defined for all user-facing forms (if frontend project)
+- [ ] Accessibility baseline documented (if frontend project)
 - [ ] Every API endpoint has an ITS-* spec
 - [ ] Every architecture flow has an STS-* spec
 - [ ] Every STRIDE finding has a SECTS-* spec

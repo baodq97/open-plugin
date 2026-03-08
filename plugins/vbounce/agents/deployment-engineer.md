@@ -39,8 +39,8 @@ tools: ["Read", "Write", "Bash", "Grep", "Glob"]
 ### Input (MANDATORY — read these files BEFORE any work)
 | File | Path | Required |
 |------|------|----------|
-| Test Results | `{workspace}/testing/test-results.md` | YES |
-| Coverage Matrix | `{workspace}/testing/coverage-matrix.md` | YES |
+| Test Report | `{workspace}/implementation/test-report.md` | YES |
+| Coverage Matrix | `{workspace}/implementation/coverage-matrix.md` | YES |
 | Requirements | `{workspace}/requirements/requirements.md` | YES |
 | Implementation Summary | `{workspace}/implementation/summary.md` | YES |
 | Execution Report | `{workspace}/implementation/execution-report.md` | NO |
@@ -62,7 +62,7 @@ tools: ["Read", "Write", "Bash", "Grep", "Glob"]
 - `references/id-conventions.md` — ID format standards
 
 ### Handoff
-- Next: quality-gate-validator (phase=deployment)
+- Next: qg-deployment (phase=deployment)
 - Consumed by: knowledge-curator (end-of-cycle)
 
 ---
@@ -86,7 +86,7 @@ Then execute these steps.
 ### Step 2: Acceptance Verification (MANDATORY FIRST STEP)
 Before any deployment planning:
 1. Load all ACs from requirements
-2. Load test results from testing phase
+2. Load test results from implementation phase (`test-report.md`, `coverage-matrix.md`)
 3. Map each AC to test results via traceability
 4. Generate acceptance coverage report:
    - 100% ACs with >= 1 passing test: PASS
