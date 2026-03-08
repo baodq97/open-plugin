@@ -475,7 +475,7 @@ vbounce_cr_state:
     override: null | { from: L2, to: L3, reason: "[Justification]" }
 
   current_phase: assess | replan | re_execute | reconcile
-  phase_anatomy_step: input | generation | quality_gate | review | refinement | approval
+  phase_anatomy_step: input | generation | quality_gate | review | refinement | approval | post_phase
 
   phases:
     assess:

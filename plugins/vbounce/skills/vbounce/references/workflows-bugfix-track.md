@@ -333,7 +333,7 @@ vbounce_bugfix_state:
   priority: P2 | P3
   cycle_id: "BF-[PROJECT]-[YYYYMMDD]-[###]"
   current_phase: triage | fix_plan | fix | review | verify | deploy
-  phase_anatomy_step: input | generation | quality_gate | review | refinement | approval
+  phase_anatomy_step: input | generation | quality_gate | review | refinement | approval | post_phase
 
   phases:
     triage:

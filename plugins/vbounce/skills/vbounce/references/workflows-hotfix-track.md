@@ -324,7 +324,7 @@ vbounce_hotfix_state:
   priority: P0 | P1
   cycle_id: "HF-[PROJECT]-[YYYYMMDD]-[###]"
   current_phase: triage | fix | review | verify | deploy | post_review
-  phase_anatomy_step: input | generation | quality_gate | review | refinement | approval
+  phase_anatomy_step: input | generation | quality_gate | review | refinement | approval | post_phase
 
   sla:
     target_hours: 4 | 8          # P0=4h, P1=8h

@@ -1,6 +1,6 @@
 # V-Bounce Roadmap
 
-## v4.0.0 (current)
+## v4.0.0
 
 Agent-first architecture with explicit contracts, shared workspace, state management, and multi-layer quality assurance.
 
@@ -78,7 +78,7 @@ Focus: contract completeness, self-verification parity, DRY improvements.
 
 Add per-phase guidance on which files to read:
 - Design: `design/traceability.md`, `design/api-spec.md`, `design/design.md`
-- Implementation: `implementation/summary.md`, `implementation/tests-created.md`
+- Implementation: `implementation/summary.md`, `implementation/execution-report.md`
 - Testing: `testing/coverage-matrix.md`, `testing/test-results.md`
 
 ### 4.2.2 — Self-verification parity
@@ -154,35 +154,48 @@ Split `workflows-change-request-track.md` (~6000 words):
 
 ---
 
-## v5.0.0 — Advanced Features
+## v5.0.0 (current)
 
-### 5.0.1 — Multi-cycle management
+Mixed-model assignment, TDD flow (contracts → TDD-RED → TDD-GREEN → execution verification), tech-aware context injection, parallel post-phase agents, incremental traceability.
+
+### Completed (2026-03-08)
+
+- Mixed-model: opus(2), sonnet(3), haiku(4) — ~75% cost reduction
+- TDD flow: shared contracts eliminate agent-to-agent desync
+- Tech stack detection + framework context injection into all agent dispatches
+- Execution verification: orchestrator runs install → compile → test with up to 3 re-dispatch iterations
+- Parallel post-phase: trace + KC dispatched concurrently
+- Incremental traceability: append mode + finalize after deployment
+- QG criteria deduplicated to single reference file
+- Command resolution table extracted to reference file
+
+---
+
+## v6.0.0 — Advanced Features
+
+### 6.0.1 — Multi-cycle management
 
 Support parallel active cycles (e.g., feature + bugfix running simultaneously). Root `.vbounce/state.yaml` tracks multiple active cycles with context switching.
 
-### 5.0.2 — Cycle history & analytics
+### 6.0.2 — Cycle history & analytics
 
 Dashboard aggregating QG pass rates, cycle durations, common failure patterns, agent performance metrics across completed cycles.
 
-### 5.0.3 — MCP integration
+### 6.0.3 — MCP integration
 
 Connect to external services:
 - Jira/Linear: ticket sync, status updates, acceptance criteria import
 - GitHub: PR auto-creation after implementation, CI status tracking
 - Slack: phase approval notifications, QG failure alerts
 
-### 5.0.4 — Model tier configuration
+### 6.0.4 — Model tier configuration
 
-Per-agent model selection via plugin settings. Recommended tiers:
-- opus: requirements-analyst, design-architect, implementation-engineer, review-auditor, testing-engineer
-- sonnet: quality-gate-validator, traceability-analyst, knowledge-curator, deployment-engineer
+Per-agent model selection via plugin settings (override defaults from v5.0).
 
-Estimated 40% cost reduction with minimal quality impact on checklist/mapping agents.
-
-### 5.0.5 — Agent resume on QG failure
+### 6.0.5 — Agent resume on QG failure
 
 Use Agent tool `resume` parameter when QG fails. The phase agent retains full context from its previous run, making revisions faster and more accurate than a cold re-dispatch.
 
-### 5.0.6 — Streaming progress indicators
+### 6.0.6 — Streaming progress indicators
 
 Real-time phase progress via hook `statusMessage` fields. Users see which step the agent is on (e.g., "requirements-analyst: Step 7/11 — Writing Acceptance Criteria").
