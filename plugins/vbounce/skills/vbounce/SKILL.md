@@ -1,19 +1,22 @@
 ---
 name: vbounce
-version: "4.0.0"
+version: "5.0.0"
 description: |
   Use this skill when the user wants to run a V-Bounce SDLC cycle, start a
   vbounce workflow, or manage a structured software development lifecycle with
   the V-Bounce framework. Orchestrates 9 specialized agents through phases:
-  Requirements, Design, Implementation, Review, Testing, and Deployment with
-  state management, contract validation, and quality gates at every transition.
+  Requirements, Design, Contracts, Testing, Implementation, Execution, Review,
+  and Deployment with mixed-model assignment, TDD flow, tech-aware context
+  injection, state management, contract validation, and quality gates at every
+  transition.
   Triggers: "start vbounce cycle", "run sdlc pipeline", "resume vbounce",
-  "APPROVED", "CHANGES REQUESTED", "START BUGFIX", "START CR".
+  "APPROVED", "CHANGES REQUESTED", "START BUGFIX", "START CR", "tech-aware",
+  "TDD flow".
   Do NOT use for general code review, testing, design, or implementation
   tasks outside the V-Bounce framework.
 ---
 
-# V-Bounce SDLC Orchestrator v4.0
+# V-Bounce SDLC Orchestrator v5.0
 
 Agent-first SDLC framework with explicit contracts, shared workspace, and state management.
 
@@ -26,18 +29,32 @@ Based on arXiv 2408.03416 (Hymel, 2024): AI handles implementation, humans shift
 3. **Shared Workspace** — all artifacts live in `.vbounce/cycles/{cycle_id}/`
 4. **State Machine** — orchestrator reads/writes state.yaml, determines next action
 5. **Multi-Layer QA** — input validation, output validation, semantic QG, cross-agent compatibility
-6. **6-Activity Phase Anatomy** — see [references/phase-anatomy.md](references/phase-anatomy.md)
+6. **7-Activity Phase Anatomy** — see [references/phase-anatomy.md](references/phase-anatomy.md)
+7. **Technology-Aware** — detect project tech stack and inject framework context into all agent dispatches
 
 ## Cycle Initialization
 
 When the user provides a PRD or says "start vbounce cycle":
 
 1. **Generate cycle ID**: `CYCLE-{PROJECT}-{YYYYMMDD}-{SEQ}` (derive PROJECT from directory name, SEQ starts at 001)
-2. **Create workspace**: `mkdir -p .vbounce/cycles/{cycle_id}/{requirements,design,implementation,review,testing,deployment,knowledge,quality-gates}`
+2. **Create workspace**: `mkdir -p .vbounce/cycles/{cycle_id}/{requirements,design,contracts,implementation,review,testing,deployment,knowledge,quality-gates}`
 3. **Copy PRD**: Write/copy the user's PRD to `.vbounce/cycles/{cycle_id}/prd.md`
-4. **Initialize state**: Write `.vbounce/cycles/{cycle_id}/state.yaml` with all phases set to `not_started`, `current_phase: requirements`, `anatomy_step: input`
-5. **Set active cycle**: Write `.vbounce/state.yaml` with just `active_cycle: {cycle_id}` and `workspace: .vbounce/cycles/{cycle_id}`
-6. **Proceed**: Begin requirements phase (validate input contract, dispatch requirements-analyst)
+4. **Tech Stack Detection**: Scan the project for manifest files to detect the tech stack:
+   - Check in order: `package.json` (JS/TS), `pyproject.toml` / `requirements.txt` (Python), `*.csproj` (C#), `go.mod` (Go), `Cargo.toml` (Rust), `pom.xml` / `build.gradle` (Java/Kotlin)
+   - Read `CLAUDE.md` for explicit tech stack declarations (overrides auto-detection)
+   - If no manifest found, scan top 5 source files for import patterns and file extensions
+   - Write `{workspace}/tech-context.yaml` with: `language`, `runtime`, `package_manager`, `frameworks` (list of {name, version, role}), `build_tool`, `install_command`, `compile_command`, `test_command`, `source_dirs`, `test_dirs`, `detected_from`
+   - Resolve install/compile/test commands per language + package manager — see [references/tech-stack-commands.md](references/tech-stack-commands.md)
+5. **Framework Context Loading**: Based on `tech-context.yaml`, check for relevant installed skills:
+   - For each detected framework, search installed skills for matching trigger phrases (skill descriptions contain framework names)
+   - If match found, read that skill's SKILL.md + key reference files
+   - Extract: framework patterns, testing conventions, security considerations, known anti-patterns
+   - Always check: `hallucination-patterns.md` for entries matching detected ecosystem, `coding-standards.md` for detected language, `CLAUDE.md` for project-specific conventions
+   - If no skill matches any detected framework, graceful degradation: agents work without framework context (tech-context-prompt.md will only contain language + framework names + versions)
+   - Write `{workspace}/tech-context-prompt.md` with: primary stack info, key patterns, known hallucination risks, testing conventions
+6. **Initialize state**: Write `.vbounce/cycles/{cycle_id}/state.yaml` with v5.0 state schema (all phases including contracts/execution set to `not_started`, `current_phase: requirements`, `anatomy_step: input`, `tech_context` populated from detection)
+7. **Set active cycle**: Write `.vbounce/state.yaml` with just `active_cycle: {cycle_id}` and `workspace: .vbounce/cycles/{cycle_id}`
+8. **Proceed**: Begin requirements phase (validate input contract, dispatch requirements-analyst)
 
 The root `.vbounce/state.yaml` only stores which cycle is active. All phase state lives in `{workspace}/state.yaml`.
 
@@ -60,6 +77,8 @@ Example: `{workspace}/requirements/requirements.md` → `.vbounce/cycles/CYCLE-M
     └── CYCLE-{PROJECT}-{DATE}-{SEQ}/
         ├── prd.md                      # User provides
         ├── state.yaml                  # Orchestrator manages
+        ├── tech-context.yaml           # Orchestrator detects (tech stack)
+        ├── tech-context-prompt.md      # Orchestrator generates (framework context for agents)
         ├── requirements/               # requirements-analyst writes
         │   ├── requirements.md
         │   ├── test-skeletons.md
@@ -78,10 +97,14 @@ Example: `{workspace}/requirements/requirements.md` → `.vbounce/cycles/CYCLE-M
         │   ├── traceability.md
         │   ├── test-impact.md
         │   └── test-specifications.md
+        ├── contracts/                  # Orchestrator generates (shared API contracts)
+        │   ├── contracts.{ext}         # .ts/.py/.cs/.go/.md based on language
+        │   ├── api-surface.yaml
+        │   └── test-plan.yaml
         ├── implementation/             # implementation-engineer writes
         │   ├── summary.md
         │   ├── package-verification.md
-        │   └── tests-created.md
+        │   └── execution-report.md     # Orchestrator writes (execution verification results)
         ├── review/                     # review-auditor writes
         │   ├── review-report.md
         │   ├── hallucination-report.md
@@ -108,7 +131,10 @@ Example: `{workspace}/requirements/requirements.md` → `.vbounce/cycles/CYCLE-M
 cycle_id: CYCLE-{PROJECT}-{YYYYMMDD}-{SEQ}
 workspace: .vbounce/cycles/CYCLE-{PROJECT}-{YYYYMMDD}-{SEQ}
 current_phase: requirements
-anatomy_step: input | generation | quality_gate | review | refinement | approval
+anatomy_step: input | generation | quality_gate | post_phase | review | refinement | approval
+tech_context:
+  detected: false                   # true after tech stack detection runs
+  # Full details in {workspace}/tech-context.yaml (language, runtime, frameworks, commands, dirs)
 phases:
   requirements:
     status: not_started | in_progress | qg_pending | review_pending | approved
@@ -119,11 +145,17 @@ phases:
     kc_captured: false
   design:
     status: not_started
+  contracts:
+    status: not_started | generated
+  testing:
+    status: not_started
   implementation:
     status: not_started
+  execution:
+    status: not_started | passed | failed | skipped
+    iterations: 0
+    # Detailed error counts in {workspace}/implementation/execution-report.md
   review:
-    status: not_started
-  testing:
     status: not_started
   deployment:
     status: not_started
@@ -236,10 +268,11 @@ After QG passes, you MUST present the phase results to the user before proceedin
 
 - `APPROVED` / `APPROVED AS [Role]`:
   1. Update state: `phases.{phase}.status: approved`, `phases.{phase}.approved_by: [role]`
-  2. Launch traceability-analyst (Update mode)
-  3. Launch knowledge-curator (Per-Phase capture)
-  4. Update state: `current_phase: {next_phase}`, `anatomy_step: input`
-  5. Proceed to next phase (back to step 1)
+  2. Dispatch PARALLEL (two Agent tool calls in same response):
+     - traceability-analyst (mode=update) — **Special case:** After deployment, use mode=finalize instead of mode=update
+     - knowledge-curator (mode=per-phase)
+  3. Update state: `current_phase: {next_phase}`, `anatomy_step: input`
+  4. Proceed to next phase (back to step 1)
 
 - `CHANGES REQUESTED`:
   1. Update state: `anatomy_step: refinement`
@@ -254,24 +287,64 @@ The `hooks/hooks.json` file provides automated contract validation:
 
 These hooks transform convention-based contracts into enforced contracts.
 
+## Contract Generation (Orchestrator Step — after Design approval)
+
+After Design approval and post-phase agents (trace+KC) complete:
+
+1. Read `{workspace}/design/*.md` + `{workspace}/requirements/*.md` + `{workspace}/tech-context.yaml`
+2. Generate contracts in the detected language format:
+   - TypeScript → `.ts` interfaces (`export interface ...`)
+   - Python → `.py` Protocol/ABC classes (`class ...Protocol: ...`)
+   - C# → `.cs` interface definitions (`public interface I... { ... }`)
+   - Go → `.go` interface types (`type ... interface { ... }`)
+   - Java/Kotlin → `.java`/`.kt` interface files
+   - Unknown → `.md` language-agnostic pseudocode with method signatures table
+3. Generate `{workspace}/contracts/api-surface.yaml` — every public method: name, params, return type, throws
+4. Generate `{workspace}/contracts/test-plan.yaml` — positive/negative/edge test cases per method, mapped to ACs
+5. Update state: `phases.contracts.status: generated`
+
+## Execution Verification (Orchestrator Step — after Implementation)
+
+After implementation-engineer returns, the orchestrator runs execution verification directly via Bash:
+
+1. Read `{workspace}/tech-context.yaml` for resolved commands
+2. Run `install_command` (skip if null or no dependencies file exists)
+3. Run `compile_command` via Bash (skip if null — interpreted languages without type checker)
+4. Run `test_command` via Bash
+5. **On failure** (compile errors > 0 OR test failures > 0):
+   - Categorize the failure:
+     - **Contract mismatch** → re-dispatch both testing-engineer and implementation-engineer with errors
+     - **Implementation bug** → re-dispatch implementation-engineer with error output
+     - **Test bug** → re-dispatch testing-engineer with error output
+   - Re-run steps 2-4
+   - **Max 3 iterations**
+6. Write `{workspace}/implementation/execution-report.md`: compile status, test status per iteration, final PASS/FAIL
+7. Update state: `execution.status` (passed/failed), `execution.iterations`
+8. **PASS** → proceed to Review phase
+9. **FAIL after 3 iterations** → escalate to user with detailed error report
+
 ## Agent Dispatch Table
 
-| Phase | Agent | Input Contract | Output Contract |
-|-------|-------|---------------|-----------------|
-| **Requirements** | requirements-analyst | `prd.md`, `state.yaml` | `requirements/*.md` (4 files) |
-| **Design** | design-architect | `requirements/*.md` (3 files), `state.yaml` | `design/*.md` (8 files) |
-| **Implementation** | implementation-engineer | `design/*.md` (3 files), `requirements/test-skeletons.md`, `state.yaml` | `implementation/*.md` (3 files) + source code |
-| **Review** | review-auditor | `implementation/*.md`, source code, `design/`, `state.yaml` | `review/*.md` (3 files) |
-| **Testing** | testing-engineer | `requirements/*.md`, `design/test-specifications.md`, `implementation/summary.md`, `state.yaml` | `testing/*.md` (3 files) + test code |
-| **Deployment** | deployment-engineer | `testing/*.md` (2 files), `requirements/requirements.md`, `implementation/summary.md`, `state.yaml` | `deployment/*.md` (4 files) |
+| Phase | Agent | Model | Input Contract | Output Contract |
+|-------|-------|-------|---------------|-----------------|
+| **Requirements** | requirements-analyst | opus | `prd.md`, `state.yaml` | `requirements/*.md` (4 files) |
+| **Design** | design-architect | opus | `requirements/*.md` (3 files), `state.yaml` | `design/*.md` (8 files) |
+| *(contracts)* | orchestrator direct | — | `design/*.md`, `requirements/*.md`, `tech-context.yaml` | `contracts/` (3 files) |
+| **Testing** | testing-engineer | sonnet | `contracts/`, `requirements/*.md`, `design/test-specifications.md`, `state.yaml` | `testing/*.md` (3 files) + test code |
+| **Implementation** | implementation-engineer | sonnet | `contracts/`, test dirs, `design/*.md`, `state.yaml` | `implementation/*.md` (2 files) + source code |
+| *(execution)* | orchestrator Bash | — | source + test code, `tech-context.yaml` (commands) | `implementation/execution-report.md` |
+| **Review** | review-auditor | sonnet | `contracts/`, `implementation/*.md`, source code, test code, `execution-report.md`, `design/`, `state.yaml` | `review/*.md` (3 files) |
+| **Deployment** | deployment-engineer | haiku | `testing/*.md` (2 files), `requirements/requirements.md`, `implementation/summary.md`, `state.yaml` | `deployment/*.md` (4 files) |
+
+Note: `tech-context-prompt.md` is injected into every phase agent dispatch prompt by the orchestrator (see Agent-to-Agent Context Passing). It is not listed as a file input because agents receive it inline in the prompt text.
 
 ### Cross-Cutting Agents (invoked by orchestrator, not by phase)
 
-| Agent | When Invoked | Input | Output |
-|-------|-------------|-------|--------|
-| **quality-gate-validator** | After every generation (anatomy step 3) | `{phase}/` artifacts, `state.yaml` | `quality-gates/qg-{phase}.yaml` |
-| **traceability-analyst** | After every phase approval (anatomy step 6) | Phase artifacts, existing matrix | `traceability.yaml` |
-| **knowledge-curator** | After QG failure OR after phase approval | Phase artifacts, QG report | `knowledge/{phase}-capture.yaml`, learned rules |
+| Agent | Model | When Invoked | Input | Output |
+|-------|-------|-------------|-------|--------|
+| **quality-gate-validator** | haiku | After every generation (anatomy step 3) | `{phase}/` artifacts, `state.yaml` | `quality-gates/qg-{phase}.yaml` |
+| **traceability-analyst** | haiku | PARALLEL after phase approval (mode=update); after deployment (mode=finalize) | Phase artifacts, existing matrix | `traceability.yaml` |
+| **knowledge-curator** | haiku | PARALLEL after phase approval; after QG failure | Phase artifacts, QG report | `knowledge/{phase}-capture.yaml`, learned rules |
 
 ## Quality Assurance: 4 Layers
 
@@ -295,8 +368,13 @@ Read these files BEFORE any work:
 Workspace: .vbounce/cycles/CYCLE-MYAPP-20260307-001
 Phase: design
 
+## Technology Context
+{contents of .vbounce/cycles/CYCLE-MYAPP-20260307-001/tech-context-prompt.md}
+
 Write all output files to: .vbounce/cycles/CYCLE-MYAPP-20260307-001/design/
 ```
+
+**Tech context injection**: Include `## Technology Context\n{contents of tech-context-prompt.md}` in every agent dispatch prompt. This gives every agent framework-specific knowledge without needing to load skills themselves.
 
 Each agent's CONTRACT section lists what files it needs — use that as the checklist when constructing the prompt.
 
@@ -314,9 +392,15 @@ Each agent's CONTRACT section lists what files it needs — use that as the chec
 | `START CR [description]` | Pause feature cycle, start CR assessment |
 | `START BUGFIX [ticket-id]` | Start bugfix workflow |
 
-## Continuous Test Creation
+## TDD Flow: Contract-Driven Testing
 
-During the Requirements phase, test skeletons are generated alongside stories (not deferred). These skeletons carry through the entire pipeline — instantiated during Implementation, completed during Testing.
+During the Requirements phase, test skeletons are generated alongside stories. After Design approval, the orchestrator generates `contracts/` — a shared API surface defining every interface, method signature, and type.
+
+The TDD flow ensures zero contract mismatches:
+1. **Contracts** define the shared API surface (generated by orchestrator from design + requirements + tech context)
+2. **Testing-engineer (TDD-RED)** generates tests from contracts — tests reference exact method names and parameter types from `api-surface.yaml`
+3. **Implementation-engineer (TDD-GREEN)** implements contracts to make existing tests pass — signatures MUST match exactly
+4. **Execution verification** (orchestrator) runs install → compile → test to catch any remaining mismatches, with up to 3 re-dispatch iterations
 
 ## Self-Learning Memory
 
@@ -355,7 +439,7 @@ All agents can consult these reference files:
 
 | Reference | Description | Used By |
 |-----------|-------------|---------|
-| [phase-anatomy.md](references/phase-anatomy.md) | 6-Activity cycle definition | All agents |
+| [phase-anatomy.md](references/phase-anatomy.md) | 7-Activity cycle definition | All agents |
 | [id-conventions.md](references/id-conventions.md) | US-XXX, AC-XXX, NFR-XXX formats | All agents |
 | [approval-matrix.md](references/approval-matrix.md) | Who approves each phase | Orchestrator |
 | [quality-criteria.md](references/quality-criteria.md) | Phase-specific QG criteria | quality-gate-validator |
@@ -366,6 +450,7 @@ All agents can consult these reference files:
 | [coding-standards.md](references/coding-standards.md) | Naming and structure | implementation-engineer |
 | [hallucination-patterns.md](references/hallucination-patterns.md) | Known fake packages | implementation-engineer, review-auditor |
 | [edge-cases.md](references/edge-cases.md) | Edge case checklist | testing-engineer |
+| [tech-stack-commands.md](references/tech-stack-commands.md) | Tech stack command resolution | Orchestrator |
 | [workflows-bugfix-track.md](references/workflows-bugfix-track.md) | Bugfix workflow (P2/P3) | Orchestrator |
 | [workflows-hotfix-track.md](references/workflows-hotfix-track.md) | Hotfix workflow (P0/P1) | Orchestrator |
 | [workflows-change-request-track.md](references/workflows-change-request-track.md) | Change request workflow | Orchestrator |

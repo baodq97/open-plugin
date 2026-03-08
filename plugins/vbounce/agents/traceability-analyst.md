@@ -29,7 +29,7 @@ description: |
   Impact Analysis mode traces changes through stories, ACs, components, files, and tests.
   </commentary>
   </example>
-model: opus
+model: haiku
 color: white
 memory: project
 tools: ["Read", "Write", "Bash", "Grep", "Glob"]
@@ -76,7 +76,7 @@ MANDATORY: Read ALL files listed in your launch prompt BEFORE any work.
 5. Write `{workspace}/traceability.yaml`
 
 ### Mode: Update (after Design, Implementation, Testing)
-1. Read existing matrix from `{workspace}/traceability.yaml`
+1. Read only `meta` section + last 50 lines of existing `{workspace}/traceability.yaml`
 2. Read new phase artifacts
 
 Phase-specific updates:
@@ -84,15 +84,23 @@ Phase-specific updates:
 - **Implementation**: Add File -> Function -> Migration mappings
 - **Testing**: Add Test -> Result -> Coverage mappings
 
-3. Recalculate coverage
-4. Detect new orphans
-5. Write updated matrix
+3. APPEND new entries to the matrix — do NOT rewrite existing entries
+4. Update `meta.last_updated` and `meta.last_phase`
+5. Write updated matrix (append mode)
 
 ### Mode: Validate
 1. Read existing matrix
 2. Check completeness at current phase level
 3. Report orphans, gaps, coverage percentages
 4. V-Model coverage check (acceptance, system, integration, unit, security levels)
+
+### Mode: Finalize (after Deployment, before final QG)
+1. Read FULL `{workspace}/traceability.yaml`
+2. Deduplicate entries (same requirement_id + story_id + ac_id)
+3. Validate completeness across all phases (requirements → design → implementation → testing → deployment)
+4. Calculate final V-Model coverage across all levels
+5. Full rewrite with validated, deduplicated structure
+6. Mark `meta.finalized: true`
 
 ### Mode: Impact Analysis
 1. Read existing matrix and changed requirements
@@ -110,6 +118,7 @@ traceability_matrix:
     matrix_id: "TM-{PROJECT}-{YYYYMMDD}"
     last_updated: "ISO-8601"
     last_phase: "requirements | design | implementation | testing"
+    finalized: false
   entries:
     - requirement_id: "REQ-001"
       stories:

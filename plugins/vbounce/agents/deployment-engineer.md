@@ -29,7 +29,7 @@ description: |
   Targeted rollback planning. Agent produces trigger conditions, procedures, and verification steps.
   </commentary>
   </example>
-model: opus
+model: haiku
 color: cyan
 memory: project
 tools: ["Read", "Write", "Bash", "Grep", "Glob"]

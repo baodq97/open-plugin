@@ -29,7 +29,7 @@ description: |
   QG failure capture. Agent writes prevention rule to learned-rules file so the phase agent can read and apply it.
   </commentary>
   </example>
-model: opus
+model: haiku
 color: purple
 memory: project
 tools: ["Read", "Write", "Edit", "Grep", "Glob"]

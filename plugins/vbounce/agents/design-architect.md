@@ -32,7 +32,7 @@ description: |
 model: opus
 color: blue
 memory: project
-tools: ["Read", "Write", "Grep", "Glob"]
+tools: ["Read", "Write", "Grep", "Glob", "WebSearch"]
 ---
 
 ## CONTRACT

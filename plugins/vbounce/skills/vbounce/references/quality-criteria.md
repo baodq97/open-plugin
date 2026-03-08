@@ -67,6 +67,17 @@ The design phase MUST produce complete test specifications (not just skeletons):
 | Every STRIDE finding has SECTS-* spec | PASS if 100%, WARN if >= 80%, FAIL if < 80% |
 | Specs include preconditions, expected responses, error scenarios | PASS if complete |
 
+## Contracts Phase — Fast Track
+
+### Contract Completeness
+
+| Criterion | PASS | WARN | FAIL |
+|-----------|------|------|------|
+| Completeness | Every design interface has contract | 1-2 gaps | > 2 gaps |
+| api-surface.yaml | All public methods listed with params + return | Missing return types | Missing methods |
+| test-plan.yaml | Positive + negative + edge for each method | Missing edge cases | Missing methods |
+| Language match | Contract format matches detected language | Fallback to .md | No contracts generated |
+
 ## Implementation Phase — Deep Dive
 
 ### Hallucination Severity
@@ -79,6 +90,16 @@ The design phase MUST produce complete test specifications (not just skeletons):
 | Wrong signature | WARN | Missing required parameter |
 | Fake config option | WARN | `{ autoValidate: true }` |
 | Fake attribute | FAIL | `[AutoValidate]` |
+
+## Execution Phase — Fast Track
+
+### Execution Verification
+
+| Criterion | PASS | WARN | FAIL |
+|-----------|------|------|------|
+| Compile status | 0 errors | - | > 0 errors |
+| Test pass rate | 100% | 90-99% | < 90% |
+| Iterations | 1 (first try) | 2-3 | > 3 (escalated to user) |
 
 ## Testing Phase — Deep Dive
 

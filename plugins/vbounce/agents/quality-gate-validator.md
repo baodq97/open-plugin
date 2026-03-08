@@ -1,7 +1,7 @@
 ---
 name: quality-gate-validator
 description: |
-  Use this agent to validate ANY phase output against phase-specific quality criteria. Returns PASS/WARN/FAIL verdict. Invoked automatically after every AI generation, before human review. This agent ONLY checks — it NEVER generates artifacts. Supports all 6 phases.
+  Use this agent to validate ANY phase output against phase-specific quality criteria. Returns PASS/WARN/FAIL verdict. Invoked automatically after every AI generation, before human review. This agent ONLY checks — it NEVER generates artifacts. Supports all phases.
 
   <example>
   Context: Requirements agent has completed its output and needs validation.
@@ -29,7 +29,7 @@ description: |
   Testing QG checks distribution balance and ensures all V-Model levels are present.
   </commentary>
   </example>
-model: opus
+model: haiku
 color: yellow
 memory: project
 tools: ["Read", "Write", "Bash", "Grep", "Glob"]
@@ -81,55 +81,7 @@ If `.claude/vbounce.local.md` exists, load any `qg_overrides` for this phase.
 
 ### Step 4: Evaluate Each Criterion
 
-#### Requirements Phase
-| Criterion | PASS | WARN | FAIL |
-|-----------|------|------|------|
-| Ambiguity scores | All < 50 | Any 40-49 | Any >= 50 |
-| NFRs defined | All categories | Missing non-critical | Missing Performance/Security |
-| Stories have ACs | All >= 3 ACs | Some have 2 | Any have < 2 |
-| Test skeletons | 1 per AC | Missing for NFR ACs | Missing for story ACs |
-| Traceability | No orphans | 1-2 orphans | > 2 orphans |
-| GIVEN-WHEN-THEN | 100% ACs | - | Any AC missing format |
-
-#### Design Phase
-| Criterion | PASS | WARN | FAIL |
-|-----------|------|------|------|
-| REQ coverage | Every REQ -> component | 1-2 gaps | > 2 gaps |
-| STRIDE complete | All components analyzed | Missing low-risk | Missing high-risk |
-| API-story mapping | Every US -> endpoint | 1-2 unmapped | > 2 unmapped |
-| ADRs present | >= 1 with alternatives | ADR without alternatives | No ADRs |
-| Test specs | ITS/STS/SECTS 100% | >= 80% | < 80% |
-| Mermaid diagrams | All present | - | ASCII art used |
-
-#### Implementation Phase
-| Criterion | PASS | WARN | FAIL |
-|-----------|------|------|------|
-| Hallucinated packages | 0 | - | Any found |
-| Design conformance | Matches design | Minor deviation | Major deviation |
-| Tests present | Skeletons instantiated | Partial | None |
-| Package versions | All current | Outdated non-critical | Outdated security-critical |
-
-#### Testing Phase
-| Criterion | PASS | WARN | FAIL |
-|-----------|------|------|------|
-| AC coverage | 100% | 90-99% | < 90% |
-| Distribution | Within 5% | Within 10% | Beyond 10% |
-| V-Model levels | All present | Missing 1 | Missing >= 2 |
-| Design specs | All ITS/STS/SECTS | >= 80% | < 80% |
-
-#### Review Phase
-| Criterion | PASS | WARN | FAIL |
-|-----------|------|------|------|
-| All categories checked | 5/5 | - | < 5 |
-| All files reviewed | 100% | 90-99% | < 90% |
-| Overall score | >= 80 | 60-79 | < 60 |
-
-#### Deployment Phase
-| Criterion | PASS | WARN | FAIL |
-|-----------|------|------|------|
-| Acceptance verification | 100% AC | 90-99% | < 90% |
-| Rollback plan | Present with triggers | Present without triggers | Missing |
-| Tests passing | All | Non-critical failing | Critical failing |
+Load the criteria for the current phase from `references/quality-criteria.md`. Apply each criterion and score as PASS/WARN/FAIL per the thresholds defined there.
 
 ### Step 5: Calculate Verdict
 - **PASS**: All criteria PASS

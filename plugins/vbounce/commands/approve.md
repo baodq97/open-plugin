@@ -14,7 +14,8 @@ Approve the current V-Bounce phase.
    - `phases.{phase}.status: approved`
    - `phases.{phase}.approved_by: user` (or the role if user provided one as argument)
    - Add history entry with timestamp
-5. Launch traceability-analyst agent (Update mode) with the resolved workspace path
-6. Launch knowledge-curator agent (Per-Phase capture) with the resolved workspace path
-7. Advance state: `current_phase: {next_phase}`, `anatomy_step: input`
+5. Dispatch PARALLEL (two Agent tool calls in the same response):
+   - traceability-analyst agent (Update mode; use Finalize mode after deployment) with the resolved workspace path
+   - knowledge-curator agent (Per-Phase capture) with the resolved workspace path
+6. Advance state: `current_phase: {next_phase}`, `anatomy_step: input`
 8. Report: "Phase {phase} approved. Moving to {next_phase}."

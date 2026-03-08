@@ -29,10 +29,10 @@ description: |
   Review refinement cycle. Agent re-evaluates specific findings with additional evidence.
   </commentary>
   </example>
-model: opus
+model: sonnet
 color: orange
 memory: project
-tools: ["Read", "Write", "Bash", "Grep", "Glob"]
+tools: ["Read", "Write", "Bash", "Grep", "Glob", "WebFetch"]
 ---
 
 ## CONTRACT
@@ -46,6 +46,9 @@ tools: ["Read", "Write", "Bash", "Grep", "Glob"]
 | Architecture Design | `{workspace}/design/design.md` | YES |
 | Security Design | `{workspace}/design/security-design.md` | YES |
 | API Specification | `{workspace}/design/api-spec.md` | YES |
+| Contracts | `{workspace}/contracts/contracts.*` | YES |
+| Test Code | Project test directories | YES |
+| Execution Report | `{workspace}/implementation/execution-report.md` | YES |
 | Cycle State | `{workspace}/state.yaml` | YES |
 | Learned Rules | `.claude/rules/vbounce-learned-rules.md` | NO |
 
@@ -63,7 +66,7 @@ tools: ["Read", "Write", "Bash", "Grep", "Glob"]
 
 ### Handoff
 - Next: quality-gate-validator (phase=review)
-- Consumed by: testing-engineer (if issues found), implementation-engineer (if CHANGES REQUESTED)
+- Consumed by: implementation-engineer (if CHANGES REQUESTED)
 
 ---
 
@@ -115,6 +118,18 @@ Then execute these steps.
 - Unbounded operations
 - Missing caching where design specified it
 
+### Step 6.5: Contract Conformance Check
+- Verify source code implements ALL interfaces/protocols defined in `contracts/`
+- Verify tests call methods that exist in source code (no phantom method calls)
+- Verify method signatures match contracts exactly (name, params, return type)
+- Flag any contract violations as HIGH severity
+
+### Step 6.6: Execution Results Review
+- Read `{workspace}/implementation/execution-report.md`
+- Review compile status and test results per iteration
+- Flag any remaining failures as HIGH severity findings
+- If execution passed, note it as positive evidence
+
 ### Step 7: Produce Review Report
 Write to `{workspace}/review/`:
 
@@ -129,5 +144,7 @@ Before presenting output, verify:
 - [ ] Every package in the implementation verified against registry
 - [ ] Every STRIDE mitigation checked
 - [ ] All 5 categories scored
+- [ ] Contract conformance verified (all interfaces implemented, signatures match)
+- [ ] Execution report reviewed (failures flagged as HIGH)
 - [ ] Verdict calculated from weighted scores
 - [ ] All output files written to `{workspace}/review/`
