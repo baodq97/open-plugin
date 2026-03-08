@@ -10,9 +10,8 @@ Initialize a new V-Bounce feature cycle.
 Follow the **Cycle Initialization** procedure from the vbounce orchestrator skill (SKILL.md):
 
 1. Generate cycle ID, create workspace (including `contracts/` directory)
-2. Copy/create PRD
-3. If user provided a PRD path argument, copy it to the workspace. Otherwise, ask user to describe the feature and write it as the PRD.
-4. Run tech stack detection + framework context loading
-5. Initialize state.yaml with v5.0 schema
-6. Set active cycle
-7. Begin Requirements phase
+2. If user provided a PRD path argument, copy it to the workspace. Otherwise, ask user to describe the feature and write it as the PRD.
+3. Run tech stack detection + framework context loading
+4. Initialize state.yaml with v5.0 schema
+5. Set active cycle
+6. Begin Requirements phase

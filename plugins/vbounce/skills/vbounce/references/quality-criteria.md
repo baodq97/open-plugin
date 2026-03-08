@@ -56,7 +56,7 @@ Score each requirement individually:
 4. PII fields identified and handling documented
 5. Encryption standards (at-rest, in-transit) specified
 
-### Design-Time Test Specifications (NEW in v3.0)
+### Design-Time Test Specifications
 
 The design phase MUST produce complete test specifications (not just skeletons):
 
@@ -91,6 +91,14 @@ The design phase MUST produce complete test specifications (not just skeletons):
 | Fake config option | WARN | `{ autoValidate: true }` |
 | Fake attribute | FAIL | `[AutoValidate]` |
 
+### Implementation Quality
+
+| Criterion | PASS | WARN | FAIL |
+|-----------|------|------|------|
+| Contract conformance | All interfaces implemented, signatures match | 1-2 minor signature deviations | Missing interface implementations |
+| File size | All files < 500 lines | 1-2 files 500-600 lines | Any file > 600 lines |
+| Design conformance | Architecture matches approved design | Minor deviations documented | Significant deviation from design |
+
 ## Execution Phase — Fast Track
 
 ### Execution Verification
@@ -103,7 +111,7 @@ The design phase MUST produce complete test specifications (not just skeletons):
 
 ## Testing Phase — Deep Dive
 
-### Distribution Tolerance (v3.0 — V-Model Aligned)
+### Distribution Tolerance
 
 Target: 40% positive / 20% negative / 10% edge / 10% security / 10% component integration / 10% system/E2E
 
@@ -142,7 +150,7 @@ For each AC without a test:
 
 ## Deployment Phase — Deep Dive
 
-### Acceptance Verification (NEW in v2.0)
+### Acceptance Verification
 
 Before any deployment activity, verify all original acceptance criteria have passing test coverage:
 

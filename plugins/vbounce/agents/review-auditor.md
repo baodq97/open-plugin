@@ -30,8 +30,7 @@ description: |
   </commentary>
   </example>
 model: sonnet
-color: orange
-memory: project
+color: red
 tools: ["Read", "Write", "Bash", "Grep", "Glob", "WebFetch"]
 ---
 
@@ -118,19 +117,19 @@ Then execute these steps.
 - Unbounded operations
 - Missing caching where design specified it
 
-### Step 6.5: Contract Conformance Check
+### Step 7: Contract Conformance Check
 - Verify source code implements ALL interfaces/protocols defined in `contracts/`
 - Verify tests call methods that exist in source code (no phantom method calls)
 - Verify method signatures match contracts exactly (name, params, return type)
 - Flag any contract violations as HIGH severity
 
-### Step 6.6: Execution Results Review
+### Step 8: Execution Results Review
 - Read `{workspace}/implementation/execution-report.md`
 - Review compile status and test results per iteration
 - Flag any remaining failures as HIGH severity findings
 - If execution passed, note it as positive evidence
 
-### Step 7: Produce Review Report
+### Step 9: Produce Review Report
 Write to `{workspace}/review/`:
 
 Scoring per category (0-100), weighted to overall score:

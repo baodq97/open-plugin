@@ -82,7 +82,7 @@ Example: `{workspace}/requirements/requirements.md` → `.vbounce/cycles/CYCLE-M
         ├── requirements/               # requirements-analyst writes
         │   ├── requirements.md
         │   ├── test-skeletons.md
-        │   ├── traceability.md
+        │   ├── traceability.yaml
         │   └── ambiguity-report.md
         ├── quality-gates/              # quality-gate-validator writes
         │   ├── qg-requirements.yaml
@@ -94,7 +94,7 @@ Example: `{workspace}/requirements/requirements.md` → `.vbounce/cycles/CYCLE-M
         │   ├── api-spec.md
         │   ├── database-schema.md
         │   ├── architecture-decisions.md
-        │   ├── traceability.md
+        │   ├── traceability.yaml
         │   ├── test-impact.md
         │   └── test-specifications.md
         ├── contracts/                  # Orchestrator generates (shared API contracts)
@@ -131,7 +131,7 @@ Example: `{workspace}/requirements/requirements.md` → `.vbounce/cycles/CYCLE-M
 cycle_id: CYCLE-{PROJECT}-{YYYYMMDD}-{SEQ}
 workspace: .vbounce/cycles/CYCLE-{PROJECT}-{YYYYMMDD}-{SEQ}
 current_phase: requirements
-anatomy_step: input | generation | quality_gate | post_phase | review | refinement | approval
+anatomy_step: input | generation | quality_gate | review | refinement | approval | post_phase
 tech_context:
   detected: false                   # true after tech stack detection runs
   # Full details in {workspace}/tech-context.yaml (language, runtime, frameworks, commands, dirs)
@@ -241,7 +241,7 @@ After QG passes, you MUST present the phase results to the user before proceedin
    Artifacts produced:
    - .vbounce/cycles/CYCLE-XXX/requirements/requirements.md (12 user stories, 47 ACs)
    - .vbounce/cycles/CYCLE-XXX/requirements/test-skeletons.md (47 test skeletons)
-   - .vbounce/cycles/CYCLE-XXX/requirements/traceability.md (full matrix)
+   - .vbounce/cycles/CYCLE-XXX/requirements/traceability.yaml (full matrix)
    - .vbounce/cycles/CYCLE-XXX/requirements/ambiguity-report.md (avg score: 23)
    ```
 3. **QG verdict** — PASS or WARN with details:
@@ -362,7 +362,7 @@ When launching an agent via the Agent tool, construct the prompt with **resolved
 Read these files BEFORE any work:
 - .vbounce/cycles/CYCLE-MYAPP-20260307-001/requirements/requirements.md
 - .vbounce/cycles/CYCLE-MYAPP-20260307-001/requirements/test-skeletons.md
-- .vbounce/cycles/CYCLE-MYAPP-20260307-001/requirements/traceability.md
+- .vbounce/cycles/CYCLE-MYAPP-20260307-001/requirements/traceability.yaml
 - .vbounce/cycles/CYCLE-MYAPP-20260307-001/state.yaml
 
 Workspace: .vbounce/cycles/CYCLE-MYAPP-20260307-001

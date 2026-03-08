@@ -31,7 +31,6 @@ description: |
   </example>
 model: sonnet
 color: magenta
-memory: project
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "WebFetch"]
 ---
 

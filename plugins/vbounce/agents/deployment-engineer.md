@@ -31,7 +31,6 @@ description: |
   </example>
 model: haiku
 color: cyan
-memory: project
 tools: ["Read", "Write", "Bash", "Grep", "Glob"]
 ---
 
@@ -44,6 +43,7 @@ tools: ["Read", "Write", "Bash", "Grep", "Glob"]
 | Coverage Matrix | `{workspace}/testing/coverage-matrix.md` | YES |
 | Requirements | `{workspace}/requirements/requirements.md` | YES |
 | Implementation Summary | `{workspace}/implementation/summary.md` | YES |
+| Execution Report | `{workspace}/implementation/execution-report.md` | NO |
 | Architecture Design | `{workspace}/design/design.md` | NO |
 | Security Design | `{workspace}/design/security-design.md` | NO |
 | Cycle State | `{workspace}/state.yaml` | YES |

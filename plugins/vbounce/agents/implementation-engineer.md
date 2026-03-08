@@ -15,7 +15,7 @@ description: |
   <example>
   Context: Specific API endpoints need to be implemented from the approved spec.
   user: "Generate the API endpoints defined in the approved api-spec.md."
-  assistant: "Let me use the implementation-engineer agent to implement those API endpoints with package verification and test instantiation."
+  assistant: "Let me use the implementation-engineer agent to implement those API endpoints with package verification and contract conformance."
   <commentary>
   Targeted implementation request. Agent focuses on API layer from design spec.
   </commentary>
@@ -31,7 +31,6 @@ description: |
   </example>
 model: sonnet
 color: green
-memory: project
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "WebFetch"]
 ---
 

@@ -15,7 +15,7 @@ description: |
   <example>
   Context: Implementation phase artifacts need validation before human review.
   user: "Validate the implementation artifacts."
-  assistant: "Let me use the quality-gate-validator to check for hallucinated packages, test presence, and design conformance."
+  assistant: "Let me use the quality-gate-validator to check for hallucinated packages, contract conformance, and design conformance."
   <commentary>
   Implementation QG checks zero-hallucination constraint and design alignment.
   </commentary>
@@ -31,7 +31,6 @@ description: |
   </example>
 model: haiku
 color: yellow
-memory: project
 tools: ["Read", "Write", "Bash", "Grep", "Glob"]
 ---
 

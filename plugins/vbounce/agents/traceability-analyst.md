@@ -30,8 +30,7 @@ description: |
   </commentary>
   </example>
 model: haiku
-color: white
-memory: project
+color: cyan
 tools: ["Read", "Write", "Bash", "Grep", "Glob"]
 ---
 

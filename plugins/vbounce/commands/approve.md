@@ -18,4 +18,4 @@ Approve the current V-Bounce phase.
    - traceability-analyst agent (Update mode; use Finalize mode after deployment) with the resolved workspace path
    - knowledge-curator agent (Per-Phase capture) with the resolved workspace path
 6. Advance state: `current_phase: {next_phase}`, `anatomy_step: input`
-8. Report: "Phase {phase} approved. Moving to {next_phase}."
+7. Report: "Phase {phase} approved. Moving to {next_phase}."

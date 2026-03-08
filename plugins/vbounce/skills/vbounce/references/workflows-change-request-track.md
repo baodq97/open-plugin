@@ -2,7 +2,7 @@
 
 > Workflow for mid-cycle scope changes (Change Requests) arriving during an active feature cycle.
 >
-> **Version:** 1.0.0 | **Framework:** V-Bounce v2.0.0
+> **Version:** 1.0.0 | **Framework:** V-Bounce v5.0.0
 > **See also:** [Feature Workflow](workflows-by-role.md) | [Bugfix Workflow](workflows-bugfix-track.md) | [Hotfix Workflow](workflows-hotfix-track.md)
 
 ---
@@ -16,12 +16,12 @@ The feature workflow (7 phases) assumes stable requirements once approved. In pr
 | Dimension | Feature | Bugfix | Hotfix | **Change Request** |
 |-----------|---------|--------|--------|-------------------|
 | **Trigger** | Business need / PRD | QA finding / regression | Production incident (P0/P1) | **Scope change during active feature cycle** |
-| **Input** | PRD in `docs/features/` | Bug ticket / test failure | Incident report / alerts | **CR description + active cycle state** |
+| **Input** | PRD in `{workspace}/prd.md` | Bug ticket / test failure | Incident report / alerts | **CR description + active cycle state** |
 | **Time pressure** | Planned sprint | Normal priority | < 4h (P0) / < 8h (P1) | **Depends on classification (L1-L4)** |
 | **Phases** | 7 (Requirements → Deploy) | 6 (Triage → Deploy) | 5 (Triage → Deploy) | **4 (Assess → Reconcile)** |
 | **Applies to** | New work | Existing defects | Production defects | **Active feature cycles only** |
 | **Design needed** | Full architecture | Impact analysis only | None (post-review) | **Delta design (changed parts only)** |
-| **Test scope** | Full 40/30/20/10 suite | Module regression + edge cases | Smoke + fix verification | **Adaptive (update affected tests only)** |
+| **Test scope** | Full 40/20/10/10/10/10 suite | Module regression + edge cases | Smoke + fix verification | **Adaptive (update affected tests only)** |
 | **Prod approval** | 2/3 quorum | 2/3 quorum | 1/1 + mandatory 24h post-review | **Varies by classification (L1-L4)** |
 
 ### Track Selection
@@ -93,7 +93,7 @@ If a scope guard is violated during Re-execute, the CR is **reclassified upward*
 
 ## 3. Phase Anatomy
 
-Every phase follows the standard **6-activity cycle** from the feature workflow:
+Every phase follows the standard **7-activity cycle** from the feature workflow:
 
 ```mermaid
 flowchart TD
@@ -299,7 +299,7 @@ Replays pipeline phases from the re-entry point in **CR Delta mode** — agents 
 | L2 | Implementation | Implementation (delta) → Review (delta) → Testing (adaptive) → onward |
 | L3 | Design | Design (delta) → Implementation (delta) → Review (delta) → Testing (adaptive) → onward |
 
-Each replayed phase follows the standard 6-activity loop, with these CR-specific modifications:
+Each replayed phase follows the standard 7-activity loop, with these CR-specific modifications:
 
 **CR Delta mode rules:**
 - Agents receive both the **original approved artifacts** and the **CR delta plan**
@@ -331,7 +331,7 @@ Replays: Implementation (delta) → Review (delta) → Testing (adaptive) → De
 | Deployment | Standard | Full deployment pipeline (not delta) | Normal deployment process |
 | Knowledge | Per-phase capture | Captures CR-specific learnings | Normal KC |
 
-Each phase uses the standard 6-activity loop. Human approval required at each phase per normal governance.
+Each phase uses the standard 7-activity loop. Human approval required at each phase per normal governance.
 
 #### L3 Re-execute (Significant — from Design)
 

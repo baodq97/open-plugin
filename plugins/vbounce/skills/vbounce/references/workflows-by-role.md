@@ -119,13 +119,13 @@ Bounce time: **DEEP DIVE** (multiple refinement cycles expected)
 
 | Step | Activity | Who | Does What | Output |
 |------|----------|-----|-----------|--------|
-| 1 | Input | Orchestrator | Loads PRD from `docs/features/` | Context ready |
+| 1 | Input | Orchestrator | Loads PRD from `{workspace}/prd.md` | Context ready |
 | 2 | Generate | Agent: Requirements | Parses PRD, detects ambiguities, generates stories + ACs + NFRs + test skeletons | YAML artifacts |
 | 3 | QG | Agent: Quality Gate | Checks: ambiguity < 50 per REQ, NFR coverage (4 categories), AC testability (GIVEN-WHEN-THEN), story independence, traceability completeness | PASS / WARN / FAIL |
 | 4 | Review | Person: PO or BA | Reviews stories, ACs, NFRs. Checks business goals and measurable metrics | Feedback |
 | 5 | Refine | Agent: Requirements | Revises per feedback, re-scores ambiguity, updates test skeletons --> back to step 3 | Revised artifacts |
 | 6 | Approve | Person: PO or BA | Types `APPROVED` or `APPROVED AS [Role]` (quorum: 1 of 2) | Phase complete |
-| 7a | Trace | Agent: Traceability | Initializes matrix: REQ --> Story --> AC --> TestSkeleton | `traceability.md` |
+| 7a | Trace | Agent: Traceability | Initializes matrix: REQ --> Story --> AC --> TestSkeleton | `traceability.yaml` |
 | 7b | KC | Agent: Knowledge | Captures ambiguity patterns, clarification effectiveness, NFR gaps | `requirements.yaml` |
 
 **Approval:** 1 of [Product Owner, Business Analyst]
@@ -142,7 +142,7 @@ Bounce time: **DEEP DIVE** (architecture decisions require thorough validation)
 | 4 | Review | Person: TL or Architect | Reviews architecture fit, security model, API design, scalability plan | Feedback |
 | 5 | Refine | Agent: Design | Revises architecture, updates ADRs, re-maps traceability --> back to step 3 | Revised artifacts |
 | 6 | Approve | Person: TL or Architect | Types `APPROVED` or `APPROVED AS [Role]` (quorum: 1 of 2) | Phase complete |
-| 7a | Trace | Agent: Traceability | Updates matrix: REQ --> Component, REQ --> API endpoint, Story --> Data entity | `traceability.md` updated |
+| 7a | Trace | Agent: Traceability | Updates matrix: REQ --> Component, REQ --> API endpoint, Story --> Data entity | `traceability.yaml` updated |
 | 7b | KC | Agent: Knowledge | Captures architecture decisions, security findings, pattern reuse opportunities | `design.yaml` |
 
 **Approval:** 1 of [Tech Lead, Architect]
@@ -156,15 +156,9 @@ Bounce time: **FAST TRACK** (orchestrator step -- generates shared API contracts
 | 1 | Input | Orchestrator | Loads approved design artifacts (APIs, data model, interfaces) | Context ready |
 | 2 | Generate | Orchestrator | Generates shared API contracts (TypeScript interfaces, request/response types, error codes, endpoint signatures) from approved design | Contract files |
 | 3 | QG | Agent: Quality Gate | Checks: 100% API coverage, type completeness, consistency with design, no orphan types | PASS / WARN / FAIL |
-| 4 | Review | Person: TL or Architect | Reviews contracts for completeness and correctness | Feedback |
-| 5 | Refine | Orchestrator | Updates contracts per feedback --> back to step 3 | Revised contracts |
-| 6 | Approve | Person: TL or Architect | Types `APPROVED` (quorum: 1 of 2) | Phase complete |
-| 7a | Trace | Agent: Traceability | Updates matrix: API --> Contract, Story --> Contract type | `traceability.md` updated |
-| 7b | KC | Agent: Knowledge | Captures contract patterns, type coverage | `contracts.yaml` |
+| 4 | Update State | Orchestrator | Sets `phases.contracts.status: generated`, proceeds to Testing | Phase complete |
 
-**Note:** This is an orchestrator step, not an agent phase. The orchestrator generates contracts that become the shared source of truth for both Testing (TDD-RED) and Implementation (TDD-GREEN).
-
-**Approval:** 1 of [Tech Lead, Architect]
+**Note:** Automated orchestrator step — no human approval gate. The orchestrator generates contracts that become the shared source of truth for both Testing (TDD-RED) and Implementation (TDD-GREEN).
 
 ### 2.4 Testing Phase (TDD-RED)
 
@@ -178,7 +172,7 @@ Bounce time: **DEEP DIVE** (full test suite validation from contracts)
 | 4 | Review | Person: QA Lead | Reviews test coverage, edge cases, security scenarios | Feedback |
 | 5 | Refine | Agent: Testing | Adds missing tests, rebalances distribution --> back to step 3 | Revised suite |
 | 6 | Approve | Person: QA Lead | Types `APPROVED` or `APPROVED AS QA Lead` (quorum: 1 of 1) | Phase complete |
-| 7a | Trace | Agent: Traceability | Updates matrix: AC --> Test case, Test --> Contract type, coverage % per REQ | `traceability.md` updated |
+| 7a | Trace | Agent: Traceability | Updates matrix: AC --> Test case, Test --> Contract type, coverage % per REQ | `traceability.yaml` updated |
 | 7b | KC | Agent: Knowledge | Captures coverage gaps, edge case discoveries, distribution balance | `testing.yaml` |
 
 **Approval:** 1 of [QA Lead]
@@ -197,7 +191,7 @@ Bounce time: **FAST TRACK** (TDD-GREEN: implement contracts to make tests pass)
 | 4 | Review | Person: SD or TL | Reviews code quality, design conformance, package choices | Feedback |
 | 5 | Refine | Agent: Implementation | Fixes issues, re-verifies packages --> back to step 3 | Revised code |
 | 6 | Approve | Person: SD or TL | Types `APPROVED` or `APPROVED AS [Role]` (quorum: 1 of 2) | Phase complete |
-| 7a | Trace | Agent: Traceability | Updates matrix: Component --> File, API --> Route handler, Entity --> Migration | `traceability.md` updated |
+| 7a | Trace | Agent: Traceability | Updates matrix: Component --> File, API --> Route handler, Entity --> Migration | `traceability.yaml` updated |
 | 7b | KC | Agent: Knowledge | Captures hallucination patterns, package issues, code quality insights | `implementation.yaml` |
 
 **Prerequisite:** `auto_review: required` -- must pass before human review.
@@ -211,16 +205,10 @@ Bounce time: **FAST TRACK** (orchestrator step -- runs install, compile, test)
 |------|----------|-----|-----------|--------|
 | 1 | Input | Orchestrator | Loads implementation code, test suite, package manifest | Context ready |
 | 2 | Execute | Orchestrator | Runs `npm install` (or equivalent), compiles TypeScript / builds project, runs full test suite (`npm test`) | Execution report |
-| 3 | QG | Agent: Quality Gate | Checks: install success, compile success (0 errors), test pass rate, coverage thresholds | PASS / WARN / FAIL |
-| 4 | Review | Person: SD or TL | Reviews execution report, checks for flaky tests or environment issues | Feedback |
-| 5 | Fix | Agent: Implementation | Fixes compile errors or failing tests --> back to step 2 | Revised code |
-| 6 | Approve | Person: SD or TL | Types `APPROVED` (quorum: 1 of 2) | Phase complete |
-| 7a | Trace | Agent: Traceability | Updates matrix: Test --> Pass/Fail status, coverage % | `traceability.md` updated |
-| 7b | KC | Agent: Knowledge | Captures build issues, test failures, environment quirks | `execution.yaml` |
+| 3 | Fix Loop | Orchestrator + Agent: Implementation | On failure: categorize error, re-dispatch implementation/testing agent, re-run (max 3 iterations) | Revised code |
+| 4 | Update State | Orchestrator | Writes `execution-report.md`, sets `execution.status` (passed/failed), proceeds to Review or escalates | Phase complete |
 
-**Note:** This is an orchestrator step, not an agent phase. The orchestrator runs actual commands (install, compile, test) and produces an execution report. If tests fail, the Implementation Agent is called back to fix issues.
-
-**Approval:** 1 of [Senior Developer, Tech Lead]
+**Note:** Automated orchestrator step — no human approval gate. The orchestrator runs actual commands (install, compile, test) and produces an execution report. If tests fail, the Implementation Agent is called back to fix issues (up to 3 iterations). If still failing after 3 iterations, escalates to user.
 
 ### 2.7 Review Phase
 
@@ -229,7 +217,7 @@ Bounce time: **DEEP DIVE** (full hallucination check, security audit)
 | Step | Activity | Who | Does What | Output |
 |------|----------|-----|-----------|--------|
 | 1 | Input | Orchestrator | Loads implementation artifacts, QG results, traceability matrix, contracts, execution report | Context ready |
-| 2 | Generate | Agent: Review | Runs 5-category review: hallucination (25%), security (25%), code quality (20%), logic (20%), performance (10%). Checks traceability conformance, contract conformance, and execution report | Review report |
+| 2 | Generate | Agent: Review | Runs 5-category review: hallucination (30%), security (25%), code quality (20%), logic (15%), performance (10%). Checks traceability conformance, contract conformance, and execution report | Review report |
 | 3 | QG | Agent: Quality Gate | Validates review completeness (all categories checked, no skipped files) | PASS / WARN / FAIL |
 | 4 | Review | Person: (Requestor) | Reviews findings, confirms or disputes issues | Feedback |
 | 5 | Refine | Agent: Review | Re-evaluates disputed findings, adjusts scores --> back to step 3 | Revised report |
@@ -323,7 +311,7 @@ Bounce time: **STANDARD** (checklist-driven)
 #### Requirements Agent
 
 - **Active in:** Requirements (step 2 + 5)
-- **Input:** PRD from `docs/features/`
+- **Input:** PRD from `{workspace}/prd.md`
 - **Output:** Structured requirements (stories, ACs, NFRs, test skeletons, ambiguity scores)
 - **Key rule:** Every AC must be GIVEN-WHEN-THEN. Every requirement scored for ambiguity (must be < 50). Test skeletons generated alongside requirements (continuous test creation).
 - **Process:** Parse --> Detect Ambiguities --> Generate PRD --> Create Stories --> Define NFRs --> Write ACs --> Generate Test Skeletons --> Build Traceability --> Score Ambiguity
@@ -348,7 +336,7 @@ Bounce time: **STANDARD** (checklist-driven)
 
 - **Active in:** Review (step 2 + 5)
 - **Input:** Implementation artifacts, QG results, traceability matrix, contracts, execution report
-- **Output:** Review report with scores (hallucination 25%, security 25%, code quality 20%, logic 20%, performance 10%)
+- **Output:** Review report with scores (hallucination 30%, security 25%, code quality 20%, logic 15%, performance 10%)
 - **Key rule:** Primary mission is catching AI hallucinations. Skips what QG already checked (package verification, file size). Checks hallucination detection, security vulnerabilities, logic correctness, performance patterns, contract conformance, and execution report results.
 - **Verdict:** APPROVE (>= 80, no critical) / COMMENT (>= 60) / REQUEST_CHANGES (< 60 or critical failures)
 
@@ -387,7 +375,7 @@ Bounce time: **STANDARD** (checklist-driven)
 
 - **Active in:** Requirements (step 7a, initialize), Design + Implementation + Testing (step 7a, update), Review (step 7a, validate), On-change (impact analysis)
 - **Input:** Phase artifacts + existing matrix
-- **Output:** Updated `traceability.md` with live REQ-to-Test-to-Code linking
+- **Output:** Updated `traceability.yaml` with live REQ-to-Test-to-Code linking
 - **Four modes:** Initialize (REQ phase), Update (DES/IMP/TST phases), Validate (any phase), Impact Analysis (on change)
 - **Orphan detection:** REQ without Story = FAIL, Story without AC = FAIL, AC without Test = WARN (REQ phase) / FAIL (TST phase), Test without AC = WARN, Component without REQ = WARN, File without Component = WARN
 

@@ -2,7 +2,7 @@
 
 > Workflow for urgent production incidents (P0/P1) within the V-Bounce SDLC framework.
 >
-> **Version:** 1.0.0 | **Framework:** V-Bounce v2.0.0
+> **Version:** 1.0.0 | **Framework:** V-Bounce v5.0.0
 > **See also:** [Bugfix Workflow](workflows-bugfix-track.md) for P2/P3 non-urgent bugs.
 
 ---
@@ -54,7 +54,7 @@ flowchart LR
 
 ## 2. Phase Anatomy
 
-Every phase follows a **6-activity cycle** (same as bugfix/feature):
+Every phase follows a **7-activity cycle** (same as bugfix/feature):
 
 ```mermaid
 flowchart TD

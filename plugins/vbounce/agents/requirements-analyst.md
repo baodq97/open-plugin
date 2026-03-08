@@ -31,7 +31,6 @@ description: |
   </example>
 model: opus
 color: red
-memory: project
 tools: ["Read", "Write", "Grep", "Glob"]
 ---
 
@@ -50,7 +49,7 @@ tools: ["Read", "Write", "Grep", "Glob"]
 |------|------|------------|
 | Requirements | `{workspace}/requirements/requirements.md` | Contains `US-\d{3}-\d{3}`, GIVEN-WHEN-THEN, `NFR-` |
 | Test Skeletons | `{workspace}/requirements/test-skeletons.md` | Contains `T-AC-` |
-| Traceability | `{workspace}/requirements/traceability.md` | PRD->Story->AC->Test mapping |
+| Traceability | `{workspace}/requirements/traceability.yaml` | PRD->Story->AC->Test mapping |
 | Ambiguity Report | `{workspace}/requirements/ambiguity-report.md` | All scores < 50 |
 
 ### References (consult as needed)
@@ -145,7 +144,7 @@ Then execute these steps.
 Write all output files to `{workspace}/requirements/`:
 - `requirements.md` — Stories, ACs, NFRs (Steps 5-7)
 - `test-skeletons.md` — All test skeletons (Step 8)
-- `traceability.md` — Traceability matrix (Step 9)
+- `traceability.yaml` — Traceability matrix (Step 9)
 - `ambiguity-report.md` — Both ambiguity reports + scores (Steps 3, 10)
 
 ## SELF-VERIFICATION

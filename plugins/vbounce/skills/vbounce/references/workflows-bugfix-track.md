@@ -2,23 +2,23 @@
 
 > Workflow for non-urgent bugs (P2/P3) within the V-Bounce SDLC framework.
 >
-> **Version:** 1.0.0 | **Framework:** V-Bounce v2.0.0
+> **Version:** 1.0.0 | **Framework:** V-Bounce v5.0.0
 > **See also:** [Hotfix Workflow](workflows-hotfix-track.md) for P0/P1 production incidents.
 
 ---
 
 ## 1. Overview
 
-The feature workflow (7 phases, PRD-driven) is designed for greenfield development. Bugfixes differ fundamentally:
+The feature workflow (8 phases, PRD-driven) is designed for greenfield development. Bugfixes differ fundamentally:
 
 | Dimension | Feature | Bugfix |
 |-----------|---------|--------|
 | **Trigger** | Business need / PRD | QA finding / regression |
-| **Input** | PRD in `docs/features/` | Bug ticket / test failure |
+| **Input** | PRD in `{workspace}/prd.md` | Bug ticket / test failure |
 | **Time pressure** | Planned sprint | Normal priority |
 | **Design needed** | Full architecture | Impact analysis only |
 | **Phases** | 7 (Requirements → Deploy) | **6** (Triage → Deploy) |
-| **Test scope** | Full 40/30/20/10 suite | Module regression + edge cases |
+| **Test scope** | Full 40/20/10/10/10/10 suite | Module regression + edge cases |
 | **Prod approval** | 2/3 quorum | 2/3 quorum |
 
 ### Track Selection
@@ -50,7 +50,7 @@ flowchart LR
 
 ## 2. Phase Anatomy
 
-Every phase follows a **6-activity cycle** adapted from the feature workflow:
+Every phase follows a **7-activity cycle** adapted from the feature workflow:
 
 ```mermaid
 flowchart TD
@@ -260,7 +260,7 @@ Uses Testing agent in regression mode.
 - Run fix verification tests (new tests proving the fix works)
 - Run existing test suite for affected modules (must still pass)
 - Generate ≥ 2 edge case tests around the fix boundary
-- Do NOT run full 40/30/20/10 distribution — that's for feature work
+- Do NOT run full 40/20/10/10/10/10 distribution — that's for feature work
 
 ### 3.6 Deploy Phase
 
@@ -436,7 +436,7 @@ Bugfix traceability is lighter than feature traceability:
 | Feature Traceability | Bugfix Traceability |
 |---------------------|---------------------|
 | REQ → Story → AC → Component → API → File → Test | BUG → Root Cause → Fix → Regression Test → Verification Test |
-| Full matrix maintained across 7 phases | Compact chain maintained across 6 phases |
+| Full matrix maintained across 8 phases | Compact chain maintained across 6 phases |
 | Orphan detection (REQ without test = FAIL) | Gap detection (bug without regression test = FAIL) |
 
 ```yaml

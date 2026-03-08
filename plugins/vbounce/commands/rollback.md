@@ -9,7 +9,7 @@ Rollback to a previous phase in the current V-Bounce cycle. User must provide th
 
 1. Read `.vbounce/state.yaml` to get the active workspace
 2. Read `{workspace}/state.yaml` to get the current phase
-3. Valid target phases: requirements, design, testing, implementation, review
+3. Valid target phases: requirements, design, contracts, testing, implementation, execution, review
 4. Validate: target phase must be BEFORE current phase in the sequence
 5. Reset the target phase status to `not_started`
 6. Reset all phases AFTER the target to `not_started`

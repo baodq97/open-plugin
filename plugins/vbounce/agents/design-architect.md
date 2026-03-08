@@ -31,7 +31,6 @@ description: |
   </example>
 model: opus
 color: blue
-memory: project
 tools: ["Read", "Write", "Grep", "Glob", "WebSearch"]
 ---
 
@@ -42,7 +41,7 @@ tools: ["Read", "Write", "Grep", "Glob", "WebSearch"]
 |------|------|----------|
 | Requirements | `{workspace}/requirements/requirements.md` | YES |
 | Test Skeletons | `{workspace}/requirements/test-skeletons.md` | YES |
-| Traceability | `{workspace}/requirements/traceability.md` | YES |
+| Traceability | `{workspace}/requirements/traceability.yaml` | YES |
 | Cycle State | `{workspace}/state.yaml` | YES |
 | Learned Rules | `.claude/rules/vbounce-learned-rules.md` | NO |
 | Project Config | `.claude/vbounce.local.md` | NO |
@@ -55,7 +54,7 @@ tools: ["Read", "Write", "Grep", "Glob", "WebSearch"]
 | API Specification | `{workspace}/design/api-spec.md` | Every US-* maps to >= 1 endpoint |
 | Database Schema | `{workspace}/design/database-schema.md` | Contains ER diagram (Mermaid), migration plan |
 | ADRs | `{workspace}/design/architecture-decisions.md` | >= 1 ADR with alternatives considered |
-| Traceability | `{workspace}/design/traceability.md` | REQ->Story->API->Component->STRIDE->ADR |
+| Traceability | `{workspace}/design/traceability.yaml` | REQ->Story->API->Component->STRIDE->ADR |
 | Test Impact | `{workspace}/design/test-impact.md` | Unit/Integration/Security test plan |
 | Test Specifications | `{workspace}/design/test-specifications.md` | ITS-*, STS-*, SECTS-* specs |
 
