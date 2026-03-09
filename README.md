@@ -11,18 +11,17 @@ Open-source plugin marketplace for [Claude Code](https://docs.anthropic.com/en/d
 
 ## Install
 
-### Browse marketplace
+### Add marketplace
 
 ```bash
-# Add as known marketplace, then browse
-claude plugin browse --marketplace https://github.com/baodq97/open-plugin.git
+claude plugin marketplace add https://github.com/baodq97/open-plugin
 ```
 
 ### Install a specific plugin
 
 ```bash
-claude plugin install --from https://github.com/baodq97/open-plugin.git vbounce
-claude plugin install --from https://github.com/baodq97/open-plugin.git skills-ontology
+claude plugin install vbounce
+claude plugin install skills-ontology
 ```
 
 ## Repository Structure

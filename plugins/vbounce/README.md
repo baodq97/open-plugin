@@ -5,7 +5,11 @@ V-Bounce orchestrates a complete software development lifecycle with 12 speciali
 ## Install
 
 ```bash
-claude plugin install --from https://github.com/baodq97/open-plugin.git vbounce
+# Add marketplace first
+claude plugin marketplace add https://github.com/baodq97/open-plugin
+
+# Then install
+claude plugin install vbounce
 ```
 
 ## Architecture
