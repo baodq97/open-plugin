@@ -1,0 +1,9 @@
+{
+  "name": "design-thinking",
+  "description": "Design Thinking PRD Generator — guides users from raw pain points through Empathize, Define, Ideate, Prototype, and PRD compilation to produce vbounce-compatible Product Requirements Documents",
+  "version": "1.0.0",
+  "author": {
+    "name": "open-plugins contributors"
+  },
+  "license": "MIT"
+}

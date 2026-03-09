@@ -20,6 +20,13 @@
       "source": "./plugins/skills-ontology",
       "category": "productivity",
       "version": "1.2.0"
+    },
+    {
+      "name": "design-thinking",
+      "description": "Design Thinking PRD Generator — guides users from raw pain points through Empathize, Define, Ideate, Prototype, and PRD compilation to produce vbounce-compatible Product Requirements Documents",
+      "source": "./plugins/design-thinking",
+      "category": "development",
+      "version": "1.0.0"
     }
   ]
 }
