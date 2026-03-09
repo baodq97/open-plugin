@@ -1,12 +1,12 @@
 # open-plugins — Claude Code Plugin Marketplace
 
-Open-source plugin marketplace for Claude Code.
+Open-source plugin marketplace for [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
 ## Plugins
 
 | Plugin | Version | Description |
 |--------|---------|-------------|
-| [vbounce](plugins/vbounce/) | 2.0.0 | V-Bounce AI-Native SDLC Orchestrator — 9 sub-agents for requirements, design, implementation, review, testing, deployment, knowledge, quality gates, and traceability |
+| [vbounce](plugins/vbounce/) | 5.1.0 | V-Bounce AI-Native SDLC Orchestrator — 12 agents with unified TDD, per-phase QG, mixed-model assignment, and tech-aware context injection |
 | [skills-ontology](plugins/skills-ontology/) | 1.2.0 | Intelligent skill management — turns flat skill directories into a structured knowledge graph with routing, chaining, and usage tracking |
 
 ## Install
@@ -15,14 +15,14 @@ Open-source plugin marketplace for Claude Code.
 
 ```bash
 # Add as known marketplace, then browse
-claude plugin browse --marketplace <this-repo-url>
+claude plugin browse --marketplace https://github.com/baodq97/open-plugin.git
 ```
 
 ### Install a specific plugin
 
 ```bash
-claude plugin install --from <this-repo-url> vbounce
-claude plugin install --from <this-repo-url> skills-ontology
+claude plugin install --from https://github.com/baodq97/open-plugin.git vbounce
+claude plugin install --from https://github.com/baodq97/open-plugin.git skills-ontology
 ```
 
 ## Repository Structure
@@ -32,12 +32,13 @@ claude plugin install --from <this-repo-url> skills-ontology
 ├── .claude-plugin/
 │   └── marketplace.json          # Marketplace manifest
 ├── plugins/
-│   ├── vbounce/                  # V-Bounce SDLC Orchestrator
+│   ├── vbounce/                  # V-Bounce SDLC Orchestrator v5.1
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json
-│   │   ├── skills/               # 10 skills (orchestrator + 9 sub-agents)
-│   │   └── agents/               # 9 agents
-│   └── skills-ontology/          # Skills Ontology
+│   │   ├── skills/               # Orchestrator skill + 16 shared references
+│   │   ├── agents/               # 12 agents (req, design, impl, review, deploy, KC, trace, 4x QG, testing)
+│   │   └── commands/             # 8 slash commands
+│   └── skills-ontology/          # Skills Ontology v1.2
 │       ├── .claude-plugin/
 │       │   └── plugin.json
 │       ├── commands/
@@ -46,6 +47,7 @@ claude plugin install --from <this-repo-url> skills-ontology
 │       ├── src/
 │       └── bin/
 ├── README.md
+├── .gitignore
 └── LICENSE
 ```
 

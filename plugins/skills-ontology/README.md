@@ -5,7 +5,7 @@ Manages skill registries, relationship graphs, and usage tracking for Claude Cod
 ## Install
 
 ```bash
-claude plugin install --from <marketplace-url> skills-ontology
+claude plugin install --from https://github.com/baodq97/open-plugin.git skills-ontology
 ```
 
 ## Components
