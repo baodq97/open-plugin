@@ -27,6 +27,13 @@
       "source": "./plugins/design-thinking",
       "category": "development",
       "version": "1.0.0"
+    },
+    {
+      "name": "sa-playbook",
+      "description": "Solution Architecture Playbook — guides developers and tech leads through SA tasks using SFIA 9 framework with 5-phase workflow (Discover → Define → Design → Decide → Deliver), inline coaching, and architecture assessment",
+      "source": "./plugins/sa-playbook",
+      "category": "development",
+      "version": "1.0.0"
     }
   ]
 }

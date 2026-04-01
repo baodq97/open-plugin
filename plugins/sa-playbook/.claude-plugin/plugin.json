@@ -1,0 +1,9 @@
+{
+  "name": "sa-playbook",
+  "version": "1.0.0",
+  "description": "Solution Architecture Playbook — guides developers and tech leads through SA tasks using SFIA 9 framework, with phase-based workflow (Discover → Define → Design → Decide → Deliver), inline coaching, and architecture assessment",
+  "author": {
+    "name": "open-plugins contributors"
+  },
+  "license": "MIT"
+}
