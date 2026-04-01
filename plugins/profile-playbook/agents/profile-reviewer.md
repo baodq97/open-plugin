@@ -1,6 +1,7 @@
 ---
 name: profile-reviewer
-description: Use this agent when the user wants to review or assess work quality against SFIA criteria, evaluate a document, or get feedback on role-specific output. Supports all roles (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO). Examples:
+description: |
+  Use this agent when the user wants to review or assess work quality against SFIA criteria, evaluate a document, or get feedback on role-specific output. Supports all roles (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO). Examples:
 
   <example>
   Context: User has completed an architecture document and wants quality feedback
