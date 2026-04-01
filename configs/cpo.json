@@ -1,0 +1,19 @@
+{
+  "role_family": "Product Management",
+  "role_name": "Product Management Practitioners",
+  "role_description": "Roles responsible for defining product vision, strategy, and roadmaps, ensuring products deliver value to customers and align with business objectives through market insight, stakeholder collaboration, and continuous innovation.",
+  "role_description_short": "product management",
+  "example_titles": [
+    "Chief Product Officer",
+    "CPO",
+    "VP of Product",
+    "Head of Product",
+    "Director of Product Management",
+    "Senior Product Manager",
+    "Product Manager",
+    "Associate Product Manager"
+  ],
+  "primary_skills": ["PROD", "ITSP", "RLMT", "BUSA", "MRCH"],
+  "secondary_skills": ["INOV", "EMRG", "ARCH", "TECH", "GOVN"],
+  "output_file": "cpo-role-profile.md"
+}

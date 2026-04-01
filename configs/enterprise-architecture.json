@@ -1,0 +1,20 @@
+{
+  "role_family": "Enterprise Architecture",
+  "role_name": "Enterprise Architecture Practitioners",
+  "role_description": "Roles responsible for developing, maintaining, communicating and governing Enterprise Architectures and roadmaps, ensuring alignment with corporate strategies, business goals and technology strategies and plans.",
+  "role_description_short": "enterprise architecture",
+  "example_titles": [
+    "Enterprise Architect",
+    "Lead Enterprise Architect",
+    "Chief Enterprise Architect",
+    "Data Architect",
+    "Infrastructure Architect",
+    "Innovation Architect",
+    "Business Architect",
+    "Strategy Architect",
+    "Security Architect"
+  ],
+  "primary_skills": ["STPL", "METL", "NTDS", "ITSP", "GOVN", "REQM"],
+  "secondary_skills": ["DTAN", "DATM", "SCTY", "DEMM", "ISCO", "INOV", "EMRG", "OCDV", "ORDI", "CNSL", "BPRE", "BUSA", "FEAS", "BSMO", "RLMT"],
+  "output_file": "enterprise-architecture-role-profile.md"
+}

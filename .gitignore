@@ -18,3 +18,27 @@ Thumbs.db
 # Environment
 .env
 .env.*
+
+# Claude Code local settings and skills
+.claude/
+
+# Playwright MCP snapshots
+.playwright-mcp/
+
+# SA Playbook session data (per-project, not shared)
+.sa-playbook/
+
+# PO Playbook session data (per-project, not shared)
+.po-playbook/
+
+# BA Playbook session data (per-project, not shared)
+.ba-playbook/
+
+# Screenshot artifacts
+*.png
+
+# Generated presentation scripts
+docs/superpowers/
+
+# Raw source data
+raws/

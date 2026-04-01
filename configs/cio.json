@@ -1,0 +1,18 @@
+{
+  "role_family": "IT Leadership",
+  "role_name": "Chief Information Officer",
+  "role_description": "Executive leadership role with strategic accountability for the information technology function, ensuring IT strategy, investment, and governance align with and enable the organisation's business objectives.",
+  "role_description_short": "IT leadership",
+  "example_titles": [
+    "Chief Information Officer",
+    "CIO",
+    "Head of IT",
+    "IT Director",
+    "Director of Information Technology",
+    "Director of IT",
+    "VP of Information Technology"
+  ],
+  "primary_skills": ["SLMO", "ITSP", "ISCO", "IRMG", "ITMG", "STPL", "GOVN", "RLMT"],
+  "secondary_skills": ["BURM", "OCDV", "FMIT", "SUPP", "QUMG", "DEMM", "DLMG", "SLEN"],
+  "output_file": "cio-role-profile.md"
+}

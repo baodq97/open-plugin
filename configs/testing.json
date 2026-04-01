@@ -1,0 +1,20 @@
+{
+  "role_family": "Testing",
+  "role_name": "Testing Practitioners",
+  "role_description": "Roles responsible for the analysis of software and systems to reduce risk and prevent issues.",
+  "role_description_short": "testing",
+  "example_titles": [
+    "Tester",
+    "Test Manager",
+    "Test Architect",
+    "Test Automation Analyst",
+    "Test Programme Manager",
+    "Test Analyst",
+    "Cloud Test Analyst",
+    "Junior Tester",
+    "Lead Test Analyst"
+  ],
+  "primary_skills": ["TEST", "QUAS", "BPTS", "METL"],
+  "secondary_skills": ["USEV", "PENT", "BURM", "TECH"],
+  "output_file": "testing-role-profile.md"
+}

@@ -8,6 +8,7 @@ Open-source plugin marketplace for [Claude Code](https://docs.anthropic.com/en/d
 |--------|---------|-------------|
 | [vbounce](plugins/vbounce/) | 5.1.0 | V-Bounce AI-Native SDLC Orchestrator — 12 agents with unified TDD, per-phase QG, mixed-model assignment, and tech-aware context injection |
 | [design-thinking](plugins/design-thinking/) | 1.0.0 | Design Thinking PRD Generator — guides users from pain points through Empathize, Define, Ideate, Prototype to produce vbounce-compatible PRDs |
+| [profile-playbook](plugins/profile-playbook/) | 1.0.0 | SFIA 9 Profile Playbook — 9 role-based playbooks (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO) with phase-based workflows, inline SFIA coaching, and competency assessment |
 | [skills-ontology](plugins/skills-ontology/) | 1.2.0 | Intelligent skill management — turns flat skill directories into a structured knowledge graph with routing, chaining, and usage tracking |
 
 ## Install
@@ -23,6 +24,7 @@ claude plugin marketplace add https://github.com/baodq97/open-plugin
 ```bash
 claude plugin install vbounce
 claude plugin install design-thinking
+claude plugin install profile-playbook
 claude plugin install skills-ontology
 ```
 
@@ -45,6 +47,12 @@ claude plugin install skills-ontology
 │   │   ├── skills/               # Orchestrator skill + 10 shared references
 │   │   ├── agents/               # 6 agents (empathy, define, ideate, prototype, prd, QG)
 │   │   └── commands/             # 6 slash commands
+│   ├── profile-playbook/         # SFIA 9 Profile Playbook v1.0
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json
+│   │   ├── skills/               # 9 role-specific skills (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO)
+│   │   ├── agents/               # 2 shared agents (profile-guide, profile-reviewer)
+│   │   └── commands/             # 5 shared commands (start, assess, coach, next, status)
 │   └── skills-ontology/          # Skills Ontology v1.2
 │       ├── .claude-plugin/
 │       │   └── plugin.json

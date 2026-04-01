@@ -1,0 +1,18 @@
+{
+  "role_family": "Technology Leadership",
+  "role_name": "Chief Technology Officer",
+  "role_description": "Executive leadership role with accountability for technology vision, innovation, and technical direction, evaluating and exploiting emerging technologies to advance the organisation's products, services, and competitive position.",
+  "role_description_short": "technology leadership",
+  "example_titles": [
+    "Chief Technology Officer",
+    "CTO",
+    "VP of Technology",
+    "Head of Technology",
+    "Director of Technology",
+    "VP Engineering",
+    "Chief Engineer"
+  ],
+  "primary_skills": ["STPL", "ITSP", "EMRG", "GOVN", "DLMG", "TECH"],
+  "secondary_skills": ["INOV", "ITMG", "RLMT", "OCDV", "BURM", "SUPP", "ISCO", "FMIT"],
+  "output_file": "cto-role-profile.md"
+}

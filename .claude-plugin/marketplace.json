@@ -27,6 +27,13 @@
       "source": "./plugins/design-thinking",
       "category": "development",
       "version": "1.0.0"
+    },
+    {
+      "name": "profile-playbook",
+      "description": "SFIA 9 Profile Playbook — unified collection of role-based playbooks (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO) with phase-based workflows, inline SFIA coaching, and competency assessment",
+      "source": "./plugins/profile-playbook",
+      "category": "development",
+      "version": "1.0.0"
     }
   ]
 }

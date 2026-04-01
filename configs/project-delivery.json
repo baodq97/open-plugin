@@ -1,0 +1,18 @@
+{
+  "role_family": "Project Delivery",
+  "role_name": "Project Delivery Practitioners",
+  "role_description": "Roles responsible for the delivery of projects, programmes and portfolios.",
+  "role_description_short": "project delivery",
+  "example_titles": [
+    "Programme Manager",
+    "Programme Director",
+    "Portfolio Manager",
+    "Project Manager",
+    "Project Analyst",
+    "Project Office Manager",
+    "Project Office Analyst"
+  ],
+  "primary_skills": ["POMG", "PGMG", "PRMG", "PROF"],
+  "secondary_skills": ["BENM", "RLMT", "METL", "DEMM", "ISCO", "MEAS", "CIPM", "INVA", "FMIT"],
+  "output_file": "project-delivery-role-profile.md"
+}
