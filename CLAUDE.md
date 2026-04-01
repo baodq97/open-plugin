@@ -33,6 +33,20 @@ open-plugins/
 │   │   │       └── references/       # 10 shared reference files
 │   │   ├── commands/                  # 6 slash commands (start, status, approve, revisit, export, handoff)
 │   │   └── agents/                   # 6 agents (empathy, define, ideate, prototype, prd, QG)
+│   ├── profile-playbook/              # SFIA 9 Profile Playbook (unified, 9 roles)
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── skills/                    # 9 auto-activating skills (1 per role)
+│   │   │   ├── sa-playbook/           # Solution Architecture
+│   │   │   ├── po-playbook/           # Product Owner
+│   │   │   ├── ba-playbook/           # Business Analysis
+│   │   │   ├── testing-playbook/      # Testing
+│   │   │   ├── pm-playbook/           # Project Management
+│   │   │   ├── ea-playbook/           # Enterprise Architecture
+│   │   │   ├── cio-playbook/          # CIO / IT Leadership
+│   │   │   ├── cto-playbook/          # CTO / Technology Leadership
+│   │   │   └── cpo-playbook/          # CPO / Product Leadership
+│   │   ├── commands/                  # 5 shared commands (start, assess, coach, next, status)
+│   │   └── agents/                    # 2 shared agents (profile-guide, profile-reviewer)
 │   └── skills-ontology/              # Skills Ontology plugin
 │       ├── .claude-plugin/plugin.json
 │       ├── commands/
@@ -66,6 +80,15 @@ open-plugins/
 - Pure skill/agent definitions (markdown + YAML frontmatter)
 - No code dependencies
 - Produces vbounce-compatible PRDs (couples only on PRD file format)
+
+### profile-playbook plugin
+- Pure skill/agent definitions (markdown + YAML frontmatter)
+- No code dependencies
+- Multi-skill architecture: 9 role-specific skills share 5 commands and 2 agents
+- Each skill auto-activates based on trigger keywords in its SKILL.md description
+- Commands/agents read `state.yaml` → `role` field to load the correct skill's references
+- Session workspace: `.profile-playbook/sessions/{CODE}-{PROJECT}-{YYYYMMDD}-{SEQ}/`
+- Roles: sa, po, ba, testing, pm, ea, cio, cto, cpo
 
 ## Test
 

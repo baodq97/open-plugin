@@ -1,0 +1,10 @@
+{
+  "name": "profile-playbook",
+  "version": "1.0.0",
+  "description": "SFIA 9 Profile Playbook — a unified collection of role-based playbooks (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO) with phase-based workflows, inline SFIA coaching, and competency assessment",
+  "author": {
+    "name": "open-plugins contributors"
+  },
+  "license": "MIT",
+  "keywords": ["sfia", "playbook", "coaching", "architecture", "product", "testing", "project-management", "enterprise-architecture", "leadership"]
+}
