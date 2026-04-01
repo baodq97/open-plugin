@@ -1,6 +1,7 @@
 ---
 name: profile-guide
-description: Use this agent when the user needs guided assistance through any SFIA playbook phase, wants help creating role-specific artifacts, or is working on tasks that require step-by-step guidance. Supports all roles (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO). Examples:
+description: |
+  Use this agent when the user needs guided assistance through any SFIA playbook phase, wants help creating role-specific artifacts, or is working on tasks that require step-by-step guidance. Supports all roles (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO). Examples:
 
   <example>
   Context: User has started an SA session and is in the Discover phase
