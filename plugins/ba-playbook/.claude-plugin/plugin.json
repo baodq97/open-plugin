@@ -1,0 +1,19 @@
+{
+  "name": "ba-playbook",
+  "version": "1.0.0",
+  "description": "Business Analysis Playbook — guides developers, analysts and aspiring BAs through business analysis tasks using SFIA 9 framework with a 5-phase workflow (Discover → Define → Analyze → Design → Deliver & Validate), inline coaching, and competency assessment.",
+  "author": {
+    "name": "open-plugins contributors"
+  },
+  "repository": "https://github.com/anthropics/open-plugins",
+  "license": "MIT",
+  "keywords": [
+    "business-analysis",
+    "business-analyst",
+    "sfia",
+    "requirements",
+    "process-improvement",
+    "feasibility",
+    "data-modelling"
+  ]
+}

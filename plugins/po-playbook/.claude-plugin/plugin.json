@@ -1,0 +1,19 @@
+{
+  "name": "po-playbook",
+  "version": "1.0.0",
+  "description": "Product Owner Playbook — guides developers, product managers and aspiring POs through product management tasks using SFIA 9 framework with a 5-phase workflow (Discover → Define → Prioritize → Plan → Deliver & Learn), inline coaching, and competency assessment.",
+  "author": {
+    "name": "open-plugins contributors"
+  },
+  "repository": "https://github.com/anthropics/open-plugins",
+  "license": "MIT",
+  "keywords": [
+    "product-owner",
+    "product-management",
+    "sfia",
+    "agile",
+    "backlog",
+    "roadmap",
+    "prioritization"
+  ]
+}
