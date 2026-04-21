@@ -47,14 +47,20 @@ open-plugins/
 │   │   │   └── cpo-playbook/          # CPO / Product Leadership
 │   │   ├── commands/                  # 5 shared commands (start, assess, coach, next, status)
 │   │   └── agents/                    # 2 shared agents (profile-guide, profile-reviewer)
-│   └── skills-ontology/              # Skills Ontology plugin
+│   ├── skills-ontology/              # Skills Ontology plugin
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── commands/
+│   │   ├── hooks/
+│   │   ├── rules/
+│   │   ├── src/
+│   │   ├── bin/
+│   │   └── test/
+│   └── chom/                         # chom GitHub skill installer v1.0
 │       ├── .claude-plugin/plugin.json
-│       ├── commands/
-│       ├── hooks/
-│       ├── rules/
-│       ├── src/
-│       ├── bin/
-│       └── test/
+│       ├── skills/
+│       │   └── chom/                 # Single chom skill
+│       │       └── SKILL.md
+│       └── README.md
 ├── LICENSE
 └── .npmignore
 ```
@@ -89,6 +95,13 @@ open-plugins/
 - Commands/agents read `state.yaml` → `role` field to load the correct skill's references
 - Session workspace: `.profile-playbook/sessions/{CODE}-{PROJECT}-{YYYYMMDD}-{SEQ}/`
 - Roles: sa, po, ba, testing, pm, ea, cio, cto, cpo
+
+### chom plugin
+- Pure skill definition (markdown + YAML frontmatter) — single `SKILL.md`, no code, no agents, no commands, no hooks
+- The skill teaches Claude how to sparse-clone a target skill folder from a GitHub URL, copy only that folder into `~/.claude/skills/<name>/`, and clean up the temp dir via a `trap` so aborts don't leave artifacts
+- Install scope is strictly user-level — the skill refuses to install into plugin dirs, the CWD, or anywhere outside `~/.claude/skills/`
+- Supports three URL shapes: `tree/REF/PATH` (subfolder skills), `blob/REF/PATH/SKILL.md` (strip filename), and mono-skill repos (whole repo is the skill). Gist / raw / ZIP URLs are rejected
+- Optional light-description optimization is opt-in only; heavy optimization (eval loop) defers to `skill-creator`
 
 ## Test
 

@@ -10,6 +10,7 @@ Open-source plugin marketplace for [Claude Code](https://docs.anthropic.com/en/d
 | [design-thinking](plugins/design-thinking/) | 1.0.0 | Design Thinking PRD Generator — guides users from pain points through Empathize, Define, Ideate, Prototype to produce vbounce-compatible PRDs |
 | [profile-playbook](plugins/profile-playbook/) | 1.0.0 | SFIA 9 Profile Playbook — 9 role-based playbooks (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO) with phase-based workflows, inline SFIA coaching, and competency assessment |
 | [skills-ontology](plugins/skills-ontology/) | 1.2.0 | Intelligent skill management — turns flat skill directories into a structured knowledge graph with routing, chaining, and usage tracking |
+| [chom](plugins/chom/) | 1.0.0 | Install Claude Code skills from GitHub URLs — clones to a temp dir, copies only the target skill folder into `~/.claude/skills/`, cleans up, and optionally rewrites the skill's description for better auto-triggering |
 
 ## Install
 
@@ -26,6 +27,7 @@ claude plugin install vbounce
 claude plugin install design-thinking
 claude plugin install profile-playbook
 claude plugin install skills-ontology
+claude plugin install chom
 ```
 
 ## Repository Structure
@@ -53,14 +55,19 @@ claude plugin install skills-ontology
 │   │   ├── skills/               # 9 role-specific skills (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO)
 │   │   ├── agents/               # 2 shared agents (profile-guide, profile-reviewer)
 │   │   └── commands/             # 5 shared commands (start, assess, coach, next, status)
-│   └── skills-ontology/          # Skills Ontology v1.2
+│   ├── skills-ontology/          # Skills Ontology v1.2
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json
+│   │   ├── commands/
+│   │   ├── hooks/
+│   │   ├── rules/
+│   │   ├── src/
+│   │   └── bin/
+│   └── chom/                     # chom GitHub skill installer v1.0
 │       ├── .claude-plugin/
 │       │   └── plugin.json
-│       ├── commands/
-│       ├── hooks/
-│       ├── rules/
-│       ├── src/
-│       └── bin/
+│       ├── skills/               # Single chom skill (SKILL.md)
+│       └── README.md
 ├── README.md
 ├── .gitignore
 └── LICENSE
