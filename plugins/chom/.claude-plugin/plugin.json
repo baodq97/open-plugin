@@ -1,0 +1,9 @@
+{
+  "name": "chom",
+  "description": "Install Claude Code skills from GitHub URLs — clones to a temp dir, copies only the target skill folder into ~/.claude/skills/, cleans up after itself, and optionally rewrites the skill's description for better auto-triggering. Handles subfolder skills in monorepos (e.g. github/awesome-copilot/tree/main/skills/*) and mono-skill repos.",
+  "version": "1.0.0",
+  "author": {
+    "name": "baodq97"
+  },
+  "license": "MIT"
+}
