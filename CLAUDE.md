@@ -55,11 +55,19 @@ open-plugins/
 │   │   ├── src/
 │   │   ├── bin/
 │   │   └── test/
-│   └── chom/                         # chom GitHub skill installer v1.0
+│   ├── chom/                         # chom GitHub skill installer v1.0
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── skills/
+│   │   │   └── chom/                 # Single chom skill
+│   │   │       └── SKILL.md
+│   │   └── README.md
+│   └── swe-flow/                     # SWE Flow v0.1
 │       ├── .claude-plugin/plugin.json
 │       ├── skills/
-│       │   └── chom/                 # Single chom skill
-│       │       └── SKILL.md
+│       │   └── goal-define/          # Goal structuring skill
+│       │       ├── SKILL.md
+│       │       └── references/
+│       │           └── goal-template.md
 │       └── README.md
 ├── LICENSE
 └── .npmignore
@@ -102,6 +110,12 @@ open-plugins/
 - Install scope is strictly user-level — the skill refuses to install into plugin dirs, the CWD, or anywhere outside `~/.claude/skills/`
 - Supports three URL shapes: `tree/REF/PATH` (subfolder skills), `blob/REF/PATH/SKILL.md` (strip filename), and mono-skill repos (whole repo is the skill). Gist / raw / ZIP URLs are rejected
 - Optional light-description optimization is opt-in only; heavy optimization (eval loop) defers to `skill-creator`
+
+### swe-flow plugin
+- Pure skill definitions (markdown + YAML frontmatter)
+- No code dependencies
+- Reusable SWE workflow patterns: goal structuring, task decomposition, planning
+- Skills: `goal-define` (structured goal interview → `/goal` text under 3000 chars)
 
 ## Test
 

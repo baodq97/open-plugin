@@ -41,6 +41,13 @@
       "source": "./plugins/chom",
       "category": "productivity",
       "version": "1.0.0"
+    },
+    {
+      "name": "swe-flow",
+      "description": "Reusable software engineering workflow skills — goal structuring, task decomposition, planning, and execution patterns for Claude Code agents across any codebase",
+      "source": "./plugins/swe-flow",
+      "category": "development",
+      "version": "0.1.0"
     }
   ]
 }

@@ -20,7 +20,7 @@ Thumbs.db
 .env.*
 
 # Claude Code local settings and skills
-.claude/
+.claude/settings.local.json
 
 # Playwright MCP snapshots
 .playwright-mcp/
@@ -42,3 +42,7 @@ docs/superpowers/
 
 # Raw source data
 raws/
+
+# Standalone drafts (not part of any plugin)
+profile-playbook-intro.html
+profile-playbook-teams.md
