@@ -64,10 +64,12 @@ open-plugins/
 │   └── swe-flow/                     # SWE Flow v0.1
 │       ├── .claude-plugin/plugin.json
 │       ├── skills/
-│       │   └── goal-define/          # Goal structuring skill
+│       │   ├── goal-define/          # Goal structuring skill
+│       │   │   ├── SKILL.md
+│       │   │   └── references/goal-template.md
+│       │   └── domain-decompose/     # DDD domain decomposition (+ delta-merge update mode)
 │       │       ├── SKILL.md
-│       │       └── references/
-│       │           └── goal-template.md
+│       │       └── references/       # methodology, output-template, 2 canvases
 │       └── README.md
 ├── LICENSE
 └── .npmignore
@@ -114,8 +116,10 @@ open-plugins/
 ### swe-flow plugin
 - Pure skill definitions (markdown + YAML frontmatter)
 - No code dependencies
-- Reusable SWE workflow patterns: goal structuring, task decomposition, planning
-- Skills: `goal-define` (structured goal interview → `/goal` text under 3000 chars)
+- Reusable SWE workflow patterns: goal structuring, task decomposition, planning, domain modelling
+- Skills:
+  - `goal-define` (structured goal interview → `/goal` text under 3000 chars)
+  - `domain-decompose` (prose domain → bounded contexts / aggregates / entities / value objects / events; writes per-context docs to the invoking project's `docs/domain`, and delta-merges into existing docs on re-run)
 
 ## Test
 

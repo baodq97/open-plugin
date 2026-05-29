@@ -11,7 +11,7 @@ Open-source plugin marketplace for [Claude Code](https://docs.anthropic.com/en/d
 | [profile-playbook](plugins/profile-playbook/) | 1.0.0 | SFIA 9 Profile Playbook — 9 role-based playbooks (SA, PO, BA, Testing, PM, EA, CIO, CTO, CPO) with phase-based workflows, inline SFIA coaching, and competency assessment |
 | [skills-ontology](plugins/skills-ontology/) | 1.2.0 | Intelligent skill management — turns flat skill directories into a structured knowledge graph with routing, chaining, and usage tracking |
 | [chom](plugins/chom/) | 1.0.0 | Install Claude Code skills from GitHub URLs — clones to a temp dir, copies only the target skill folder into `~/.claude/skills/`, cleans up, and optionally rewrites the skill's description for better auto-triggering |
-| [swe-flow](plugins/swe-flow/) | 0.1.0 | Reusable software engineering workflow skills — goal structuring, task decomposition, planning, and execution patterns for Claude Code agents across any codebase |
+| [swe-flow](plugins/swe-flow/) | 0.2.0 | Reusable software engineering workflow skills — goal structuring, task decomposition, planning, and execution patterns for Claude Code agents across any codebase |
 
 ## Install
 
@@ -73,7 +73,7 @@ claude plugin install swe-flow
 │   └── swe-flow/                 # SWE Flow v0.1
 │       ├── .claude-plugin/
 │       │   └── plugin.json
-│       └── skills/               # goal-define skill + references
+│       └── skills/               # goal-define + domain-decompose (DDD + delta-merge) skills
 ├── README.md
 ├── .gitignore
 └── LICENSE
